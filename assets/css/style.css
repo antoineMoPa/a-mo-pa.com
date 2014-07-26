@@ -1,5 +1,5 @@
 body{
-    background:#fff;
+    background:#333;
     color:#000;
     min-height:1000px;
 }
@@ -8,10 +8,8 @@ h1{
     text-align:center;
 }
 
-.fullwidth-canvas{
-    width:100%;
-    position:fixed;
-    top:0;
-    left:0;
-    z-index:-1;
+canvas{
+    margin:0;
+    border-radius:10px;
+    box-shadow:0 0 8px rgba(0,0,0,0.3) inset;
 }

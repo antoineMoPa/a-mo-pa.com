@@ -302,6 +302,15 @@ function hipsterLib(selector){
 		return $;
 	}
     
+    $.fn.trigger = function(eventName){
+        var event = new Event(eventName);
+        this.each(function(){
+			this.element.dispatchEvent(event);
+		});
+
+        return this;
+    }
+
     $.fn.unbind = function(event,listener){
         var $ = this
         this.each(function(){
