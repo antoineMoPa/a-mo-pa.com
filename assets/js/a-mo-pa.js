@@ -6,8 +6,6 @@ $.ready(function(){
     spirals();
 });
 
-
-
 function happySquares(element){
     var canvasSelector = element;
     var canvas = $(canvasSelector).elements[0];
@@ -319,11 +317,11 @@ function frequencies(){
     var coolAmps = [
         {amp:2,speed:30},
         {amp:2190,speed:6},
-        {amp:2755,speed:1},
+        {amp:2755,speed:19},
         {amp:3020,speed:10},
         {amp:1814,speed:2}]
     
-    var colors = ["rgba(255,0,60,0.9)","rgba(200,50,0,0.9)","rgba(150,100,0,0.9)","rgba(100,75,50,0.9)"]
+    var colors = ["rgba(255,0,10,0.9)","rgba(255,10,0,0.9)","rgba(255,30,0,0.9)","rgba(255,25,5,0.9)"]
     var coolAmpsInt = null;
     var currentCoolAmp = 0;
         
