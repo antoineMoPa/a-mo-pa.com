@@ -66,7 +66,7 @@ $.ready(function(){
                         x / c.width * sizeX + 3 * i  * 180
                     )
                     + (6 - 10 * y / c.height);
-                var zYOffset = Math.cos( 3 * j + date % 20000 / 500);
+                var zYOffset = Math.cos( 3 * j + date / 2000);
                 
                 renderer.tris.push(
                         -sizeX/3 + i + j / 3, -0.4 + yOffset + zYOffset, 4 + j * 1.2,

@@ -1,9 +1,11 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,300);
+
 .text-center{
     text-align:center;
 }
 
 body{
-    background:#333;
+    background:#555;
     color:#000;
     min-height:1000px;
 }
@@ -40,10 +42,11 @@ canvas{
 .title-canvas-container-title{
     position:absolute;
     width:100%;
-    top:100px;
-    font-size:70px;
-    font-family: 'Open Sans', 'Roboto', sans-serif;
-    text-shadow: 0 0 3px rgba(0,0,0,1);
+    top:50px;
+    font-size:100px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    text-shadow: 0 0 3px rgba(0,0,0,0.5);
     color:#fff;
     transition:all 2s;
 }
