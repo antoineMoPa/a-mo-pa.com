@@ -6,8 +6,6 @@ $.ready(function(){
     spirals();
 });
 
-
-
 function happySquares(element){
     var canvasSelector = element;
     var canvas = $(canvasSelector).elements[0];
@@ -302,6 +300,7 @@ function adaptSize(canvas){
 function frequencies(){
     var c = document.querySelectorAll(".frequencies-canvas")[0];
     var ctx = c.getContext("2d");
+    var interval;
     
     c.width = document.body.clientWidth;
     c.height = 400;
@@ -317,13 +316,13 @@ function frequencies(){
     var amplitude = 8;
     
     var coolAmps = [
-        {amp:2,speed:30},
-        {amp:2190,speed:6},
-        {amp:2755,speed:1},
-        {amp:3020,speed:10},
-        {amp:1814,speed:2}]
+        {amp:2,speed:30,opacity:0.3},
+        {amp:2190,speed:6,opacity:1},
+        {amp:2755,speed:1,opacity:1},
+        {amp:3020,speed:10,opacity:1},
+        {amp:1814,speed:2,opacity:1}]
     
-    var colors = ["rgba(255,0,60,0.9)","rgba(200,50,0,0.9)","rgba(150,100,0,0.9)","rgba(100,75,50,0.9)"]
+    var colors = ["rgba(255,0,60,0.9)","rgba(200,50,0,0.9)","rgba(150,100,0,0.9)","rgba(10,205,20,0.4)"]
     var coolAmpsInt = null;
     var currentCoolAmp = 0;
         
@@ -336,32 +335,47 @@ function frequencies(){
             colors.reverse();
         }
     }
-    interval = setInterval(function(){
-        j++;
-        if(amplitude > 100000){
-            amplitude = 1;
-        }
-        ctx.fillStyle = "rgba(0,0,0,0.5)";
-        ctx.fillRect(0,0,c.width,c.height);
-        for(var i = 0; i < c.width; i++){
-            var h = 
-                0.5 * c.height / 
-                2 * Math.sin(
-                    0.2 * Math.PI +
-                        amplitude * Math.PI * i 
-                        / c.width -
-                        j * coolAmps[currentCoolAmp].speed * 20 
-                        / 180);
+    
+    function start(){
+        interval = setInterval(function(){
+            j++;
+            if(amplitude > 100000){
+                amplitude = 1;
+            }
+            var speed = coolAmps[currentCoolAmp].speed;
+            var width = c.width;
+            var height = c.height;
+            var color = colors[j % colors.length];
             
-            ctx.fillStyle = colors[j % colors.length]            
-            ctx.fillRect(i,demiheight+h,1,h);
-        }
-    },100);
+            ctx.fillStyle = "rgba(0,0,0,0.3)";
+            ctx.fillRect(0,0,c.width,c.height);
+            
+            for(var i = 0; i < c.width; i++){
+                var h = 
+                demiheight / 
+                    2 * Math.sin(
+                        0.2 * Math.PI +
+                            amplitude * Math.PI * i 
+                            / width -
+                            j * speed * 20 
+                            / 180);
+                
+                ctx.fillStyle = color;
+                ctx.fillRect(i,demiheight+h,1,h);
+            }
+        },300);
+    }
+    
+    c.onmouseenter = start;
+    c.onmouseleave = function(){
+        clearInterval(interval);
+    }
 }
 
 function spirals(c,ctx){
     var c = document.querySelectorAll(".spirals-canvas")[0];
     var ctx = c.getContext("2d");
+    var interval;
     
     c.width = document.body.clientWidth;
     c.height = 400;
@@ -381,18 +395,16 @@ function spirals(c,ctx){
     var addInterval = null;
     var eraseInterval = null;
     
-    //c.onmouseenter = startSpirals;
+    c.onmouseenter = startSpirals;
     
     function startSpirals(){
         addInterval = setInterval(addLines,1000);
         eraseInterval = setInterval(clearSpirals,30);
     }
     
-    startSpirals();
-    
     c.onmouseleave = function(){
-        //clearInterval(addInterval);
-        //clearInterval(eraseInterval);
+        clearInterval(addInterval);
+        clearInterval(eraseInterval);
     }
     
     function addLines(){
