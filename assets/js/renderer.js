@@ -20,37 +20,27 @@ $.ready(function(){
         
     
     //x,y,z,materialid
-    
+    renderer.objects = {};
+
     renderer.addQuad(
         [0,0,5],
         [0,1,5],
         [1,1,5],
-        [1,0,6],
-        1
+        [1,0,6]
     );
     renderer.addQuad(
         [0,0,5],
         [0,0,2],
         [1,0,2],
-        [1,0,6],
-        0
+        [1,0,6]
     );
     renderer.addQuad(
         [0,0,5],
         [0,0,2],
         [1,0,2],
-        [1,0,6],
-        0
+        [1,0,6]
     );
     
-    //renderer.addQuad(
-    //    [0,0,5],
-    //    [0,1,5],
-    //    [1,1,5],
-    //    [1,0,5],
-    //    1
-    //);
-
     renderer.materials = [
         "rgba(55,10,50,0.9)",
         "rgba(0,55,50,0.9)"
@@ -59,6 +49,10 @@ $.ready(function(){
     renderer.renderFrame();
 });
 
+function Object3D = function(vertexes,materials){
+    
+}
+
 function Renderer(canvas){
     // Quantity that represents 1 height of the camera CCD
     this.canvas = canvas;
@@ -66,14 +60,14 @@ function Renderer(canvas){
     this.tris = [];
 }
 
-Renderer.prototype.addQuad = function(point1,point2,point3,point4,material){
+Renderer.prototype.addQuad = function(point1,point2,point3,point4){
     this.tris.push.apply(
         this.tris,
-        point1.concat(point2).concat(point4).concat([material])
+        point1.concat(point2).concat(point4)
     );
     this.tris.push.apply(
         this.tris,
-        point2.concat(point3).concat(point4).concat([material])
+        point2.concat(point3).concat(point4)
     );
 
 }
@@ -81,8 +75,6 @@ Renderer.prototype.addQuad = function(point1,point2,point3,point4,material){
 Renderer.prototype.pointToCamera = function(points){
     // To do: ensure ints stay int
     // Invert Y axis, scale X and Y axis
-    
-    console.log(points[2]);
     
     var scale = 1 / (0.6 * points[2]);
     
@@ -99,10 +91,11 @@ Renderer.prototype.renderFrame = function(){
     this.ctx.fillStyle = "#fff";
     this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
 
-    for(var i = 0; i < this.tris.length; i+=10){
+    for(var i = 0; i < this.tris.length; i+=9){
         this.ctx.beginPath();
         
-        this.ctx.fillStyle = this.materials[this.tris[i+9]];
+        //this.ctx.fillStyle = this.materials[this.tris[i+9]];
+        this.ctx.fillStyle = this.materials[0];
         this.ctx.moveTo.apply(this.ctx,this.pointToCamera(this.tris.slice(i,i+3)));
         this.ctx.lineTo.apply(this.ctx,this.pointToCamera(this.tris.slice(i+3,i+6)));
         this.ctx.lineTo.apply(this.ctx,this.pointToCamera(this.tris.slice(i+6,i+9)));
