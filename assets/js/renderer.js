@@ -44,6 +44,8 @@ $.ready(function(){
         interval = setInterval(replaceTris,80);
     }
     
+    replaceTris();
+    
     container.onclick = function(){
         container.querySelectorAll("h1")[0].style.opacity = 0;
     }
@@ -51,27 +53,29 @@ $.ready(function(){
     container.onmouseleave = function(){
         clearInterval(interval);
     }
-    
-    var sizeX = 30;
-    var sizeZ = 30;
-    
+        
     function replaceTris(){
         var date = new Date().getTime();
+        
+        var sizeX = 50 + parseInt(Math.cos(date/5000) * 50);
+        var sizeZ = 20 + parseInt(Math.cos(date/2000) * 20);
+
+        
         renderer.tris = [];
         for(var i = 0; i < sizeX; i++){
             for(var j = 0; j < sizeZ; j++){
                 var yOffset = 
                     1 *
                     Math.sin( 
-                        x / c.width * sizeX + 3 * i  * 180
+                        x / c.width * sizeX + 3 * i  * 180 + date/20000
                     )
                     + (6 - 10 * y / c.height);
                 var zYOffset = Math.cos( 3 * j + date / 2000);
                 
                 renderer.tris.push(
-                        -sizeX/3 + i + j / 3, -0.4 + yOffset + zYOffset, 4 + j * 1.2,
-                        -sizeX/3 + i + j / 3, 0 + yOffset, 5 + zYOffset + j * 1.3,
-                        -sizeX/3 + i + j / 3, -1 + yOffset + zYOffset, 4 + j * 1.3
+                        -sizeX/3 - Math.sin(date/8000)/3 + i + j / 3, -0.4 + yOffset + zYOffset, 4 + 0.3*Math.pow(j,1.8)+10,
+                        -sizeX/3 + Math.sin(date/8000)*3 + i + j / 3, 0 + yOffset, 5 + zYOffset + 0.3*Math.pow(j,1.8)+10,
+                        -sizeX/3 + Math.sin(date/8000)/3 + i + j / 3, -1 + yOffset + zYOffset, 4 + 0.3*Math.pow(j,1.8)+10
                 );
             }   
         }
@@ -121,14 +125,19 @@ Renderer.prototype.pointToCamera = function(points){
 };
 
 Renderer.prototype.renderFrame = function(){
-    this.ctx.fillStyle = "rgba(255,255,255,0.3)";
+    this.ctx.fillStyle = "rgba(255,255,255,0.2)";
     this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
 
     for(var i = 0; i < this.tris.length; i+=9){
         this.ctx.beginPath();
         
+        var date = new Date().getTime();
+        var red = parseInt((Math.abs(Math.sin(date/3405))*255));
+        var green = parseInt((Math.abs(Math.sin(date/2230))*255));
+        var blue = parseInt((Math.abs(Math.sin(date/900))*255));
+
         //this.ctx.fillStyle = this.materials[this.tris[i+9]];
-        this.ctx.fillStyle = "rgba(150,0,0,0.3)";
+        this.ctx.fillStyle = "rgba("+red+","+green+","+blue+",0.2)";
         this.ctx.moveTo.apply(this.ctx,this.pointToCamera(this.tris.slice(i,i+3)));
         this.ctx.lineTo.apply(this.ctx,this.pointToCamera(this.tris.slice(i+3,i+6)));
         this.ctx.lineTo.apply(this.ctx,this.pointToCamera(this.tris.slice(i+6,i+9)));

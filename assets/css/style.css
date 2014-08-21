@@ -46,7 +46,7 @@ canvas{
     font-size:100px;
     font-family: 'Open Sans', sans-serif;
     font-weight: 300;
-    text-shadow: 0 0 3px rgba(0,0,0,0.5);
+    text-shadow: 0 0 3px rgba(0,0,0,0.8);
     color:#fff;
     transition:all 2s;
 }
