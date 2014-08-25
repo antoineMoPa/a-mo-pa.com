@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>.js sound playground</title>
+    <link rel='stylesheet' media='all' href='assets/css/normalize.css'>
+    <link rel='stylesheet' media='all' href='assets/css/sound.css'>
+    <link rel='stylesheet' media='all' href='assets/lib/codemirror.css'>
+    
+    <meta charset='utf-8'>
+    <script src="assets/js/q.js"></script>
+    <script src="assets/lib/riffwave.js"></script>
+    <script src="assets/lib/codemirror-compressed.js"></script>
+    <script src="assets/js/sound.js"></script>
+</head>
+<body>
+
+
+<div class="controls">
+    <div class="col half-width">
+        
+        <textarea id="sound-code">
+            
+        </textarea>
+        
+    </div>
+    <div class="col half-width">
+        <pre class="log"></pre>
+        <a class="button clear-log">
+            Clear log
+        </a>
+    </div>
+    <div class="col full-width">
+
+        <h3>Sample code</h3>
+<pre class='code sample-code'>
+// Taken from the sample at http://codebase.es/riffwave/
+var data = []; // just an array
+for (var i=0; i<10000; i++) data[i] = Math.round(255 * Math.random()); // fill data with random samples
+var wave = new RIFFWAVE(data); // create the wave file
+var audio = new Audio(wave.dataURI); // create the HTML5 audio element
+audio.play(); // some noise
+</pre>
+
+        <a class='button use-sample-code'>Use</a>
+
+    </div>
+    <p>
+        Sound: Works thanks to
+        <a href="http://codebase.es/riffwave/" target="_blank" >riffwave.js</a>
+        by Pedro Ladaria
+    </p>
+
+</div>
+
+<script>$.ready();</script>
+</body>
+</html>
