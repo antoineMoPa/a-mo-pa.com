@@ -42,11 +42,15 @@ Sound.prototype.initEditor = function(){
 }
 
 Sound.prototype.playSound = function(){
-    this.print(
-        eval(
-            this.editor.getValue()
-        )
-    );
+    try{
+        this.print(
+            eval(
+                this.editor.getValue()
+            )
+        );
+    } catch (e){
+        this.print(e.message + "\n");
+    }
 }
 
 Sound.prototype.print = function(message){

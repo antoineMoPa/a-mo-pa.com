@@ -49,10 +49,6 @@ pre.code{
 
 /* -- */
 
-p{
-    margin:10px;
-}
-
 #sound-code{
     min-height:400px;
     width:100%;
@@ -60,6 +56,7 @@ p{
 
 .controls{
     padding:10px;
+    padding-top:0;
 }
 
 .log{
