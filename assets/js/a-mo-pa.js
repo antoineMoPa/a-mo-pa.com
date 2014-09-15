@@ -1,7 +1,6 @@
 $.ready(function(){
     happySquares(".a-mo-pa-canvas");
     happySquares2(".a-mo-pa-canvas-2");
-    happySquares3(".a-mo-pa-canvas-3");
     frequencies();
     spirals();
 });
@@ -39,12 +38,20 @@ function happySquares(element){
         draw({size:30},context,width,height,mouseX,mouseY,clicking);
     }  
     
-    setInterval(function(){
-        context.fillStyle = 
+    var interval;
+    
+    function start(){
+        interval = setInterval(function(){
+            context.fillStyle = 
             "rgba(100,100,100,"+(clicking?"0.1":"0.06")+")";
-        context.fillRect(0,0,width,height);
-    },100);
-
+            context.fillRect(0,0,width,height);
+        },100);
+    }
+    
+    canvas.onmouseenter = start;
+    canvas.onmouseleave = function(){
+        clearInterval(interval);
+    }
     
     function draw(settings,context,width,height,mouseX,mouseY,clicking){
         var size = parseInt(Math.random()*2)+settings.size;
@@ -85,7 +92,7 @@ function happySquares(element){
                 }
                 else{
                     context.fillStyle = 
-                        "rgba("+r+","+g+","+b+",0.1)";
+                        "rgba("+r+","+g+","+b+",0.3)";
                 }
                 context.fillRect(i,j,size,size);
             }
@@ -194,97 +201,6 @@ function happySquares2(element){
     }
 }
 
-function happySquares3(element){
-    var canvasSelector = element;
-    var canvas = $(canvasSelector).elements[0];
-    var context = canvas.getContext("2d");
-    
-    var width;
-    var height;
-
-    function adaptSize(){
-        width = $("body").width();
-        height = window.innerHeight
-        
-        canvas.width = width;
-        canvas.height = height;
-    }
-    
-    adaptSize();
-    $(window).on("resize",adaptSize);
-    
-    var mouseX = 0;
-    var mouseY = 0;
-    var clicking = false;
-
-    canvas.onmousemove = function(e){
-        e.preventDefault();
-        mouseX = e.clientX
-        mouseY = e.clientY + window.scrollY - canvas.offsetTop;
-        clicking = (e.buttons == 1);
-        draw({size:10},context,width,height,mouseX,mouseY,clicking);
-        draw({size:30},context,width,height,mouseX,mouseY,clicking);
-        draw({size:50},context,width,height,mouseX,mouseY,clicking);
-    }  
-    
-    function draw(settings,context,width,height,mouseX,mouseY,clicking){
-        var size = settings.size;
-        var currentMax = 0;
-        var i = 0;
-        var j = 0;
-        var step = 0;
-        var dist;
-        var limit;
-        var sizeMultiplier;
-        
-        while(currentMax < width*2 || currentMax < height*2){
-            var paint,r,g,b;
-            
-            sizeMultiplier = 2;
-            limit = 
-                size*sizeMultiplier*Math.random();
-            
-            dist = distance(i,j,mouseX,mouseY);
-            
-            if(dist < limit){
-                if(step % 2 == 0){
-                    paint = parseInt(currentMax/width*255*Math.random());
-                    r = (200-parseInt(paint/5));
-                    g = paint;
-                    b = parseInt(100*Math.random());
-                }
-                else{
-                    paint = parseInt(currentMax/width*255);
-                    r = parseInt(i/width*255);
-                    g = parseInt(i/width*255*Math.random());
-                    b = 40+parseInt(Math.random())*155-parseInt(i/width*40);
-                }
-                if(clicking){
-                    context.fillStyle = 
-                        "rgba("+r+","+g+","+b+",0.4)";
-                }
-                else{
-                    context.fillStyle = 
-                        "rgba("+r+","+g+","+b+",0.1)";
-                }
-                context.fillRect(i,j,size,size);
-            }
-            
-            j += size;
-            i -= size;
-            
-            // line change
-            if(j > currentMax){
-                j = 0;
-                i = currentMax += size;
-                step++;
-            }
-        }
-    }
-}
-
-
-
 function distance(x1,y1,x2,y2){
     return Math.sqrt(Math.pow(x2-x1,2) + Math.pow(y2-y1,2));
 }
@@ -300,28 +216,23 @@ function adaptSize(canvas){
 function frequencies(){
     var c = document.querySelectorAll(".frequencies-canvas")[0];
     var ctx = c.getContext("2d");
+    var interval;
     
-    c.width = document.body.clientWidth;
-    c.height = 400;
-    
-    adaptSize(c);
-    $(window).on("resize",function(){
-        adaptSize(c);
-    });
-    
+    c.width = 1280;
+    c.height = 500;
     
     var j = 0;
     var demiheight = c.height/2;
     var amplitude = 8;
     
     var coolAmps = [
-        {amp:2,speed:30},
-        {amp:2190,speed:6},
-        {amp:2755,speed:19},
-        {amp:3020,speed:10},
-        {amp:1814,speed:2}]
+        {amp:2,speed:30,opacity:0.3},
+        {amp:2190,speed:6,opacity:1},
+        {amp:2755,speed:1,opacity:1},
+        {amp:3020,speed:10,opacity:1},
+        {amp:1814,speed:2,opacity:1}]
     
-    var colors = ["rgba(255,0,10,0.9)","rgba(255,10,0,0.9)","rgba(255,30,0,0.9)","rgba(255,25,5,0.9)"]
+    var colors = ["rgba(255,0,60,0.9)","rgba(200,50,0,0.9)","rgba(150,100,0,0.9)","rgba(10,205,20,0.4)"]
     var coolAmpsInt = null;
     var currentCoolAmp = 0;
         
@@ -334,41 +245,50 @@ function frequencies(){
             colors.reverse();
         }
     }
-    interval = setInterval(function(){
-        j++;
-        if(amplitude > 100000){
-            amplitude = 1;
-        }
-        ctx.fillStyle = "rgba(0,0,0,0.5)";
-        ctx.fillRect(0,0,c.width,c.height);
-        for(var i = 0; i < c.width; i++){
-            var h = 
-                0.5 * c.height / 
-                2 * Math.sin(
-                    0.2 * Math.PI +
-                        amplitude * Math.PI * i 
-                        / c.width -
-                        j * coolAmps[currentCoolAmp].speed * 20 
-                        / 180);
+    
+    function start(){
+        interval = setInterval(function(){
+            j++;
+            if(amplitude > 100000){
+                amplitude = 1;
+            }
+            var speed = coolAmps[currentCoolAmp].speed;
+            var width = c.width;
+            var height = c.height;
+            var color = colors[j % colors.length];
             
-            ctx.fillStyle = colors[j % colors.length]            
-            ctx.fillRect(i,demiheight+h,1,h);
-        }
-    },100);
+            ctx.fillStyle = "rgba(0,0,0,0.3)";
+            ctx.fillRect(0,0,c.width,c.height);
+            
+            for(var i = 0; i < c.width; i++){
+                var h = 
+                demiheight / 
+                    2 * Math.sin(
+                        0.2 * Math.PI +
+                            amplitude * Math.PI * i 
+                            / width -
+                            j * speed * 20 
+                            / 180);
+                
+                ctx.fillStyle = color;
+                ctx.fillRect(i,demiheight+h,1,h);
+            }
+        },300);
+    }
+    
+    c.onmouseenter = start;
+    c.onmouseleave = function(){
+        clearInterval(interval);
+    }
 }
 
 function spirals(c,ctx){
     var c = document.querySelectorAll(".spirals-canvas")[0];
     var ctx = c.getContext("2d");
+    var interval;
     
-    c.width = document.body.clientWidth;
+    c.width = 400;
     c.height = 400;
-    
-    adaptSize(c);
-    $(window).on("resize",function(){
-        adaptSize(c);
-    });
-
     
     map = new Map(c,ctx);
         
@@ -379,18 +299,16 @@ function spirals(c,ctx){
     var addInterval = null;
     var eraseInterval = null;
     
-    //c.onmouseenter = startSpirals;
+    c.onmouseenter = startSpirals;
     
     function startSpirals(){
         addInterval = setInterval(addLines,1000);
         eraseInterval = setInterval(clearSpirals,30);
     }
     
-    startSpirals();
-    
     c.onmouseleave = function(){
-        //clearInterval(addInterval);
-        //clearInterval(eraseInterval);
+        clearInterval(addInterval);
+        clearInterval(eraseInterval);
     }
     
     function addLines(){

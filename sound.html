@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>.js sound playground</title>
+    <link rel='stylesheet' media='all' href='assets/css/normalize.css'>
+    <link rel='stylesheet' media='all' href='assets/css/sound.css'>
+    <link rel='stylesheet' media='all' href='assets/lib/codemirror.css'>
+    
+    <meta charset='utf-8'>
+    <script src="assets/js/q.js"></script>
+    <script src="assets/lib/riffwave.js"></script>
+    <script src="assets/lib/codemirror-compressed.js"></script>
+    <script src="assets/js/sound.js"></script>
+</head>
+<body>
+
+<div class='col full-width'>
+    <h3>Introduction</h3>
+    <p>This is a tool to play with javascript and sound. it includes the <a href="http://codebase.es/riffwave/" target="_blank" >riffwave.js</a> library by Pedro Ladaria.</p>
+    <p>Press Shift+Enter to run code</p>
+</div>
+
+<div class="controls">
+    <div class="col half-width">
+        
+        <textarea id="sound-code">"hello world!"</textarea>
+        
+    </div>
+    <div class="col half-width">
+        <pre class="log"></pre>
+        <a class="button clear-log">
+            Clear log
+        </a>
+    </div>
+    <div class="col full-width">
+        <h3>Sample code</h3>
+        <a class='button use-sample-code'>Use</a>
+<pre class='code sample-code'>
+// Taken from the sample at http://codebase.es/riffwave/
+var data = [];
+
+for (var i=0; i<10000; i++){
+  // fill data with random samples
+  data[i] = Math.round(255 * Math.random());
+}
+
+var wave = new RIFFWAVE(data); // create the wave file
+var audio = new Audio(wave.dataURI); // create the HTML5 audio element
+
+audio.play(); // some noise
+</pre>
+
+        
+    </div>
+
+</div>
+
+<script>$.ready();</script>
+</body>
+</html>

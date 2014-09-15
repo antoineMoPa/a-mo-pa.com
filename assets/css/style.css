@@ -1,5 +1,11 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,300);
+
+.text-center{
+    text-align:center;
+}
+
 body{
-    background:#333;
+    background:#555;
     color:#000;
     min-height:1000px;
 }
@@ -9,7 +15,38 @@ h1{
 }
 
 canvas{
+    vertical-align: middle;
     margin:0;
     border-radius:10px;
-    box-shadow:0 0 8px rgba(0,0,0,0.3) inset;
+    box-shadow:0 0 18px rgba(0,0,0,0.8);
+    background:#fff;
+    margin-top:10px;
+    margin-bottom:10px;
+}
+
+.canvas-with-whitespace{
+    margin-top:100px;
+    margin-bottom:100px;
+}
+
+.title-canvas-container{
+    position:relative;
+}
+
+.title-canvas{
+    margin-top:0;
+    border-top-left-radius:0;
+    border-top-right-radius:0;
+}
+
+.title-canvas-container-title{
+    position:absolute;
+    width:100%;
+    top:50px;
+    font-size:100px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    text-shadow: 0 0 3px rgba(0,0,0,0.8);
+    color:#fff;
+    transition:all 2s;
 }

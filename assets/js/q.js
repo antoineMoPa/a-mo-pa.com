@@ -87,11 +87,11 @@ function hipsterLib(selector){
 	/*[dom]*/
 	
 	rootElement = document
-	
+    
 	//Selectors
 	
 	$.fn = hipsterLib.prototype;
-	
+    
 	$.fn.find = function (selector){
 		var rootElement = this.elements[0] || document.body ;
 		console.log(rootElement);
@@ -141,15 +141,12 @@ function hipsterLib(selector){
 	}
 
 	$.fn.append = function(content){
-		var $ = this
-		
-		if(typeof content === 'undefined')
-			return $
-			
+        if(typeof content === 'undefined')
+			return this;
 		if(typeof content === "string"){
-			content = $.utils.html(content)
+			content = this.toHTML(content)
 		}
-		
+		var $ = this;
 		$.each(function(){
 			$.element.appendChild(content)
 		})
@@ -383,7 +380,10 @@ function hipsterLib(selector){
 	
 	$.fn.val = function(value){
 		if(typeof value === 'undefined'){
-			return this.elements[0].value
+			if(typeof this.elements[0] === 'undefined'){
+                return undefined
+            }
+            return this.elements[0].value
 		}
 		this.each(function(){
 			this.element.value = value
@@ -466,8 +466,53 @@ function hipsterLib(selector){
 
 		return $(el)
 	}
-    
-	/*
+    	
+	$.fn.first = function(){
+		return $(this.elements[0])
+	}
+
+	$.fn.toHTML = function (htmlString){	
+		var frag = rootElement.createDocumentFragment(),
+			temp = rootElement.createElement('div')
+
+		temp.innerHTML = htmlString;
+		
+		while (temp.firstChild) {
+			frag.appendChild(temp.firstChild)
+		}
+		
+		return frag;
+	}
+	
+	$.nodeList = function(domElement){
+		var fragment = rootElement.createDocumentFragment()
+		fragment.appendChild(domElement);
+		return fragment.childNodes;
+	}
+	
+	$.addStyle = function (style){
+		if(typeof(style) == "string"){
+			var css = rootElement.createElement("style")
+			css.type = "text/css"
+			css.innerHTML = style
+			$("head").append(css)
+		}
+	}
+	
+	$.extend = function (object,defaults){
+		
+		if(typeof object === 'undefined'){
+			return defaults
+		}
+		
+		for(var setting in defaults)
+			if(typeof object[setting] === 'undefined')
+				object[setting] = defaults[setting]
+		
+		return object
+	}
+	
+    /*
       Be careful with $.each() !
       It does not work as jQuery's each method,
       $.each() iterates over selected elements
@@ -493,65 +538,18 @@ function hipsterLib(selector){
       })
     */
 	$.fn.each = function(callback){
-		var $ = this
-		for(var i = 0; i < $.elements.length; i++ ){
-			$.element = $.elements[i]
-            
-			if(callback.call($) == -1){
-				return $
-			}
-		}
-		return $
+        if(typeof this.elements != 'undefined'){
+		    for(var i = 0; i < this.elements.length; i++ ){
+			    this.element = this.elements[i]
+                
+			    if(callback.call(this) == -1){
+				    return this
+			    }
+		    }
+        }
+		return this
 	}
-	
-	$.fn.first = function(){
-		return $(this.elements[0])
-	}
-	
-	
-	$.utils = {}
-	
-	$.utils.html = function (htmlString){	
-		var frag = rootElement.createDocumentFragment(),
-			temp = rootElement.createElement('div')
-		
-		temp.innerHTML = htmlString;
-		
-		while (temp.firstChild) {
-			frag.appendChild(temp.firstChild)
-		}
-		
-		return frag;
-	}
-	
-	$.utils.nodeList = function(domElement){
-		var fragment = rootElement.createDocumentFragment()
-		fragment.appendChild(domElement);
-		return fragment.childNodes;
-	}
-	
-	$.utils.addStyle = function (style){
-		if(typeof(style) == "string"){
-			var css = rootElement.createElement("style")
-			css.type = "text/css"
-			css.innerHTML = style
-			$("head").append(css)
-		}
-	}
-	
-	$.extend = function (object,defaults){
-		
-		if(typeof object === 'undefined'){
-			return defaults
-		}
-		
-		for(var setting in defaults)
-			if(typeof object[setting] === 'undefined')
-				object[setting] = defaults[setting]
-		
-		return object
-	}
-	
+
 	
 	/*[/dom]*/
 })(hipsterLib);
