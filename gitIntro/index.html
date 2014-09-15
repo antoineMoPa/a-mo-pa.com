@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset='utf-8'>
+<link href='http://fonts.googleapis.com/css?family=Oxygen:400,700,300' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="normalize.css">
+<link rel="stylesheet" href="style.css">
+
+
+</head>
+<body>
+
+<slide>
+    <h1>Introduction à Git</h1>
+    <text-center>
+        <img src="images/gitlogo.png">
+    </text-center>
+</slide>
+<slide>
+    <h2>Pourquoi utiliser un système de gestion de versions?</h2>
+    <ul class='hide'>
+        <li>
+            Collaborer avec d'autres programmeurs sur une base de code.
+        </li>
+        <li class='hide'>
+            Avoir un outil pour gérer le code, les ajouts/modification aux code. 
+        </li>
+        <li class='hide'>
+            Éviter de faire manuellement des merges de base de code 
+        </li>
+    </ul>
+    <br>
+    <text-center class='hide'>
+        <img class='medium-image' src='images/pairprog.jpg'><br>
+        <i  class='hide'>Ouin, dude ce bout de code là<br> faut que tu le change<br> pour ma version dans ma clée USB</i>
+    </text-center>
+</slide>
+
+<slide>
+    <h2>Un mot sur SVN</h2>
+    <p>
+        Toujours utilisé en industrie. Raisons:
+    </p>
+    <br>
+    <ul class='hide'>
+        <li>Les gens sont habitués</li>
+        <li>Interface sympathique: Tortoise SVN</li>
+    </ul>
+</slide>
+
+<slide>
+    <h2>Pourquoi Git en particulier?</h2>
+    <ul>
+        <li>Simple, versatile, rapide</li>
+        <li class='hide'>Distribué 
+            (Fait pour un workflow avec plein <i>repository</i> différents)
+        </li>
+        <li class='hide'>Libre et gratuit</li>
+    </ul>
+    <h2>Qui utilise Git?</h2>
+    <ul>
+        <li class='hide'>Google (Android, Chrome plusieurs autres)</li>
+        <li class='hide'><a href='de codeurs qui ont
+            leur version du code'>Microsoft</a></li>
+        <li class='hide'>Plusieurs projets FOSS dont Linux</li>
+        <li class='hide'>Moi (yeah!)</li>
+    </ul>
+
+</slide>
+
+<slide>
+    <h2>Distribué vs Centralisé</h2>
+    <p>La popularité de Git est due au fait qu'il est distribué:</p>
+    <br>
+    <div>
+        <div class='col-md-6 hide text-center bold'>
+            <p>Centralisé</p>
+        </div>
+        <div class='col-md-6 hide text-center bold'>
+            <p>Distribué</p>
+        </div>
+    </div>
+    <br>
+    <div>
+        <div class='col-md-6 hide'>
+            <p>
+                <text-center>Un seul repository/serveurs</text-center>
+                <ol>
+                    <li class='hide'>George édite son fichier</li>
+                    <li class='hide'> George envoit son fichier sur le serveur</li>
+                    <li class='hide'>La famille à George va updater le fichier que George a modifié à partir du serveur</li>
+                </ol>
+            </p>
+        </div>
+        <div class='col-md-6 hide'>
+            <p>
+                <text-center>Plusieurs repository/serveurs</text-center>
+                <ol>
+                    <li class='hide'>George édite son fichier</li>
+                    <li class='hide'>George édite son fichier et le pousse sur son repo <i>Github</i>/<i>GitLab</i>/son propre serveur</li>
+                    <li class='hide'>Ginette <i>tire(pull)</i> les modifs de George et les pousse sur son serveur (ex.: git.ginette.com/projet)</li>
+                    <li class='hide'>Puisque Ginette code bien, la famille lui fait confiance et <i>pull</i> son code et utilise sa version</li>
+                </ol>
+            </p>
+        </div>
+    </div>
+</slide>
+
+
+<script src="script.js"></script>
+</body>
+</html>
