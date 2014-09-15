@@ -44,6 +44,8 @@ function initSlides(){
         
     }
     
+    document.onclick = unHide;
+    
     function next(){
         currentSlide++;
         currentSlide = Math.abs(currentSlide % slides.length);

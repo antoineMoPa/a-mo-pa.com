@@ -12,7 +12,7 @@
 <body>
 
 <slide>
-    <h1>Introduction à Git</h1>
+    <h1>Introduction à git</h1>
     <text-center>
         <img src="images/gitlogo.png">
     </text-center>
@@ -40,7 +40,7 @@
 <slide>
     <h2>Un mot sur SVN</h2>
     <p>
-        Toujours utilisé en industrie. Raisons:
+        Encore utilisé dans certaines entreprises 2014. Raisons:
     </p>
     <br>
     <ul class='hide'>
@@ -50,7 +50,7 @@
 </slide>
 
 <slide>
-    <h2>Pourquoi Git en particulier?</h2>
+    <h2>Pourquoi git en particulier?</h2>
     <ul>
         <li>Simple, versatile, rapide</li>
         <li class='hide'>Distribué 
@@ -58,7 +58,7 @@
         </li>
         <li class='hide'>Libre et gratuit</li>
     </ul>
-    <h2>Qui utilise Git?</h2>
+    <h2>Qui utilise git?</h2>
     <ul>
         <li class='hide'>Google (Android, Chrome plusieurs autres)</li>
         <li class='hide'><a href='de codeurs qui ont
@@ -71,7 +71,7 @@
 
 <slide>
     <h2>Distribué vs Centralisé</h2>
-    <p>La popularité de Git est due au fait qu'il est distribué:</p>
+    <p class='text-center'>La popularité de git est due au fait qu'il est distribué</p>
     <br>
     <div>
         <div class='col-md-6 hide text-center bold'>
@@ -98,7 +98,7 @@
                 <text-center>Plusieurs repository/serveurs</text-center>
                 <ol>
                     <li class='hide'>George édite son fichier</li>
-                    <li class='hide'>George édite son fichier et le pousse sur son repo <i>Github</i>/<i>GitLab</i>/son propre serveur</li>
+                    <li class='hide'>George édite son fichier et le pousse sur son repo <i>github</i>/<i>gitLab</i>/son propre serveur</li>
                     <li class='hide'>Ginette <i>tire(pull)</i> les modifs de George et les pousse sur son serveur (ex.: git.ginette.com/projet)</li>
                     <li class='hide'>Puisque Ginette code bien, la famille lui fait confiance et <i>pull</i> son code et utilise sa version</li>
                 </ol>
@@ -106,6 +106,120 @@
         </div>
     </div>
 </slide>
+
+<slide>
+    <h2>Installation</h2>
+    <text-center class='subtitle'>(Utiliser google est pertinent)</text-center>
+    <h3>Linux</h3>
+    <div class='col-md-6'>
+        <p class='text-center hide'>
+            ubuntu & debian: <br>
+            <code class='text-right'>apt-get install git</code><br>
+        </p>
+    </div>
+    <div class='col-md-6'>
+        <p class='text-center hide'>
+            (et/ou):  <br>
+            <code class='text-right'>apt-get install git-gui</code>
+        </p>
+    </div>
+
+    <h3>Windows</h3>
+    <p class='text-center hide'>
+        Google «git download»: <a target="_blank" href='http://git-scm.com/downloads'>http://git-scm.com/downloads</a>
+    </p>
+    <h3>Mac</h3>
+    <p class='text-center hide'>
+        «Let me google <a target='_blank' href='http://lmgtfy.com/?q=git+mac+download'>that</a> for you»
+    </p>
+
+</slide>
+
+<slide>
+    <h2>Choix pertinents<br> pour git sur Windows</h2>
+    <p>Durant l'installation:</p><br>
+    <ul>
+        <li class='hide'>Choisir le git-cheetah-plugin pour les menus contextuels</li>
+        <li class='hide'>Variable PATH: Choisir «Use git from the windows command prompt»</li>
+    </ul>
+</slide>
+
+<slide>
+    <h2>Commandes Git</h2>
+    <p class='hide'>
+        Créer un repo avec le dossier courant: <br>
+        <code>git init</code><br>
+        Ajouter des fichiers dans le repo: <br>
+        <code>git add .</code><br>
+        Faire un commit avec un message<br>
+        <code>git commit -m "mon message"</code><br>
+        Tirer des choses d'un repo distant<br>
+        <code>git pull origin</code><br>
+        Pousser des choses sur un repo distant<br>
+        <code>git push origin</code><br>
+        Prendre cloner un repo distant localement<br>
+        <code>git clone git@github.com:antoineMoPa/a-mo-pa.com.git</code><br>
+    </p>
+    <br>
+    <p>
+        On exécute ces commandes en lançant Git Bash en faisant un clic droit dans le dossier choisi.
+    </p>
+</slide>
+
+<slide>
+    <h2>Menu contextuel</h2>
+    <p>Aperçu du menu (Avec git-cheetah, sur windows)</p>
+    <br>
+    <br>
+    <text-center>
+        <img src="images/git-cheetah-windows.jpg">
+    </text-center>
+</slide>
+
+
+<slide>
+    <h2>Configuration de git</h2>
+    <p>Lors de la première tentative de commit, git avertira qu'il faut lui indiquer des informations.</p>
+    <p class='hide'>Simplement suivre ce qui est affiché à l'écran.</p>
+    <br>
+    <text-center>
+        <img class='hide' src="images/config-git-windows.jpg">
+    </text-center>
+</slide>
+
+<slide>
+    <h2>Git commit tool</h2>
+    <p class='hide'>Outil pour écrire de beaux messages de commit</p>
+    <br>
+    <text-center>
+        <img class='hide' src="images/git-commit-tool-windows.jpg">
+    </text-center>
+</slide>
+
+
+<slide>
+    <h2>Git Gui</h2>
+    <p class='hide'>Ajout de repos distants</p>
+    <br>
+    <text-center>
+        <img class='hide' src="images/git-gui-remote-repo.jpg">
+    </text-center>
+</slide>
+
+<slide>
+    <h2>Re-Pourquoi utiliser git</h2>
+    <ul>
+        <li class="hide">Cloner des librairies open source/libres</li>
+        <li class="hide">Pouvoir utiliser github.com et gitlab.com pour héberger du code gratuitement</li>
+        <li class="hide">C'est bon dans un CV de programmeur</li>
+    </ul>
+</slide>
+
+<slide>
+    <h1>Merci, Fin</h1>
+    <p class='hide'>Yo!</p>
+</slide>
+
 
 
 <script src="script.js"></script>

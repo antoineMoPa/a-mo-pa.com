@@ -16,6 +16,13 @@ h2{
     font-weight:700;
 }
 
+h3{
+    text-align:center;
+    line-height:40px;
+    font-size:20px;
+    font-weight:700;
+}
+
 img{
     margin-bottom:30px;
 }
@@ -55,9 +62,17 @@ text-right{
     text-align:right;
 }
 
+.text-right{
+    text-align:right;
+}
+
 text-left{
     display:block;
     width:100%;
+    text-align:left;
+}
+
+.text-left{
     text-align:left;
 }
 
@@ -76,4 +91,20 @@ ol{
 
 .medium-image{
     max-height:200px;
+}
+
+code{
+    display:inline;
+    background:#000;
+    border-radius:5px;
+    color:#fff;
+    padding:4px;
+    font-size:15px;
+    box-shadow:0 0 4px #aaa;
+    margin-left:40px;
+}
+
+.subtitle{
+    margin-top:-40px;
+    font-size:20px;
 }
