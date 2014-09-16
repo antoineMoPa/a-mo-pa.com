@@ -34,6 +34,7 @@ canvas{
 }
 
 .title-canvas{
+    box-shadow:none;
     margin-top:0;
     border-top-left-radius:0;
     border-top-right-radius:0;
@@ -49,4 +50,20 @@ canvas{
     text-shadow: 0 0 3px rgba(0,0,0,0.8);
     color:#fff;
     transition:all 2s;
+}
+.top-links{
+    background:#fff;
+    color:#000;
+    padding-left:10px;
+}
+
+.top-links span{
+    font-weight:bolder;
+    text-transform:uppercase;
+    font-size:14px;
+}
+
+a{
+    color:#3366FF;
+    text-decoration:none;
 }
