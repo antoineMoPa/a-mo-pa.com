@@ -5,6 +5,8 @@ a-mo-pa.com
 
 This is the code for my [website](http://a-mo-pa.com) which is currently a javascript & canvas playground.
 
+In the txts folder, there are .txt files and a ruby script to assemble them in a html container. That's how I do content management...
+
 ### Features  ###
 
 * A really dumb 3d renderer
@@ -15,6 +17,3 @@ This is the code for my [website](http://a-mo-pa.com) which is currently a javas
 * Weird squares
 * Weird spirals
 * Weird interference patterns
-
-
-
