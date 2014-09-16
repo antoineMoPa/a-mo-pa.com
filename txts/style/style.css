@@ -23,10 +23,6 @@ img{
     margin-bottom:30px;
 }
 
-i{
-    font-size:20px;
-}
-
 .col-md-6{
     display:inline-block;
     width:49%;
@@ -77,10 +73,6 @@ p,ul,ol{
     margin:auto;
 }
 
-p,ul,i,ol{
-    font-size:30px;
-}
-
 ol{
     margin-top:30px;
 }
@@ -103,4 +95,16 @@ code{
 .subtitle{
     margin-top:-40px;
     font-size:20px;
+}
+
+a{
+    text-decoration:none;
+}
+
+footer{
+    margin-top:20px;
+    font-family:'sans-serif';
+    background:#ddd;
+    box-shadow:0 0 3px rgba(0,0,0,0.3) inset;
+    padding:20px;
 }

@@ -1,19 +1,32 @@
 txtTemplate = File.open("txt.tpl.html","r").read()
 
-File.open('index.tpl.html','r') do |template|
-  File.open('index.html','w') do |output|
+@header = File.open("header.tpl.html","r").read()
+@footer = File.open("footer.tpl.html","r").read()
+
+def fillTemplate(template)
+  template.sub!("{{header}}",@header)
+  template.sub!("{{footer}}",@footer)
+
+  return template
+end
+
+File.open('index.tpl.html','r') do |indexTemplate|
+  File.open('index.html','w') do |indexFile|
     filesList = "";
     filesListHtml = "";
-    Dir.glob('./*') do |file|
+    Dir.glob('./txt/*') do |file|
       if (/(.*).txt$/.match (file))
-        name = file.sub(/^.\//,"")
-        
-        txtContent = File.open(name,"r").read();
+        name = file.sub(/^.\/txt/,"")
+        name.gsub!(/^\//,"")
+        puts "./txt/#{name}"
+        txtContent = File.open("txt/#{name}","r").read();
         
         htmlContent = txtTemplate.sub("{{content}}",txtContent)
         htmlContent.sub!("{{title}}",name)
         
-        htmlName = name + ".html"
+        htmlContent = fillTemplate(htmlContent)
+        
+        htmlName = "./" + name + ".html"
         
         File.open(htmlName,'w').write(htmlContent)
         
@@ -22,6 +35,9 @@ File.open('index.tpl.html','r') do |template|
       end
     end
     
-    output.write(template.read().gsub("{{files}}",filesListHtml))
+    index = indexTemplate.read().gsub("{{files}}",filesListHtml)
+    index = fillTemplate(index)
+    
+    indexFile.write(index)
   end
 end

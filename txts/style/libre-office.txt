@@ -1,0 +1,8 @@
+ctrl + shift + b : Make text appear as subscript
+ctrl + shift + p : Make text appear as exponent
+
+fn F3  [or nf F3, in the French version] : insert numbered equation
+
+ctrl + i : put text in italic
+
+ctrl + b : put text in bold
