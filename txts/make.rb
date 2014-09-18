@@ -1,43 +1,76 @@
-txtTemplate = File.open("txt.tpl.html","r").read()
-
-@header = File.open("header.tpl.html","r").read()
-@footer = File.open("footer.tpl.html","r").read()
-
-def fillTemplate(template)
-  template.sub!("{{header}}",@header)
-  template.sub!("{{footer}}",@footer)
-
-  return template
-end
-
-File.open('index.tpl.html','r') do |indexTemplate|
-  File.open('index.html','w') do |indexFile|
-    filesList = "";
-    filesListHtml = "";
-    Dir.glob('./txt/*') do |file|
-      if (/(.*).txt$/.match (file))
-        name = file.sub(/^.\/txt/,"")
-        name.gsub!(/^\//,"")
-        puts "./txt/#{name}"
-        txtContent = File.open("txt/#{name}","r").read();
-        
-        htmlContent = txtTemplate.sub("{{content}}",txtContent)
-        htmlContent.sub!("{{title}}",name)
-        
-        htmlContent = fillTemplate(htmlContent)
-        
-        htmlName = "./" + name + ".html"
-        
-        File.open(htmlName,'w').write(htmlContent)
-        
-        filesList += "\t" + name + "\n\n"
-        filesListHtml += "<a href='#{htmlName}'>#{name}</a><br>"
+#
+# Templater:
+# Replaces value wrapped like that in strings {{myParam}}
+#
+class Templater
+  attr_accessor :params
+  def initialize
+    @@recursivity = 3
+    @params = {
+      urlPrefix: ""
+    }
+  end
+  def fill(template,params = {})
+    params = @params.merge(params)
+    
+    for i in 0..@@recursivity
+      # Replace parameters
+      params.each do |name,value|
+        template.sub!("{{#{name}}}",value)
       end
     end
     
-    index = indexTemplate.read().gsub("{{files}}",filesListHtml)
-    index = fillTemplate(index)
-    
-    indexFile.write(index)
+    return template
   end
 end
+
+def build
+  txtTemplate = File.open("txt.tpl.html","r").read()
+  
+  templater = Templater.new
+  templater.params[:header] = 
+    File.open("header.tpl.html","r").read()
+  templater.params[:footer] = 
+    File.open("footer.tpl.html","r").read()
+  
+  time = Time.new
+  
+  templater.params["generation-date"] = 
+    time.strftime("%Y-%m-%d %H:%M:%S")
+  
+  File.open('index.tpl.html','r') do |indexTemplate|
+    File.open('index.html','w') do |indexFile|
+      filesList = "";
+      filesListHtml = "";
+      Dir.glob('./txt/*') do |file|
+        if (/(.*).txt$/.match (file))
+          name = file.sub(/^.\/txt/,"")
+          name.gsub!(/^\//,"")
+          htmlContent = File.open("txt/#{name}","r").read();
+          
+          params = {
+            urlPrefix:"../",
+            content: htmlContent,
+            title: name
+          }
+          
+          htmlContent = templater.fill(txtTemplate,params)
+          
+          htmlName = "html/" + name + ".html"
+          
+          File.open(htmlName,'w').write(htmlContent)
+          
+          filesList += "\t" + name + "\n\n"
+          filesListHtml += "<a href='#{htmlName}'>#{name}</a><br>"
+        end
+      end
+      
+      index = indexTemplate.read()
+      index = templater.fill(index,{files: filesListHtml})
+      
+      indexFile.write(index)
+    end
+  end
+end
+
+build
