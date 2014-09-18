@@ -12,7 +12,6 @@ class Templater
   end
   def fill(template,params = {})
     params = @params.merge(params)
-    
     for i in 0..@@recursivity
       # Replace parameters
       params.each do |name,value|
@@ -47,14 +46,16 @@ def build
           name = file.sub(/^.\/txt/,"")
           name.gsub!(/^\//,"")
           htmlContent = File.open("txt/#{name}","r").read();
-          
+
           params = {
             urlPrefix:"../",
             content: htmlContent,
             title: name
           }
           
-          htmlContent = templater.fill(txtTemplate,params)
+          puts params
+          
+          htmlContent = templater.fill(txtTemplate.clone,params)
           
           htmlName = "html/" + name + ".html"
           

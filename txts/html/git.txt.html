@@ -7,20 +7,63 @@
 <body>
 
 
-<h1>libre-office.txt</h1>
+<h1>git.txt</h1>
 
 <text-right>
     <a href='..'>Go back</a>
 </text-right>
 
-<pre>ctrl + shift + b : Make text appear as subscript
-ctrl + shift + p : Make text appear as exponent
+<pre>Basic git commands
+==================
 
-fn F3  [or nf f3, in the french version] : insert numbered equation
+Cheat sheet for the git command line
 
-ctrl + i : put text in italic
 
-ctrl + b : put text in bold
+
+Basic operations
+----------------
+
+        git init
+
+        git add .
+
+        git commit -m ""
+
+Interaction with a server
+-------------------------
+
+        git push origin master
+
+        git pull origin master
+        
+Remote repo operations
+----------------------
+
+        # List remote repositories and urls
+        git remote -v
+        
+        # Add remote repository
+        git remote add repname git@gitserver.com:user/repo
+        
+        # Remove a remote repo
+        git remote rm repname
+        
+        # different in some git versions
+        git remote remove repname
+
+
+Clone repositories
+------------------
+
+        git clone git@gitserver.com:user/repo
+
+
+Generate ssh key in mac/linux
+-----------------------------
+        
+        # Run and press enter all the way to accept default values
+        ssh-keygen
+        
 </pre>
 
 <footer>
@@ -32,7 +75,7 @@ ctrl + b : put text in bold
     Code for this website here: <a target='_blank' href='https://github.com/antoineMoPa/a-mo-pa.com'>https://github.com/antoineMoPa/a-mo-pa.com</a>
 </text-right>
 </footer>
-<p class='text-small'>Generated on 2014-09-17 18:29:23</p>
+<p class='text-small'>Generated on 2014-09-17 21:41:19</p>
 </body>
 </html>
 
