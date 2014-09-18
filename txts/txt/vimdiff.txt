@@ -1,3 +1,6 @@
+
+Details on this page: http://www.rosipov.com/blog/use-vimdiff-as-git-mergetool/
+
 vimdiff with git
 ================
 
@@ -41,10 +44,6 @@ Insert mode
 
 Generally not useful when vimdiffing, but insert mode:
     :i, ESC to come out
-
-Details on this page: http://www.rosipov.com/blog/use-vimdiff-as-git-mergetool/
-
-
 
 
 Using lines from other buffers to resolve merge
