@@ -107,3 +107,21 @@ footer{
 .text-small{
     font-size:10px;
 }
+
+.btn{
+    background: #eee;
+    padding:5px;
+    color:#333;
+    font-weight:600;
+}
+
+/* site specific */
+
+.txt-content {
+    margin: auto;
+    background: #fff;
+    border: 20px solid #eee;
+    padding: 10px;
+    box-shadow: 0 0 3px rgba(0,0,0,0.3) inset;
+    margin-top: 15px;
+}
