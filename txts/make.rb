@@ -4,11 +4,32 @@
 #
 class Templater
   attr_accessor :params
+  attr_accessor :filters
   def initialize
     @@recursivity = 3
     @params = {
       urlPrefix: ""
     }
+    @filters = []
+    
+    loadFilters()
+  end
+  #
+  # Currently unused, but could become useful
+  #
+  def loadFilters
+    Dir.glob("filters/*.rb").each do |filterPath|
+      name = /filters\/(.*).rb/.match(filterPath)[1]
+      load filterPath
+      filter = Object.const_get(name.capitalize).new
+      @filters.push(filter)
+    end
+  end
+  def runFilters(string)
+    @filters.each do |filter|
+      string = filter.run(string)
+    end
+    return string
   end
   def fill(template,params = {})
     params = @params.merge(params)
@@ -16,6 +37,7 @@ class Templater
       # Replace parameters
       params.each do |name,value|
         template.sub!("{{#{name}}}",value)
+        template = runFilters(template)
       end
     end
     
@@ -52,8 +74,6 @@ def build
             content: htmlContent,
             title: name
           }
-          
-          puts params
           
           htmlContent = templater.fill(txtTemplate.clone,params)
           
