@@ -5,9 +5,11 @@
 }
 
 body{
-    background:#555;
+    background:#eee;
     color:#000;
     min-height:1000px;
+    max-width:100%;
+    overflow-x:hidden;
 }
 
 h1{
@@ -17,8 +19,6 @@ h1{
 canvas{
     vertical-align: middle;
     margin:0;
-    border-radius:10px;
-    box-shadow:0 0 18px rgba(0,0,0,0.8);
     background:#fff;
     margin-top:10px;
     margin-bottom:10px;
@@ -47,14 +47,27 @@ canvas{
     font-size:100px;
     font-family: 'Open Sans', sans-serif;
     font-weight: 300;
-    text-shadow: 0 0 3px rgba(0,0,0,0.8);
+    text-shadow: 0 0 3px rgba(0,0,0,0.3);
     color:#fff;
     transition:all 2s;
 }
-.top-links{
-    background:#fff;
-    color:#000;
-    padding-left:10px;
+
+.top-links {
+    background: none repeat scroll 0% 0% #FFF;
+    color: #444;
+    padding: 13px;
+}
+@media all and (min-width:900px){
+    .top-links{
+        margin-top:18px;
+        margin-bottom: -65px;
+        position: relative;
+        z-index:3;
+        opacity: 0.8;
+    }
+    .top-links:hover{
+        opacity: 1;
+    }
 }
 
 .top-links span{
