@@ -33,18 +33,36 @@
         </a>
     </div>
     <div class="col full-width">
+        <h3>Beware of errors</h3>
+        <p>Make sure your values are between 0 and 254, or else weird things will happen.</p>
         <h3>Sample code</h3>
+        <p>Produces a sine wave with a frequency of 220 hz (LA [A])</p>
         <a class='button use-sample-code'>Use</a>
 <pre class='code sample-code'>
-// Taken from the sample at http://codebase.es/riffwave/
 var data = [];
 
-for (var i=0; i<10000; i++){
-  // fill data with random samples
-  data[i] = Math.round(255 * Math.random());
+var multipliers = [1];
+var length = 44100;
+var frequency = 220;
+var second = 44100;
+var PI = Math.PI;
+
+for (var i = 0; i < length; i++){
+    // Physics & math: 
+    // y = A cos (ωt)
+    // ω = 2πf
+    // t = i / [samples per second]
+    // data[i] = y = A cos (2πf*(i/seconds))
+    data[i] = 127 + 
+        Math.round(
+            127 * Math.cos(2*Math.PI*frequency*(i/second))
+        );
 }
 
-var wave = new RIFFWAVE(data); // create the wave file
+var wave = new RIFFWAVE(); // create the wave file
+wave.header.sampleRate = second;
+wave.header.numChannels = 1;
+wave.Make(data);
 var audio = new Audio(wave.dataURI); // create the HTML5 audio element
 
 audio.play(); // some noise
