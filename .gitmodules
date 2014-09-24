@@ -1,0 +1,3 @@
+[submodule "triangular"]
+	path = triangular
+	url = git@github.com:antoineMoPa/triangular.git
