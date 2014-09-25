@@ -141,6 +141,40 @@ var audio = new Audio(wave.dataURI);
 
 audio.play();
 </pre>
+
+<h3>Beats</h3>
+<pre class='code'>
+// Both sinuses start at same frequency.
+// Second frequency augments by a factor i/second*8 (8 Hz/second),
+// So we can see a beat appearing and 
+// transforming itself into a third sin
+var data = [];
+
+var length = 384100;
+var second = 44100;
+
+var f = 340;
+
+for (var i = 0; i < length; i++){
+                    // Here are our 2 sinuses
+    data[i] = 43 + 
+        Math.round(
+            43 * Math.sin(2*Math.PI*(f)*(i/second))
+        ) + 
+                    43 + 
+        Math.round(
+            43 * Math.sin(2*Math.PI*(f+i/second*8)*(i/second))
+        );
+}
+
+var wave = new RIFFWAVE();
+wave.header.sampleRate = second;
+wave.header.numChannels = 1;
+wave.Make(data);
+var audio = new Audio(wave.dataURI);
+
+audio.play(); // some noise
+</pre>
         
     </div>
 
