@@ -14,6 +14,8 @@
 </head>
 <body>
 
+<a href='index.html' class='button back-to-home'>Back to my homepage</a>
+
 <div class='col full-width'>
     <h3>Introduction</h3>
     <p>This is a tool to play with javascript and sound. it includes the <a href="http://codebase.es/riffwave/" target="_blank" >riffwave.js</a> library by Pedro Ladaria.</p>
@@ -23,25 +25,11 @@
 <div class="controls">
     <div class="col half-width">
         
-        <textarea id="sound-code">"hello world!"</textarea>
-        
-    </div>
-    <div class="col half-width">
-        <pre class="log"></pre>
-        <a class="button clear-log">
-            Clear log
-        </a>
-    </div>
-    <div class="col full-width">
-        <h3>Beware of errors</h3>
-        <p>Make sure your values are between 0 and 254, or else weird things will happen.</p>
-        <h3>Sample code</h3>
-        <p>Produces a sine wave with a frequency of 220 hz (LA [A])</p>
-        <a class='button use-sample-code'>Use</a>
-<pre class='code sample-code'>
+<textarea id="sound-code">
+// Sample code
+// Produces a sine wave with a frequency of 220 hz (LA [A])
 var data = [];
 
-var multipliers = [1];
 var length = 44100;
 var frequency = 220;
 var second = 44100;
@@ -66,8 +54,93 @@ wave.Make(data);
 var audio = new Audio(wave.dataURI); // create the HTML5 audio element
 
 audio.play(); // some noise
+</textarea>
+    <div class='text-right'>
+        <a class='button run-code'>Run!</a>
+    </div>
+    </div>
+    <div class="col half-width">
+        <pre class="log"></pre>
+        <div class='text-right'>
+            <a class="button clear-log">
+                Clear log
+            </a>
+        </div>
+    </div>
+    <div class="col full-width">
+        <h3>Beware of errors</h3>
+        <p>Make sure your values are between 0 and 254, or else weird things will happen.</p>
+<h3>Doppler effect simulation</h3>
+
+<pre class='code'>
+var data = [];
+
+var length = 184100;
+var second = 44100;
+var PI = Math.PI;
+
+// Note: you have to change the sign of v and vf depending on
+// how the speeds influence the frequency.
+
+var vo = 0; // speeds are in m/s. this is the speed of the observer
+var vs = 27.7;  // speed of the source
+var v = 343; // speed of sound
+
+var f = 340; // Source frequency
+
+for (var i = 0; i < length; i++){
+    if(i > length/2){
+        vs = -27.7;
+    }
+    
+    var fprime = f * (v + vo)/(v - vs);
+    
+    data[i] = 127 + 
+        Math.round(
+            127 * Math.sin(2*Math.PI*(fprime)*(i/second))
+        );
+}
+
+var wave = new RIFFWAVE();
+wave.header.sampleRate = second;
+wave.header.numChannels = 1;
+wave.Make(data);
+var audio = new Audio(wave.dataURI);
+
+audio.play(); // some noise
 </pre>
 
+<h3>Sounds from another planet</h3>
+
+<p>This is just the sum of many cosinuses with parameters that change with for every sample.</p>
+
+<pre class='code'>
+var data = [];
+
+var length = 104100;
+var frequency = 220;
+var second = 44100;
+var PI = Math.PI;
+
+for (var i = 0; i < length; i++){
+    data[i] = 127 + 
+        Math.round(
+            23 * Math.cos(2*Math.PI*(i*i/20000)*(i/second)) + 
+                23 * Math.cos(2*Math.PI*(i%72)*(i/second)) +
+                23 * Math.cos(2*Math.PI*(i/83)*(i/second)) +
+                23 * Math.cos(2*Math.PI*(i%94)*(i/second)) +
+                23 * Math.cos(2*Math.PI*(i/105)*(i/second))
+        );
+}
+
+var wave = new RIFFWAVE();
+wave.header.sampleRate = second;
+wave.header.numChannels = 1;
+wave.Make(data);
+var audio = new Audio(wave.dataURI);
+
+audio.play();
+</pre>
         
     </div>
 

@@ -34,7 +34,9 @@ function Sound(){
             }
         }
     });
-
+    $(".run-code").on("click",function(){
+        sound.playSound();
+    });
 }
 
 Sound.prototype.initEditor = function(){    
