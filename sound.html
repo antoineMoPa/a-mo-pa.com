@@ -175,7 +175,44 @@ var audio = new Audio(wave.dataURI);
 
 audio.play(); // some noise
 </pre>
-        
+
+<h3>Dephased waves: 2 waves fighting against each other!</h3>
+
+<p>With 2 speakers, this example should cause 2 waves to interfere with each other. At some places, the waves will cancel each other. At some other places, the 2 waves will be combined into a single wave of a greater amplitude.</p>
+
+<p>You should be able to move around your computer room and hear different sound intensities.</p>
+
+<pre class='code'>
+var data = [];
+
+var length = 2384100;
+var second = 44100;
+
+var f = 340;
+
+for (var i = 0; i < length; i += 2){
+    data[i] = 127 + 
+        Math.round(
+            127 * Math.sin(2*Math.PI*(f)*(i/second))
+        );
+    // This wave is the same as the last one, 
+    // but with a phase constant of π
+    // So when the last sample is 1, this one is -1
+    data[i+1] = 127 + 
+        Math.round(
+            127 * Math.sin(2*Math.PI*(f)*(i/second)  + Math.PI)
+        );
+}
+
+var wave = new RIFFWAVE();
+wave.header.sampleRate = second;
+wave.header.numChannels = 2;
+wave.Make(data);
+var audio = new Audio(wave.dataURI);
+
+audio.play(); // some noise
+</pre>
+  
     </div>
 
 </div>
