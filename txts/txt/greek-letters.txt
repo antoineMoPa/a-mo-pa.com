@@ -2,33 +2,20 @@ From wikipedia list at [http://en.wikipedia.org/wiki/Greek_alphabet]
 
 Safe for copy/paste [No formatting]
 
-Α α  alpha
-Β β  beta
-Γ γ  gamma
-Δ δ  delta
-Ε ε  epsilon
-Ζ ζ  zeta
-Η η  eta
-Θ θ  theta
-Ι ι  iota
-Κ κ  kappa
-Λ λ  lambda
-Μ μ  mu
- 
-Ν ν  nu
-Ξ ξ  xi
-Ο ο  omicron
-Π π  pi
-Ρ ρ  rho
-Σ σ/ς  sigma
-Τ τ  tau
-Υ υ  upsilon
-Φ φ  phi
-Χ χ  chi
-Ψ ψ  psi
-Ω ω  omega
+Α	α	 alpha    	|	 Ν	ν	nu	      
+Β	β	 beta     	|	 Ξ	ξ	xi	     
+Γ	γ	 gamma    	|	 Ο	ο	omicron 
+Δ	δ	 delta    	|	 Π	π	pi	     
+Ε	ε	 epsilon  	|	 Ρ	ρ	rho     
+Ζ	ζ	 zeta     	|	 Σ	σ/ς	sigma 
+Η	η	 eta      	|	 Τ	τ	tau     
+Θ	θ	 theta    	|	 Υ	υ	upsilon 
+Ι	ι	 iota     	|	 Φ	φ	phi     
+Κ	κ	 kappa    	|	 Χ	χ	chi     
+Λ	λ	 lambda   	|	 Ψ	ψ	psi     
+Μ	μ	 mu	      	|	 Ω	ω	omega   
 
 
 You may also like:
 
-± More or less sign
+±   More or less sign
