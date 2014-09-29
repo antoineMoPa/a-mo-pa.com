@@ -1,0 +1,69 @@
+
+Details on this page: [http://www.rosipov.com/blog/use-vimdiff-as-git-mergetool/ working with vimdiff]
+
+vimdiff with git
+================
+
+To merge files, you can run
+[terminal]
+git mergetool --tool=vimdiff
+[/terminal]
+Normally, this will launch git with vimdiff by default
+[terminal]
+git mergetool
+[/terminal]
+
+(You need to install vim if it is not there)
+
+
+Vim basics
+==========
+
+Vim is an annoying editor. When not in insert mode, you can run commands by typing ':mycommandhere'
+(without the '')
+(then you press enter)
+
+
+
+Git merge basics
+================
+
+Git creates 3 files when merging changes to one file. One of REMOTE/BASE/LOCAL get added to the filename:
+
+    REMOTE: The version that you pulled
+    BASE: The version from a prior commit, before versions of files got different
+    LOCAL: The file on your machine
+
+Appart from these three files, you will still have the file with the original name. 
+This is where you have to merge your changes and it appears as the bottom buffer of the vimdiff screen.
+
+
+
+Insert mode
+===========
+
+Generally not useful when vimdiffing, but insert mode:
+    :i, ESC to come out
+
+
+Using lines from other buffers to resolve merge
+===============================================
+
+This is how you actually merge. You takes lines from a file and put it in the other until you have something nice.
+
+Use REMOTE: 
+[terminal]
+:diffget REMOTE
+[/terminal]
+Use BASE:
+[terminal]
+:diffget BASE
+[/terminal]
+Use LOCAL:
+[terminal]
+:diffget LOCALE
+[/terminal]
+Save all and exit: 
+[terminal]
+:wqa
+[/terminal]

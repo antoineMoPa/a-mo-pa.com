@@ -1,0 +1,138 @@
+[lang-en]
+
+Basic git commands
+==================
+
+Cheat sheet for the git command line
+
+
+Basic operations
+----------------
+
+[terminal]
+git init
+
+git add .
+
+git commit -m ""
+[/terminal]   
+
+Interaction with a server
+-------------------------
+
+[terminal]
+git push origin master
+
+git pull origin master
+[/terminal]
+
+Remote repo operations
+----------------------
+
+[terminal]
+# List remote repositories and urls
+git remote -v
+
+# Add remote repository
+git remote add repname git@gitserver.com:user/repo
+
+# Remove a remote repo
+git remote rm repname
+
+# different in some git versions
+git remote remove repname
+[/terminal]
+
+Clone repositories
+------------------
+[terminal]
+git clone git@gitserver.com:user/repo
+[/terminal]
+
+Generate ssh key in mac/linux
+-----------------------------
+        
+[terminal]
+# Run and press enter all the way to accept default values
+ssh-keygen
+[/terminal]
+        
+[/lang-en]
+[lang-fr]
+
+Il est relativement facile de s'orienter dans les interfaces 
+visuelles de git. Cependant, connaitre le côté terminal de git 
+assure une meilleure connaissance de git.
+
+
+Aussi, il est avantageux de connaitre les commandes, puisqu'elles 
+marchent sur plus de systèmes d'exploitation.
+
+
+Les commandes git sont essentielles lorsqu'on à qu'un accès par
+terminal à un ordinateur (Par exemple dans le cas 
+d'un serveur web).
+
+
+Commandes git de base
+=====================
+
+Feuille de référence pour git en console
+
+
+Opérations de base
+------------------
+
+[terminal]
+git init
+
+git add .
+
+git commit -m ""
+[/terminal]
+
+Interactions avec un serveur
+----------------------------
+
+[terminal]
+        git push origin master
+
+        git pull origin master
+[/terminal]
+        
+Opérations avec un dépôt distant
+--------------------------------
+
+[terminal]
+# Voir les dépots distants et leurs URLS
+git remote -v
+
+# Ajouter un dépôt distant
+git remote add repname git@gitserver.com:user/repo
+
+# Enlever un dépôt distant
+git remote rm repname
+
+# La ligne précédente s'écrit comme suit dans certaines versions de git
+git remote remove repname
+[/terminal]
+
+Cloner des dépôts
+----------------
+
+Pour prendre le contenu entier d'un dépôt et le copier sur sa machine
+
+[terminal]
+git clone git@gitserver.com:user/repo
+[/terminal]
+
+Générer une clée ssh sous mac/linux
+-----------------------------------
+
+Exécutez ceci en terminal et appuyez sur <Enter> pour chaque étapes
+
+[terminal]
+ssh-keygen
+[/terminal]
+        
+[/lang-fr]

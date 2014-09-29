@@ -14,9 +14,8 @@ class Templater
     
     loadFilters()
   end
-  #
-  # Currently unused, but could become useful
-  #
+  
+  
   def loadFilters
     Dir.glob("filters/*.rb").each do |filterPath|
       name = /filters\/(.*).rb/.match(filterPath)[1]
@@ -37,7 +36,6 @@ class Templater
       # Replace parameters
       params.each do |name,value|
         template.sub!("{{#{name}}}",value)
-        template = runFilters(template)
       end
     end
     
@@ -71,7 +69,7 @@ def build
 
           params = {
             urlPrefix:"../",
-            content: htmlContent,
+            content: templater.runFilters(htmlContent),
             title: name
           }
           
@@ -94,4 +92,10 @@ def build
   end
 end
 
-build
+def removePreviousFiles
+  #`rm -r html/*`
+end
+
+removePreviousFiles()
+
+build()

@@ -23,13 +23,12 @@ function map(array,callback){
 activateLang();
 
 function activateLang(){
-    var txts = $(".txt-content");
+    var txts = $("txt-content");
     
     for(var i = 0; i < txts.length; i++){
         var txt = txts[i];
         
         var txtHTML = txt.innerHTML;
-        var source = txt.innerHTML;
         
         var regexp = /\[(lang-(.*))\]([^]*)\[\/\1\]/g;
         var langs = [];
@@ -49,10 +48,7 @@ function activateLang(){
             // Remove current text from string
             txtHTML = txtHTML.replace(matches[0],"");
         }
-        
-        langs.push("source");
-        versions.push(source);
-        
+                
         if(langs.length > 0){
             txt.innerHTML = txtHTML;
             txt.outerHTML = buildLangSelector(langs)
@@ -69,7 +65,7 @@ function activateLang(){
         defaultLang = 
             defaultLangMatch != null?
             defaultLangMatch[1]:
-            "source";
+            "en";
         
         chooseLang(defaultLang);
     }
@@ -89,10 +85,10 @@ function activateLang(){
         var content = "";
         for(var i in versions){
             content 
-                += "<pre class='txt-content linguified-txt' "
+                += "<txt-content class='linguified-txt' "
                 + "data-lang='"+langs[i]+"'>";
             content += versions[i];
-            content += "</pre>";
+            content += "</txt-content>";
         }
         return content;
     }
