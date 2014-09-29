@@ -1,3 +1,0 @@
-http://google.com
-[http://google.com]
-[https://google.com/frfre frefre]

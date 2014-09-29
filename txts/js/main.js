@@ -51,8 +51,12 @@ function activateLang(){
                 
         if(langs.length > 0){
             txt.innerHTML = txtHTML;
-            txt.outerHTML = buildLangSelector(langs)
-                + buildVersions(versions);
+            txt.outerHTML = buildVersions(versions);
+            
+            txtButtons = $(".txt-buttons")[0];
+            
+            txtButtons.innerHTML = buildLangSelector(langs)
+                + txtButtons.innerHTML;
             activateSwitches();
         }
         
@@ -70,7 +74,7 @@ function activateLang(){
         chooseLang(defaultLang);
     }
     function buildLangSelector(langs){
-        var selector = "<text-right><lang-selector>";
+        var selector = "<lang-selector>";
         for(var i in langs){
             href = window.location
                 .href
@@ -78,7 +82,7 @@ function activateLang(){
             href += "?lang=" + langs[i];
             selector += "<a href='"+href+"' class='btn'>"+langs[i]+"</a>";
         }
-        selector += "</lang-selector></text-right>";
+        selector += "</lang-selector>";
         return selector;
     }
     function buildVersions(versions){

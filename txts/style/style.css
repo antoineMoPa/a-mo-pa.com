@@ -96,14 +96,6 @@ a{
     text-decoration:none;
 }
 
-footer{
-    margin-top:20px;
-    font-family:'sans-serif';
-    background:#ddd;
-    box-shadow:0 0 3px rgba(0,0,0,0.3) inset;
-    padding:20px;
-}
-
 .text-small{
     font-size:10px;
 }
@@ -114,15 +106,30 @@ footer{
     padding:5px;
     margin:5px;
     color:#333;
-    font-weight:600;
+    font-weight:300;
+    font-family: sans-serif;
+}
+
+.btn.big{
+    padding:10px;
+}
+
+.btn.small{
+    font-size:11px;
 }
 
 .btn:hover{
-    background:#aaa;
+    background:#222;
+    color:#fff;
     cursor:pointer;
 }
 
 /* site specific */
+
+
+header .btn{
+    margin-right:0;
+}
 
 txt-content {
     display:block;
@@ -180,4 +187,18 @@ txt-content pre.terminal{
     color: #fff;
     width:500px;
     padding:10px;
+}
+
+.btn.back-to-home{
+    background:#eee;
+    color:#333;
+    margin-left:10px;
+}
+
+footer{
+    margin-top:20px;
+    font-family:'sans-serif';
+    background:#efefef;
+    color:#333;
+    padding:20px;
 }

@@ -1,3 +1,5 @@
+require 'fileutils'
+
 #
 # Templater:
 # Replaces value wrapped like that in strings {{myParam}}
@@ -61,14 +63,24 @@ def build
     File.open('index.html','w') do |indexFile|
       filesList = "";
       filesListHtml = "";
-      Dir.glob('./txt/*') do |file|
+      Dir.glob('{./txt/*.txt,./txt/*/*.txt}') do |file|
         if (/(.*).txt$/.match (file))
           name = file.sub(/^.\/txt/,"")
           name.gsub!(/^\//,"")
+          
           htmlContent = File.open("txt/#{name}","r").read();
-
+          
+          urlPrefix = "../"
+          slashes = name.scan(/\//)
+          
+          if !slashes.nil?
+            slashes.size.times {
+              urlPrefix += "../"              
+            }
+          end
+          
           params = {
-            urlPrefix:"../",
+            urlPrefix: urlPrefix,
             content: templater.runFilters(htmlContent),
             title: name
           }
@@ -77,10 +89,13 @@ def build
           
           htmlName = "html/" + name + ".html"
           
+          dirname = File.dirname(htmlName)
+          FileUtils.mkdir_p(dirname)
+          
           File.open(htmlName,'w').write(htmlContent)
           
           filesList += "\t" + name + "\n\n"
-          filesListHtml += "<a href='#{htmlName}'>#{name}</a><br>"
+          filesListHtml += "<a class='btn' href='#{htmlName}'>#{name}</a><br>"
         end
       end
       
@@ -93,7 +108,7 @@ def build
 end
 
 def removePreviousFiles
-  #`rm -r html/*`
+  `rm -r html/*`
 end
 
 removePreviousFiles()

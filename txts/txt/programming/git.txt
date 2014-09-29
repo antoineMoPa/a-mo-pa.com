@@ -62,7 +62,7 @@ ssh-keygen
 
 Il est relativement facile de s'orienter dans les interfaces 
 visuelles de git. Cependant, connaitre le côté terminal de git 
-assure une meilleure connaissance de git.
+en assure une meilleure connaissance.
 
 
 Aussi, il est avantageux de connaitre les commandes, puisqu'elles 
@@ -70,8 +70,7 @@ marchent sur plus de systèmes d'exploitation.
 
 
 Les commandes git sont essentielles lorsqu'on à qu'un accès par
-terminal à un ordinateur (Par exemple dans le cas 
-d'un serveur web).
+terminal à un ordinateur (Par exemple dans le cas d'un serveur web).
 
 
 Commandes git de base
