@@ -6,3 +6,13 @@ fn F3  [or nf f3, in the french version] : insert numbered equation
 ctrl + i : put text in italic
 
 ctrl + b : put text in bold
+
+____________________________________________________________________
+
+
+How to get cell content and keep number format in LibreOffice Calc
+
+  Change V20 (both appearances) for the cell you want
+  (And adapt to your needs)
+  
+  =TEXT(V20,CONCATENATE("0.",REPT("0",VALUE(SUBSTITUTE(CELL("format",V20),"F","")))))
