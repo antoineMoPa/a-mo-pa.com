@@ -125,7 +125,7 @@ Renderer.prototype.pointToCamera = function(points){
 };
 
 Renderer.prototype.renderFrame = function(){
-    this.ctx.fillStyle = "rgba(255,255,255,0.2)";
+    this.ctx.fillStyle = "rgba(255,255,255,0.9)";
     this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
 
     for(var i = 0; i < this.tris.length; i+=9){
@@ -134,10 +134,10 @@ Renderer.prototype.renderFrame = function(){
         var date = new Date().getTime();
         var red = parseInt((Math.abs(Math.sin(date/3405))*255));
         var green = parseInt((Math.abs(Math.sin(date/2230))*255));
-        var blue = parseInt((Math.abs(Math.sin(date/900))*255));
+        var blue = parseInt((Math.abs(Math.sin(date/900+0.2))*255));
 
         //this.ctx.fillStyle = this.materials[this.tris[i+9]];
-        this.ctx.fillStyle = "rgba("+red+","+green+","+blue+",0.2)";
+        this.ctx.fillStyle = "rgba("+red+","+green+","+blue+",0.4)";
         this.ctx.moveTo.apply(this.ctx,this.pointToCamera(this.tris.slice(i,i+3)));
         this.ctx.lineTo.apply(this.ctx,this.pointToCamera(this.tris.slice(i+3,i+6)));
         this.ctx.lineTo.apply(this.ctx,this.pointToCamera(this.tris.slice(i+6,i+9)));
