@@ -81,3 +81,6 @@ pre.code{
     0 0 3px rgba(255,255,255,1);
 }
 
+.array-drawer-content{
+    display: none;
+}
