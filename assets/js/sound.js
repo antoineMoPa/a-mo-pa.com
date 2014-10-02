@@ -10,7 +10,7 @@ $.ready(function(){
     $(".clear-log").on("click",function(){
         $(".log").html("");
     });
-
+    
     $(".use-sample-code").on("click",function(){
         sound.editor.setValue(
             $(".sample-code").text()
@@ -79,21 +79,32 @@ function initArrayDrawer(){
     redraw();
     
     canvas.onmousemove = eventHandler;
-    canvas.onmousedown = eventHandler;
+    canvas.onmousedown = startDrag;
+    canvas.onmouseup = stopDrag;
+    
+    var dragging = false;
+    
+    function startDrag(e){
+        dragging = true;
+        eventHandler(e)
+    }
+    function stopDrag(){
+        dragging = false;
+    }
     
     var timeout = null;
     var minTimeBetweenFrames = 33;
-
+    
+    var smoothness = 30;
+    
     function eventHandler(e){
         var x = (e.pageX - canvas.offsetLeft) / canvas.width;
         var y = 1 - 2 * 
             (e.pageY - canvas.offsetTop) / 
             canvas.height;
-        if(e.buttons == 1){
+        if(dragging){
             var index = parseInt(x*array.length);
             
-            var smoothness = 30;
-
             var i = index - smoothness;
             var diff;
             

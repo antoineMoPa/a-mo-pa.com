@@ -3,6 +3,7 @@ $.ready(function(){
     happySquares2(".a-mo-pa-canvas-2");
     frequencies();
     spirals();
+    circles();
 });
 
 function happySquares(element){
@@ -283,6 +284,49 @@ function frequencies(){
 }
 
 function spirals(c,ctx){
+    function Map(c,ctx){
+        this.c = c;
+        this.ctx = ctx;
+        this.lines = [];
+        this.points = [];
+    }
+
+    Map.prototype.drawLines = function(){    
+        // For loop transformed into an interval
+        var that = this;
+        var i = 0;
+        var interval = setInterval(function(){
+            that.ctx.strokeStyle = "rgba(255,255,50,0.1)";
+            that.ctx.lineWidth = 40;
+            map.stroke(that.points[i-2],that.points[i-1],that.points[i],that.points[i+1]);
+            
+            that.ctx.strokeStyle = "rgba(200,100,50,0.4)";
+            that.ctx.lineWidth = 20;
+            map.stroke(that.points[i-2],that.points[i-1],that.points[i],that.points[i+1]);
+            that.ctx.strokeStyle = "rgba(255,200,50,0.6)";
+            that.ctx.lineWidth = 14;
+            map.stroke(that.points[i-2],that.points[i-1],that.points[i],that.points[i+1]);
+            that.ctx.strokeStyle = "rgba(255,255,50,0.6)";
+            that.ctx.lineWidth = 2;
+            map.stroke(that.points[i-2],that.points[i-1],that.points[i],that.points[i+1]);
+
+            
+            i += 2;
+            if(i > that.points.length){
+                clearInterval(interval);
+            }
+        },50);
+    }
+
+    Map.prototype.stroke = function(x,y,x2,y2){
+        var ctx = this.ctx;
+
+        ctx.beginPath();
+        ctx.moveTo(x,y);
+        ctx.lineTo(x2,y2);
+        ctx.stroke();
+    }
+    
     var c = document.querySelectorAll(".spirals-canvas")[0];
     var ctx = c.getContext("2d");
     var interval;
@@ -334,45 +378,173 @@ function spirals(c,ctx){
     }
 }
 
-function Map(c,ctx){
-    this.c = c;
-    this.ctx = ctx;
-    this.lines = [];
-    this.points = [];
-}
+function circles(){
+    var c = document.querySelectorAll(".circles-canvas")[0];
+    var ctx = c.getContext("2d");
+    var halfX;
+    var halfY;
+    var container = c.parentNode;
+    
+    adaptSize(c);
+    $(window).on("resize",function(){
+        halfX = c.width / 2;
+        halfY = c.height / 2;
+        adaptSize(c);
+    });
+    
+    halfX = c.width / 2;
+    halfY = c.height / 2;
+    
+    var pointSets = [];
+    
+    var points = [];
+            
+    for(var i=0; i < 30; i++){
+        points.push([i,60*i,1+0.3*i,i*5])
+    }
+    
+    pointSets.push(points);
+    
+    var points = [];
+    
+    /* Create some cool combinations of points  */
+    
+    for(var i=0; i < 30; i++){
+        points.push([i, 30*i,1+0.3*i,i*5])
+    }
 
-Map.prototype.drawLines = function(){    
-    // For loop transformed into an interval
-    var that = this;
-    var i = 0;
-    var interval = setInterval(function(){
-        that.ctx.strokeStyle = "rgba(255,255,50,0.1)";
-        that.ctx.lineWidth = 40;
-        map.stroke(that.points[i-2],that.points[i-1],that.points[i],that.points[i+1]);
-        
-        that.ctx.strokeStyle = "rgba(200,100,50,0.4)";
-        that.ctx.lineWidth = 20;
-        map.stroke(that.points[i-2],that.points[i-1],that.points[i],that.points[i+1]);
-        that.ctx.strokeStyle = "rgba(255,200,50,0.6)";
-        that.ctx.lineWidth = 14;
-        map.stroke(that.points[i-2],that.points[i-1],that.points[i],that.points[i+1]);
-        that.ctx.strokeStyle = "rgba(255,255,50,0.6)";
-        that.ctx.lineWidth = 2;
-        map.stroke(that.points[i-2],that.points[i-1],that.points[i],that.points[i+1]);
+    pointSets.push(points);
+    
+    var points = [];
+            
+    for(var i=0; i < 30; i++){
+        points.push([i, 6*i,1+0.4*i,i*5])
+    }
+    
+    pointSets.push(points);
+    
+    var points = [];
+            
+    for(var i=0; i < 30; i++){
+        points.push([i, 6*i,1+0.4*i,i*5])
+    }
 
+    pointSets.push(points);
         
-        i += 2;
-        if(i > that.points.length){
-            clearInterval(interval);
+    var points = [];
+            
+    for(var i=0; i < 40; i++){
+        points.push([i, Math.pow(i,2.3),1+0.4*i,40-i*3])
+    }
+    
+    pointSets.push(points);
+
+    var points = [];
+    
+    for(var i=0; i < 60; i++){
+        points.push([i, 6*i,1+0.08*i,2]);        
+    }
+    
+    points.push([i, halfX,4,30])
+    
+    pointSets.push(points);
+    
+    var points = [];
+    
+    for(var i=0; i < 60; i++){
+        points.push([i, 20+4*i,3-0.3*i,10]);        
+    }
+
+    
+    pointSets.push(points);
+
+    
+    var points = pointSets[0];
+    var maxRadius = 0;
+    var maxSize = 0;
+    
+    for(var i = 0; i < points.length;i++){
+        if(points[i][1] > maxRadius){
+            maxRadius = points[i][1];
         }
-    },50);
-}
+        if(points[i][3] > maxSize){
+            maxSize = points[i][3];
+        }
+    }
+        
+    function renderArcs(angleOffset,mouseX,mouseY){
+        ctx.fillStyle = "rgba(0,0,0,1)";
+        ctx.fillRect(0,0,c.width,c.height);
+        
+        for(var i = 0; i < points.length; i++){
+            var radius = points[i][1];
+            var speed = points[i][2];
+            var size = points[i][3];
+            var opacity = 0.3 - 0.29*size/maxSize;
+            var xDisplacement = 
+                (mouseX/20 - halfX/20) * 
+                ( maxRadius / (16*radius) );
+            var yDisplacement = 
+                (mouseY/20 - halfY/20) * 
+                ( maxRadius / (16*radius) );
 
-Map.prototype.stroke = function(x,y,x2,y2){
-    var ctx = this.ctx;
-
-    ctx.beginPath();
-    ctx.moveTo(x,y);
-    ctx.lineTo(x2,y2);
-    ctx.stroke();
+            var repetitions = parseInt(0.6*maxSize/size);
+            
+            for(var j = 0;j < repetitions;j++){                
+                var theta = speed*2*Math.PI*
+                    (points[i][0] + j + angleOffset)/360;
+                var red = angleOffset % 255;
+                var green = 255;
+                var blue = 127;
+                
+                ctx.fillStyle = "rgba("+
+                    red+","+
+                    green+","+
+                    blue+","+opacity+")";
+                
+                var x = halfX + radius * Math.cos(theta);
+                var y = halfY - radius * Math.sin(theta);
+                drawCircle(x + xDisplacement,
+                           y + yDisplacement,
+                           size);
+            }
+        }
+    }
+    
+    function drawCircle(x,y,radius){
+        ctx.beginPath();
+        ctx.arc(x,y,radius,0,2*Math.PI);
+        ctx.closePath();
+        ctx.fill();
+    }
+    angleOffset = 0;
+    
+    var mouseX;
+    var mouseY;
+    var interval;
+    
+    function startInterval(){
+        interval = setInterval(function(){
+            renderArcs(angleOffset,mouseX,mouseY);
+            angleOffset++;
+        },33)
+    }
+    
+    container.onmouseenter = startInterval;
+    container.onmouseleave = function(){
+        clearInterval(interval);
+    };
+    
+    container.onmousemove = function(e){
+        mouseX = e.clientX - c.offsetLeft;
+        mouseY = e.clientY - c.offsetTop + window.scrollY;
+    }
+    
+    var clicks = 0;
+    c.onclick = function(){
+        clicks++;
+        points = pointSets[clicks % pointSets.length];
+        angleOffset = 0;
+    }
+    
 }

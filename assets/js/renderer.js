@@ -32,7 +32,8 @@ $.ready(function(){
     var y = c.height;
     
     
-    var container = document.querySelectorAll(".title-canvas-container")[0];
+    var container = c.parentNode;
+        
     container.onmousemove = c.onmousemove = function(e){
         x = 0.7 * e.clientX;
         y = e.clientY;
@@ -46,9 +47,6 @@ $.ready(function(){
     
     replaceTris();
     
-    container.onclick = function(){
-        container.querySelectorAll("h1")[0].style.opacity = 0;
-    }
     container.onmouseenter = start;
     container.onmouseleave = function(){
         clearInterval(interval);
