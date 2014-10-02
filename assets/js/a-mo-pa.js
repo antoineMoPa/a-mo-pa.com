@@ -482,11 +482,11 @@ function circles(){
             var size = points[i][3];
             var opacity = 0.3 - 0.29*size/maxSize;
             var xDisplacement = 
-                (mouseX/20 - halfX/20) * 
-                ( maxRadius / (16*radius) );
+                (mouseX/2 - halfX/2) * 
+                ( (16*radius) / maxRadius );
             var yDisplacement = 
-                (mouseY/20 - halfY/20) * 
-                ( maxRadius / (16*radius) );
+                (mouseY/2 - halfY/2) * 
+                ( (16*radius) / maxRadius );
 
             var repetitions = parseInt(0.6*maxSize/size);
             
