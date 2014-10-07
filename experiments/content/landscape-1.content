@@ -1,2 +1,17 @@
-<canvas name="landscape-1">
-</canvas>
+<text-center>
+	<canvas name="landscape-1" width="779" height="507">
+	</canvas>
+</text-center>
+
+
+
+<h3>Layers used</h3>
+
+<text-center>
+	<img src="../images/sherbrooke-1889/layers/1.png">
+    <img src="../images/sherbrooke-1889/layers/2.png">
+    <img src="../images/sherbrooke-1889/layers/3.png">
+    <img src="../images/sherbrooke-1889/layers/4.png">
+    <img src="../images/sherbrooke-1889/layers/crasse.png">
+	<img src="../images/sherbrooke-1889/layers/last.png">
+</text-center>
