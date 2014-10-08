@@ -5,23 +5,37 @@ var height = canvas.height;
 
 var images = document.getElementsByTagName("img");
 
+var deviceorientation = 0;
+
 var mouseX = 0;
 var mouseY = 0;
 var halfX = width/2;
 var halfY = height/2;
 
-var layerMouseWeights = [0.04,0.028,0.024,0.020,0.05,0.01]
+var layerMouseWeights = [0.04,0.028,0.024,0.020,0.05,0.01];
+var layerZooms = [1.09,1.1,1.1,1.1,1.1,1.1];
+
+var hidden = document.querySelectorAll(".hidden");
+
+for(var i = 0; i < hidden.length; i++){
+    hidden[i].style.display = 'none';
+}
 
 function redraw(){
-    var x,y;
-
-	ctx = canvas.getContext("2d");
+    var x,y,w,h,dw,dh;
+    ctx = canvas.getContext("2d");
 	ctx.clearRect(0,0,width,height);
-
 	for(i = images.length - 1; i >= 0 ; i--){
-        x = layerMouseWeights[i] * (mouseX - halfX);
-        y = layerMouseWeights[i] * (mouseY - halfY);
-	    ctx.drawImage(images[i],x,y);
+        w = layerZooms[i] * width;
+        h = layerZooms[i] * height;
+        dw = (w - width)/2;
+        dh = (h - height)/2;
+        
+        x = layerMouseWeights[i] * 
+            ((mouseX + deviceorientation * 3) - halfX);
+        y = layerMouseWeights[i] * 
+            (mouseY - halfY);
+        ctx.drawImage(images[i],x-dw,y-dh,w,h);
     }
 }
 
@@ -30,17 +44,40 @@ var interval;
 function startInterval(){
     interval = setInterval(function(){
         redraw();
-    },33)
+    },33);
 }
 
-redraw();
-
-canvas.onmouseenter = startInterval;
-canvas.onmouseleave = function(){
+function stopInterval(e){
     clearInterval(interval);
+    e.preventDefault();
 };
 
-canvas.onmousemove = function(e){
-    mouseX = e.clientX - canvas.offsetLeft;
-    mouseY = e.clientY - canvas.offsetTop + window.scrollY;
+function move(e){
+    mouseX = e.pageX - canvas.offsetLeft;
+    mouseY = e.pageY - canvas.offsetTop;
+    e.preventDefault();
 }
+
+function touchMove(e){
+    mouseX = (e.targetTouches[0].pageX - canvas.offsetLeft);
+    mouseY = (e.targetTouches[0].pageY - canvas.offsetTop);
+    e.preventDefault();
+}
+
+if("ontouchstart" in document.documentElement){
+    //canvas.ontouchstart = startInterval;
+    //canvas.ontouchend = stopInterval;
+    canvas.addEventListener("touchmove",touchMove);
+} else {
+    //canvas.onmouseenter = startInterval;
+    //canvas.onmouseleave = stopInterval;
+    canvas.onmousemove = move;
+}
+
+window.addEventListener("deviceorientation",function(e){
+    deviceorientation = e.gamma;
+});
+
+startInterval();
+
+redraw();
