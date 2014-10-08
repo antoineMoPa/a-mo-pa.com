@@ -1,0 +1,14 @@
+<text-center class='hidden'>
+    <img src="../images/sherbrooke-gare/layers/8.png">
+    <img src="../images/sherbrooke-gare/layers/10.png">
+	<img src="../images/sherbrooke-gare/layers/smoke.png">
+    <img src="../images/sherbrooke-gare/layers/13.png">
+    <img src="../images/sherbrooke-gare/layers/15.png">
+    
+    <img src="../images/sherbrooke-gare/layers/last.png">
+</text-center>
+
+<text-center>
+	<canvas name="landscape-1" width="779" height="507">
+	</canvas>
+</text-center>
