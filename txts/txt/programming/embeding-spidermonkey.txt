@@ -1,0 +1,83 @@
+How to build SpiderMonkey in Debian
+============================================
+
+SpiderMonkey is Mozilla's javascript engine. You can use it for fun  and profit.
+
+You will probably need to build spidermonkey if you want to embed it in an application.
+
+These building instructions are for Debian. They could work with Ubuntu and they should be easy to adapt for other distributions. 
+
+Step 1: Download a snapshot of the Mozilla-central mercurial tree
+-----------------------------------
+
+Use the "gz" link at the top of the screen in the following page
+
+[http://hg.mozilla.org/mozilla-central/file/tip]
+
+Step 2.1: Uncompress the archive:
+-------------------
+
+[terminal]
+gunzip -d mozilla-central-*.tar.gz
+[/terminal]
+
+Step 2.2: Untar the .tar:
+--------------------------
+
+[terminal]
+tar -xvf mozilla-central-*.tar
+[/terminal]
+
+You may want to move the extracted folder in ~/src, it is up to you
+
+Note: I did this in 2 steps because tar `-zxvf failed`
+
+Step 3: Get autoconf 2.13
+----------------------
+
+Seems like the developers have not updated the code to work with newer versions.
+
+[terminal]
+sudo apt-get install autoconf2.13
+[/terminal]
+
+Step 4: Build
+--------------
+
+Time to build. From the "building spidermonkey" link:
+
+(this will take time)
+
+[terminal]
+cd js/src
+autoconf-2.13
+
+mkdir build-release
+cd build-release
+../configure
+make
+[/terminal]
+
+
+Step 5: See if build worked
+--------------------
+
+Run the javascript shell that was built and see if it works;
+
+[terminal]
+# Should return 1
+dist/bin/js -e "print(Math.cos(2*Math.PI))"
+[/terminal]
+
+
+
+Sources & useful links
+--------------
+
+Getting the lastest SpiderMonkey source code
+
+[https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Getting_SpiderMonkey_source_code#Getting_the_latest_SpiderMonkey_source_code]
+
+Building SpiderMonkey
+
+[https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Build_Documentation]
