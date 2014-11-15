@@ -1,5 +1,3 @@
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,300);
-
 .text-center{
     text-align:center;
 }
@@ -14,6 +12,7 @@ body{
 
 h1{
     text-align:center;
+    font-weight:300;
 }
 
 canvas{
