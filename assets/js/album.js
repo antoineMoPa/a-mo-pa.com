@@ -1,11 +1,24 @@
 
 function play(){
+    var spectrum = tools.spectrum.buildFreqSpectrum();
+    spectrum = funkyfySpectrum(spectrum);
+    var second = 44100;
+    
+    var chunklist = new ChunkList();
+    var chunk = new Chunk(createNote(140,2));
+    var chunkid = chunklist.add(chunk);
+    
+    for(var i = 0; i < 10; i++){
+        var chunkplay = new ChunkPlay(chunkid,10/i);
+        var chunkPlayID = chunklist.add(chunkplay);
+    }
+    
     // Sample code
     // Produces a sine wave with a frequency of 220 hz (LA [A])
     var data = [];
     
-    var second = 44100;
-    var length = 7*second;
+
+    var length = 2*second;
     var PI = Math.PI;
         
     var song = [21,23,26,28,23,0,23,0];
@@ -13,26 +26,41 @@ function play(){
     song = song.concat(song).concat(song);
     
     var noteLength = length / song.length;
-    var spectrum = tools.spectrum.buildFreqSpectrum();
-    spectrum = funkyfySpectrum(spectrum);
     
     
-    for (var i = 0; i < length; i++){
-        data[i] = 127 + 
-            Math.round(
-                127 * getWaveForI(i)
-            );
-    }    
+    //for (var i = 0; i < length; i++){
+    //    data[i] = 127 + 
+    //        Math.round(
+    //            127 * getWaveForI(i)
+    //        );
+    //}    
+    
+    data = chunklist.getData();
 
-    function getWaveForI(i){
+    
+    function createNote(f,length){
+        var data = new Array(length * second);
+       
+        for (var i = 0; i < length * second; i++){
+            data[i] = 127 + 
+                Math.round(
+                    127 * getWaveForI(i,f,length * second)
+                );
+        }
+        return data;
+    }
+    
+    function getWaveForI(i,f,length){
         // let x be the fraction of the note that is completed
         // x = 0 means that the note just started to play
         // x = 0.99 means the note is almost over
-        var currentX = (i % noteLength);
-        var maxX = noteLength;
+        //var noteLength = length || noteLength;
+        var length = length || noteLength;
+        var currentX = (i % length);
+        var maxX = length;
         var x = currentX / maxX;
         var intensity = tools.fastInSlowOut(x,7);
-        var frequency = getNoteForI(i);
+        var frequency = f || getNoteForI(i);
         return intensity * shape(i/second,frequency);
     }
     
@@ -207,3 +235,4 @@ $.ready(function(){
         console.log("playing");
     });
 });
+
