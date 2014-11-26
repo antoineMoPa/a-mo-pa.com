@@ -2,7 +2,7 @@ function ChunkList(){
     this.chunks = [];
     this.chunkPlays = [];
     this.second = 44100;
-    this.length = 5 * this.second;
+    this.length = this.second;
     
     return this;
 }
@@ -14,6 +14,14 @@ ChunkList.prototype.add = function(chunk){
         return this.chunks.length -1;
     } else if (chunk.isAChunkPlay){
         this.chunkPlays.push(chunk);
+        
+        var id = chunk.chunkID;
+        var chunkLength = this.chunks[id].data.length;
+        var end = chunk.playAt + chunkLength;
+        if(end > this.length){
+            this.length = parseInt(end);
+        }
+        console.log(this.chunkPlays.length);
         return this.chunkPlays.length -1;
     } else {
         console.log("error: argument is not a chunk");
@@ -36,8 +44,9 @@ ChunkList.prototype.getData = function(){
     
     for(var i = 0; i < this.chunkPlays.length; i++){
         var chunkID = this.chunkPlays[i].chunkID;
-        var startAt = this.chunkPlays[i].playAt * this.second;
+        var startAt = this.chunkPlays[i].playAt;
         var chunkLength = this.chunks[chunkID].data.length;
+        
         for(var j = 0; j < chunkLength; j++){
             data[startAt + j] = 
                 (
@@ -51,9 +60,10 @@ ChunkList.prototype.getData = function(){
 }
 
 function ChunkPlay(id,playAt,settings){
+    this.second = 44100;
     this.chunkID = id;
     this.isAChunkPlay = true;
-    this.playAt = playAt || 0;
+    this.playAt = parseInt(playAt * this.second) || 0;
     this.settings = settings || {};
 }
 

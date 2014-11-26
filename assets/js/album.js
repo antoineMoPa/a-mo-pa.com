@@ -2,15 +2,74 @@
 function play(){
     var spectrum = tools.spectrum.buildFreqSpectrum();
     spectrum = funkyfySpectrum(spectrum);
+    spectrum = tools.spectrum.blurSpectrum(spectrum);
     var second = 44100;
     
     var chunklist = new ChunkList();
-    var chunk = new Chunk(createNote(140,2));
-    var chunkid = chunklist.add(chunk);
+    var chunk = new Chunk(createNote(82.41,8));
+    var note1 = chunklist.add(chunk);
+    var chunk2 = new Chunk(createNote(110,0.3));
+    var note2 = chunklist.add(chunk2);    
     
-    for(var i = 0; i < 10; i++){
-        var chunkplay = new ChunkPlay(chunkid,10/i);
+    for(var i = 0; i < 40; i++){
+        var currID = 0;
+        if(i % 3 == 0){
+            currID = note1;
+        } else {
+            currID = note2;
+        }
+
+        var chunkplay = new ChunkPlay(currID,i*0.5);
         var chunkPlayID = chunklist.add(chunkplay);
+        
+    }
+    
+    var tsss = new Chunk(createTsss(0.5,2));
+    var chunkid = chunklist.add(tsss);
+    
+    for(var i = 0; i < 100; i++){   
+        if(i % 16 == 1 || i % 16 == 4 || i % 16 == 12)
+        addChunkAtTime(chunkid,i*0.05);
+    }
+    
+    function addChunkAtTime(chunkID,time){        
+        var chunkplay = new ChunkPlay(chunkID,time);
+        chunklist.add(chunkplay);
+    }
+    
+    function createTsss(time,integrations){
+        var length = second * time;
+        var data = new Array(length);
+        
+        var white = [];
+        
+        for(var i = 0; i < length;i++){
+            white[i] = Math.random();
+        }
+        
+        var timing = 2 * Math.PI / second;
+        
+        var brown = tools.integrate(white,10,integrations);
+                
+        for(var i = 0; i < brown.length;i++){
+            var f = 110 + 1 * Math.cos(i/90);
+            brown[i] = parseInt(127 + 1.3 * 127 * brown[i] * Math.cos(f * timing * i) * fastDown(i/length));
+        }
+        
+        function triangle(x){
+            var x = x % 2;
+            if(x < 1){
+                return x;
+            } else {
+                return 2-x;
+            }
+        }
+        
+        function fastDown(x){            
+            return Math.pow(1-(x),2);
+        }
+        
+        return brown;
     }
     
     // Sample code
@@ -27,13 +86,6 @@ function play(){
     
     var noteLength = length / song.length;
     
-    
-    //for (var i = 0; i < length; i++){
-    //    data[i] = 127 + 
-    //        Math.round(
-    //            127 * getWaveForI(i)
-    //        );
-    //}    
     
     data = chunklist.getData();
 
@@ -163,9 +215,9 @@ tools.quadraticHalfCircle = function(x){
 // Returns a frequency spectrum
 tools.spectrum.buildFreqSpectrum = function (){
     var start = -2; // spectrum starts at the -1th harmonic
-    var end = 8; // end at the 10th harmonic
+    var end = 3; // end at the 10th harmonic
     var base = 2;
-    var precision = 100;
+    var precision = 1000;
     var data = new Array(precision);
     var harmonicSpan = data.length / (end - start);
     var baseNote = (0-start) * harmonicSpan;
@@ -178,10 +230,6 @@ tools.spectrum.buildFreqSpectrum = function (){
     data[baseNote + 1 * harmonicSpan] = 0.2;
     data[baseNote + 2 * harmonicSpan] = 0.2;
     data[baseNote + 3 * harmonicSpan] = 0.7;
-    data[baseNote + 4 * harmonicSpan] = 0.3;
-    data[baseNote + 5 * harmonicSpan] = 0.5;
-    data[baseNote + 6 * harmonicSpan] = 0.3;
-    data[baseNote + 7 * harmonicSpan] = 0.1;
     
     //data[3*harmonicSpan] = 1;
     
@@ -226,6 +274,37 @@ tools.spectrum.noteSpecralizer = function (note,time,spectrum){
             Math.sin(periodicity);
     }
     return result / ths;
+}
+
+tools.integrate = function(inputData,N,n){
+    /*
+      Integrates an array n times
+      with some homemade method inspired by the tapezoidal method
+      
+      Method:
+      (sum of the N previous and N next points)
+      divided by 2*N
+    */    
+    var N = N || 1;
+    var n = n || 1;
+    var data = new Array(inputData.length);
+
+    for(var integrations = 0; integrations < n; integrations++){
+        for(var i = 0; i < inputData.length;i++){
+            var integral = 0;
+            for(var j = i - N; j < i + N; j++){
+                /* check bounds */
+                if(j < 0 || j >= inputData.length){
+                    continue;
+                }
+                integral += inputData[j];
+            }
+            integral = integral / (2*N);
+            data[i] = integral;
+        }
+        inputData = data.slice(0);
+    }
+    return data;
 }
 
 $.ready(function(){
