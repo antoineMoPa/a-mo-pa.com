@@ -2,26 +2,31 @@
 function play(){    
     var second = 44100;
     
-    var tsss = instruments.drum.tsss(0.1,2,second);    
+    
     var waveFunction = instruments.customSin();
-    var notes = [];
-    var noteLength = 0.1;
     
-    
-    function backgroundTrack(){
+    function backgroundTrack(songNotes,type){
         var track = [];
-        var songNotes = [
-            [10,1],
-            [14,1]
-        ];
+        var notes = [];
+        var tween;
         
+        if(type == "long"){
+            tween = function(x){
+                return 1-Math.pow(1-x,100) - Math.pow(x,100);
+            };
+        }
+        else if(type == "short"){
+            tween = tools.fastInSlowOut;
+        }
+
         for(note in songNotes){
             notes.push(
                 tools.createNote(
                     tools.getFrequencyFromNote(songNotes[note][0]),
                     songNotes[note][1],
                     second,
-                    waveFunction
+                    waveFunction,
+                    tween
                 )
             );
         }
@@ -30,13 +35,50 @@ function play(){
             var index = i;
             track = track.concat(notes[index]);
         }
+        
         return track;
     }
     
-    var track1 = backgroundTrack();
+    var tracks = [];
     
-    var data = tools.mix([track1]);
+    tracks[0] = backgroundTrack([
+        [10,0.2*12],
+        [14,0.2*12],
+        [10,0.2*12],
+        [9,0.2*12],
+        [10,0.2*12],
+    ],"long");
     
+    
+    tracks[1] = backgroundTrack(
+        tools.repeat([10,0.2],12,"push")
+            .concat(
+                tools.repeat([14,0.2],12,"push")
+            )
+            .concat(
+                tools.repeat([10,0.2],12,"push")
+            )
+            .concat(
+                tools.repeat([5,0.2],6,"push")
+            )
+            .concat(
+                tools.repeat([17,0.2],3,"push")
+            )
+            .concat(
+                tools.repeat([15,0.2],3,"push")
+            )
+            .concat(
+                tools.repeat([10,0.2*12],1,"push")
+            )
+        ,"short");
+    
+    var tsss = instruments.drum.tsss(0.3,20,second);
+    
+    tracks[0] = tools.repeat(tracks[0],2,"concat");
+    tracks[1] = tools.repeat(tracks[1],2,"concat");
+    tracks[2] = tsss;
+    
+    var data = tools.mix(tracks);
     
     var wave = new RIFFWAVE(); // create the wave file
     wave.header.sampleRate = second;
@@ -49,16 +91,44 @@ function play(){
 
 var tools = {};
 
-tools.mix = function(tracks){
+tools.repeat = function(arr,times,pushOrConcat){
     var data = [];
-    for(var i = 0; i < tracks.length; i++){
-        var multiplier = 1/tracks.length;
-        for(var j = 0; j < tracks[i].length; j++){
-            data[j] = 127 + Math.round(
-                127 * multiplier * tracks[i][j]
+    for(var i = 0; i < times; i++){
+        if(pushOrConcat == "push"){
+            data.push(arr);
+        } else if (pushOrConcat == "concat"){
+            data = data.concat(arr);
+        } else {
+            console.log(
+                "error, parameter pushOrConcat "+
+                    "must be 'push' or 'concat'"
             );
         }
     }
+    return data;
+}
+
+tools.mix = function(tracks){
+    var data = [];
+    
+    for(var i = 0; i < tracks.length; i++){
+        var multiplier = 1/tracks.length;
+        for(var j = 0; j < tracks[i].length; j++){
+            if(data[j] == undefined){
+                data[j] = 0;
+            }
+            if(tracks[i][j] != undefined){
+                data[j] += multiplier * tracks[i][j];
+            }
+        }
+    }
+    
+    for(var i = 0; i < data.length; i++){
+        data[i] = 127 + Math.round(
+            127 * data[i]
+        );
+    }
+
     return data;
 }
 
@@ -108,10 +178,11 @@ tools.fastInSlowOut = function (x,exponent){
     );
 }
 
-tools.createNote = function(f,length,second,waveFunction){
-    var data = new Array(length * second);
+tools.createNote = function(f,length,second,waveFunction,tween){
+    var data = new Array(parseInt(length * second));
+
     for (var i = 0; i < length * second; i++){
-        var intensity = tools.fastInSlowOut(
+        var intensity = tween(
             i/(length*second),
             7
         );
@@ -166,7 +237,7 @@ var instruments = {};
 instruments.drum = {};
 
 instruments.drum.tsss = function(time,integrations,second){
-    var length = second * time;
+    var length = parseInt(second * time);
     var data = new Array(length);
     
     var white = [];
@@ -181,7 +252,7 @@ instruments.drum.tsss = function(time,integrations,second){
     
     for(var i = 0; i < brown.length;i++){
         var f = 110 + 1 * Math.cos(i/90);
-        brown[i] = parseInt(127 + 1.3 * 127 * brown[i] * Math.cos(f * timing * i) * fastDown(i/length));
+        brown[i] = 1.3 * brown[i] * Math.cos(f * timing * i) * fastDown(i/length);
     }
     
     function triangle(x){
