@@ -5,7 +5,7 @@ function play(){
     
     var waveFunction = instruments.customSin();
     
-    function backgroundTrack(songNotes,type){
+    function notesToTrack(songNotes,type){
         var track = [];
         var notes = [];
         var tween;
@@ -14,8 +14,7 @@ function play(){
             tween = function(x){
                 return 1-Math.pow(1-x,100) - Math.pow(x,100);
             };
-        }
-        else if(type == "short"){
+        } else if(type == "short"){
             tween = tools.fastInSlowOut;
         }
 
@@ -41,20 +40,16 @@ function play(){
     
     var tracks = [];
     
-    tracks[0] = backgroundTrack([
-        [10,0.2*12],
-        [14,0.2*12],
+    tracks[0] = notesToTrack([
         [10,0.2*12],
         [9,0.2*12],
-        [10,0.2*12],
+        [7,0.2*12],
+        [9,0.2*12],
     ],"long");
     
     
-    tracks[1] = backgroundTrack(
-        tools.repeat([10,0.2],12,"push")
-            .concat(
-                tools.repeat([14,0.2],12,"push")
-            )
+    tracks[1] = notesToTrack(
+        []
             .concat(
                 tools.repeat([10,0.2],12,"push")
             )
@@ -68,15 +63,45 @@ function play(){
                 tools.repeat([15,0.2],3,"push")
             )
             .concat(
-                tools.repeat([10,0.2*12],1,"push")
+                tools.repeat([10,0.2],12,"push")
+            )
+            .concat(
+                tools.repeat([9,0.2],12,"push")
             )
         ,"short");
+
+    var melody = [
+        0,2,1,2,3,2,1,2,0,2,1,2,
+        3,2,1,2,-2,2,1,2,3,2,1,2,
+            -1,2,1,2,3,2,1,2,0,2,1,2,
+            -2,2,1,2,3,2,1,2,0,-1,2,-3
+    ]
+            
+    var melodyNotes = [];
+    
+    for(var i in melody){
+        melodyNotes.push([minorScale(melody[i],2*12+10),0.2]);
+    }
+    
+    tracks[2] = notesToTrack(melodyNotes,"short");
+    
+
+    function minorScale(i,baseNote){
+        var notes = [0,2,4,7,9,10];
+        if(i < 0){
+            i = notes.length - i;
+            baseNote -= notes.length - 1;
+        }
+        return notes[Math.abs(i) % notes.length] + baseNote;
+    }
     
     var tsss = instruments.drum.tsss(0.3,20,second);
     
     tracks[0] = tools.repeat(tracks[0],2,"concat");
     tracks[1] = tools.repeat(tracks[1],2,"concat");
-    tracks[2] = tsss;
+    tracks[2] = tools.repeat(tracks[2],2,"concat");
+    
+    
     
     var data = tools.mix(tracks);
     
@@ -180,7 +205,7 @@ tools.fastInSlowOut = function (x,exponent){
 
 tools.createNote = function(f,length,second,waveFunction,tween){
     var data = new Array(parseInt(length * second));
-
+    
     for (var i = 0; i < length * second; i++){
         var intensity = tween(
             i/(length*second),
@@ -277,9 +302,9 @@ instruments.customSin = function(){
     for(var i = 0; i < precision; i++){
         data[i] = 
             0.5 * Math.sin(2*Math.PI*i/precision)+
-            0.3 * Math.sin(4*Math.PI*i/precision)+
+            0.2 * Math.sin(4*Math.PI*i/precision)+
             0.1 * Math.sin(8*Math.PI*i/precision)+
-            0.1 * Math.sin(16*Math.PI*i/precision);
+            0.2 * Math.sin(16*Math.PI*i/precision);
     }
     
     function waveFunction(x){
