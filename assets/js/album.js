@@ -51,10 +51,24 @@ function play(){
     
     var tracks = [];
     
-    var melody = [
-        0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21
-    ]
+    var melody = [];
     
+    /* 'song' somewhat inspired by Bach */
+    
+    for(var i = 8; i > 1; i--){
+        melody.push(9);
+        melody.push(i);
+        melody.push(i+2);
+        melody.push(i+4);
+        melody.push(i+3);
+    }
+    for(var i = 8; i > 1; i--){
+        melody.push(9);
+        melody.push(8-i);
+        melody.push(i+3);
+        melody.push(i+5);
+        melody.push(i+4);
+    }
     
     
     var melodyNotes = [];
@@ -63,7 +77,9 @@ function play(){
         melodyNotes.push([tools.minorScale(melody[i],2*12+10),0.2]);
     }
     
-    tracks[0] = notesToTrack(melodyNotes,"short");
+    melodyNotes.push([tools.minorScale(7,2*12+10),2]);
+    
+    tracks[0] = notesToTrack(melodyNotes,"long");
     
     var tsss = instruments.drum.tsss(0.3,20,second);   
     
