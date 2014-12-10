@@ -2,13 +2,15 @@
 function play(){    
     var second = 44100;
     
-    
     var waveFunction = instruments.customSin();
     
     function notesToTrack(songNotes,type){
         var track = [];
         var notes = [];
         var tween;
+        var frequencyCallback = function(i,note){
+            return tools.getFrequencyFromNote(songNotes[note][0]);
+        }
         
         if(type == "long"){
             tween = function(x){
@@ -16,12 +18,21 @@ function play(){
             };
         } else if(type == "short"){
             tween = tools.fastInSlowOut;
-        }
+        } else if( type == "tsss"){
+            tween = tools.fastInSlowOut;
+            frequencyCallback = function(i,note){
+                return (
+                    0.9 + 0.1 * Math.sin(20000000*i/second)) * 
+                    tools.getFrequencyFromNote(songNotes[note][0]);
+            }
+        }    
+        
 
         for(note in songNotes){
             notes.push(
                 tools.createNote(
-                    tools.getFrequencyFromNote(songNotes[note][0]),
+                    frequencyCallback,
+                    note,
                     songNotes[note][1],
                     second,
                     waveFunction,
@@ -40,67 +51,21 @@ function play(){
     
     var tracks = [];
     
-    tracks[0] = notesToTrack([
-        [10,0.2*12],
-        [9,0.2*12],
-        [7,0.2*12],
-        [9,0.2*12],
-    ],"long");
-    
-    
-    tracks[1] = notesToTrack(
-        []
-            .concat(
-                tools.repeat([10,0.2],12,"push")
-            )
-            .concat(
-                tools.repeat([5,0.2],6,"push")
-            )
-            .concat(
-                tools.repeat([17,0.2],3,"push")
-            )
-            .concat(
-                tools.repeat([15,0.2],3,"push")
-            )
-            .concat(
-                tools.repeat([10,0.2],12,"push")
-            )
-            .concat(
-                tools.repeat([9,0.2],12,"push")
-            )
-        ,"short");
-
     var melody = [
-        0,2,1,2,3,2,1,2,0,2,1,2,
-        3,2,1,2,-2,2,1,2,3,2,1,2,
-            -1,2,1,2,3,2,1,2,0,2,1,2,
-            -2,2,1,2,3,2,1,2,0,-1,2,-3
+        0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21
     ]
-            
+    
+    
+    
     var melodyNotes = [];
     
     for(var i in melody){
-        melodyNotes.push([minorScale(melody[i],2*12+10),0.2]);
+        melodyNotes.push([tools.minorScale(melody[i],2*12+10),0.2]);
     }
     
-    tracks[2] = notesToTrack(melodyNotes,"short");
+    tracks[0] = notesToTrack(melodyNotes,"short");
     
-
-    function minorScale(i,baseNote){
-        var notes = [0,2,4,7,9,10];
-        if(i < 0){
-            i = notes.length - i;
-            baseNote -= notes.length - 1;
-        }
-        return notes[Math.abs(i) % notes.length] + baseNote;
-    }
-    
-    var tsss = instruments.drum.tsss(0.3,20,second);
-    
-    tracks[0] = tools.repeat(tracks[0],2,"concat");
-    tracks[1] = tools.repeat(tracks[1],2,"concat");
-    tracks[2] = tools.repeat(tracks[2],2,"concat");
-    
+    var tsss = instruments.drum.tsss(0.3,20,second);   
     
     
     var data = tools.mix(tracks);
@@ -172,6 +137,19 @@ var baseNotes = [
     30.868
 ];
 
+tools.noteToScale = function(i,baseNote,scale){
+    if(i < 0){
+        return -1;
+    }
+    var octaveOffset = baseNote + Math.floor( i / scale.length) * 12;
+    return scale[Math.abs(i) % scale.length] + octaveOffset;
+}
+
+tools.minorScale = function(i,baseNote){
+    return tools.noteToScale(i,baseNote,[0,2,3,5,7,8,11])
+}
+
+
 tools.getFrequencyFromNote = function(note){
     var currentNote = note % 12;
     var currentOctave = parseInt(note / 12) + 1;
@@ -203,7 +181,7 @@ tools.fastInSlowOut = function (x,exponent){
     );
 }
 
-tools.createNote = function(f,length,second,waveFunction,tween){
+tools.createNote = function(frequencyCallback,note,length,second,waveFunction,tween){
     var data = new Array(parseInt(length * second));
     
     for (var i = 0; i < length * second; i++){
@@ -211,7 +189,7 @@ tools.createNote = function(f,length,second,waveFunction,tween){
             i/(length*second),
             7
         );
-        data[i] = intensity * waveFunction(f*(i/second));
+        data[i] = intensity * waveFunction(frequencyCallback(i,note)*(i/second));
         
     }
     return data;
