@@ -21,14 +21,13 @@ function play(){
             tween = function(x){
                 return 1-Math.pow(1-x,100) - Math.pow(x,100);
             };
-
-            
             waveFunction = function(i,x){
+                var clip = 0.4;
                 return tools.softclip((
-                    tools.tweens.fastInSlowOut(x,3) * Math.cos(2 * Math.PI * 1 * i) + 
+                    Math.cos(2 * Math.PI * 1 * i) + 
                         tools.tweens.triangle(x,6) * Math.cos(2 * Math.PI * 2 * i) + 
-                        tools.tweens.fastInSlowOut(x,10) * Math.cos(2 * Math.PI * 4 * i)
-                ) / 3,-0.3,0.3,0.1);
+                        Math.cos(2 * Math.PI * 4 * i)
+                ) / 3,-clip,clip,0.4);
             }
         } else if( type == "tsss"){
             tween = tools.tweens.fastInSlowOut;
@@ -71,39 +70,53 @@ function play(){
     
     var melody = [];
     
-    var melody = [1,2,3]
+    function dli(i){
+        melody.push(i);
+        melody.push(i+6);
+        melody.push(i+5);
+        melody.push(i+4);
+        melody.push(i+3);
+        melody.push(i+2);
+        melody.push(i+1);
+        melody.push(i+2);
+        melody.push(i+10);
+    }
+    
+    dli(2);
+    dli(3);
+    dli(2);
+    dli(5);
+    dli(5);
+    dli(7);
+    dli(7);
+    dli(20);
+    dli(21);
+    dli(24);
+    dli(14);
+
+    var bassMelody = [        
+        //8,6,5,4,3,2,1
+    ];
     
     var melodyNotes = [];
     var bassNotes = [];
-    
-    var bassMelody = [        
-        //1,2,3,4,5,6,7,8
-    ];
-    
+
     for(var i in melody){
-        melodyNotes.push([tools.minorScale(melody[i],2*12),0.7]);
+        melodyNotes.push([tools.minorScale(melody[i],2*12),0.05]);
     }
     
     for(var i in bassMelody){
-        bassNotes.push([tools.minorScale(bassMelody[i],12),6*0.1]);
+        bassNotes.push([tools.minorScale(bassMelody[i],12),3*0.1]);
     }
     
     
     //melodyNotes.push([tools.minorScale(7,2*12+10),2]);
     
     tracks[0] = notesToTrack(melodyNotes,"wtf");
-    
-    
-    var testData = [];
-    for(var i = 0; i < 3000;i++){
-        testData[i] = tools.softclip(Math.sin(i/500),-0.9,0.9,0.05);
-    }
-    tools.dump(testData,0,5000);
-    
-    tracks[1] = notesToTrack(bassNotes,"long");
+        
+    tracks[1] = notesToTrack(bassNotes,"wtf");
     
     //var tsss = instruments.drum.tsss(0.3,20,second);   
-    
     
     var data = tools.mix(tracks);
     
@@ -152,8 +165,8 @@ tools.softclipUP = function(point,max,softness){
     var limit = max - softness;
     var y = point - limit;
     var fraction = (y / (1 - limit));
-    // Gnuplot for blendfactor:
-    // plot [x=0:1] 1 - x**2
+    // Gnuplot to see blendfactor actually does something:
+    // plot [x=0:1] [y=0:1] 1.2 - x**1.2,1.2-x
     var blendfactor = 1.01 - Math.pow(fraction,1.01);
 
     return (blendfactor * (fraction * softness + limit)) + ((1 - blendfactor) * max);
