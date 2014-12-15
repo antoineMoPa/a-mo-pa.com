@@ -2,13 +2,12 @@
 function play(){    
     var second = 44100;
     
-    var waveFunction = instruments.customSin();
-    
     function notesToTrack(songNotes,type){
         var track = [];
         var notes = [];
         var tween;
-        var frequencyCallback = function(i,note){
+        var waveFunction = instruments.customSin();
+        var frequencyCallback = function(i,x,note){
             return tools.getFrequencyFromNote(songNotes[note][0]);
         }
         
@@ -17,15 +16,34 @@ function play(){
                 return 1-Math.pow(1-x,100) - Math.pow(x,100);
             };
         } else if(type == "short"){
-            tween = tools.fastInSlowOut;
-        } else if( type == "tsss"){
-            tween = tools.fastInSlowOut;
-            frequencyCallback = function(i,note){
-                return (
-                    0.9 + 0.1 * Math.sin(20000000*i/second)) * 
-                    tools.getFrequencyFromNote(songNotes[note][0]);
+            tween = tools.tweens.fastInSlowOut;
+        } else if( type == "wtf"){
+            tween = function(x){
+                return 1-Math.pow(1-x,100) - Math.pow(x,100);
+            };
+
+            
+            waveFunction = function(i,x){
+                return tools.softclip((
+                    tools.tweens.fastInSlowOut(x,3) * Math.cos(2 * Math.PI * 1 * i) + 
+                        tools.tweens.triangle(x,6) * Math.cos(2 * Math.PI * 2 * i) + 
+                        tools.tweens.fastInSlowOut(x,10) * Math.cos(2 * Math.PI * 4 * i)
+                ) / 3,-0.3,0.3,0.1);
             }
-        }    
+        } else if( type == "tsss"){
+            tween = tools.tweens.fastInSlowOut;
+            frequencyCallback = function(i,x,note){
+                return (
+                    (
+                        0.99 + 
+                            0.01 * 
+                            Math.sin( 
+                                20000000*i/second
+                            )
+                    ) * tools.getFrequencyFromNote(songNotes[note][0])
+                );
+            }
+        } 
         
 
         for(note in songNotes){
@@ -53,35 +71,38 @@ function play(){
     
     var melody = [];
     
-    /* 'song' somewhat inspired by Bach */
-    
-    for(var i = 8; i > 1; i--){
-        melody.push(9);
-        melody.push(i);
-        melody.push(i+2);
-        melody.push(i+4);
-        melody.push(i+3);
-    }
-    for(var i = 8; i > 1; i--){
-        melody.push(9);
-        melody.push(8-i);
-        melody.push(i+3);
-        melody.push(i+5);
-        melody.push(i+4);
-    }
-    
+    var melody = [1,2,3]
     
     var melodyNotes = [];
+    var bassNotes = [];
+    
+    var bassMelody = [        
+        //1,2,3,4,5,6,7,8
+    ];
     
     for(var i in melody){
-        melodyNotes.push([tools.minorScale(melody[i],2*12+10),0.2]);
+        melodyNotes.push([tools.minorScale(melody[i],2*12),0.7]);
     }
     
-    melodyNotes.push([tools.minorScale(7,2*12+10),2]);
+    for(var i in bassMelody){
+        bassNotes.push([tools.minorScale(bassMelody[i],12),6*0.1]);
+    }
     
-    tracks[0] = notesToTrack(melodyNotes,"long");
     
-    var tsss = instruments.drum.tsss(0.3,20,second);   
+    //melodyNotes.push([tools.minorScale(7,2*12+10),2]);
+    
+    tracks[0] = notesToTrack(melodyNotes,"wtf");
+    
+    
+    var testData = [];
+    for(var i = 0; i < 3000;i++){
+        testData[i] = tools.softclip(Math.sin(i/500),-0.9,0.9,0.05);
+    }
+    tools.dump(testData,0,5000);
+    
+    tracks[1] = notesToTrack(bassNotes,"long");
+    
+    //var tsss = instruments.drum.tsss(0.3,20,second);   
     
     
     var data = tools.mix(tracks);
@@ -96,6 +117,47 @@ function play(){
 }
 
 var tools = {};
+
+tools.dump = function(data,start,end){
+    var str = "";
+    for(var i = start; i < data.length && i < end; i++){
+        str += i+"\t"+data[i] + "\n"
+    }
+    var area = document.createElement("pre");
+    area.innerHTML = str;
+    document.body.appendChild(area);
+}
+
+tools.clip = function(x,min,max){
+    if(x < min){
+        return min
+    } else if (x > max){
+        return max;
+    }
+    return x;
+}
+
+/* softness: ex 0.1   */
+
+tools.softclip = function(x,min,max,softness){
+    if(x < min + softness){
+        return -tools.softclipUP(-x,-min,softness);
+    } else if (x > max - softness){
+        return tools.softclipUP(x,max,softness);
+    }
+    return x;
+}
+
+tools.softclipUP = function(point,max,softness){
+    var limit = max - softness;
+    var y = point - limit;
+    var fraction = (y / (1 - limit));
+    // Gnuplot for blendfactor:
+    // plot [x=0:1] 1 - x**2
+    var blendfactor = 1.01 - Math.pow(fraction,1.01);
+
+    return (blendfactor * (fraction * softness + limit)) + ((1 - blendfactor) * max);
+}
 
 tools.repeat = function(arr,times,pushOrConcat){
     var data = [];
@@ -179,9 +241,20 @@ tools.getFrequencyFromNote = function(note){
     return baseFrequency * octaveMultiplier;
 }
 
+tools.tweens = {};
+
+tools.tweens.slowInFastOut = function(x,exponent){
+    if(exponent == undefined){
+        exponent = 2;
+    }
+    // Gnuplot:
+    // plot [x=0:1] 1-(1-x)**2
+    return 1 - Math.pow((1-x),exponent);
+}
+
 // Math function that goes to y=1 fast
 // And drops down to y = 0 slowly
-tools.fastInSlowOut = function (x,exponent){
+tools.tweens.fastInSlowOut = function(x,exponent){
     // use gnuplot to see it: 
     // f(x) = f(x)=-(2*x-1)**2+1;
     // plot [x=0:1] f((1-x)**2); 
@@ -190,11 +263,15 @@ tools.fastInSlowOut = function (x,exponent){
     // like if it was played backwards :)
     // (because it 'reverses' the function)
     if(exponent == undefined){
-        exponent = 3;
+        exponent = 2;
     }
-    return tools.quadraticHalfCircle(
+    return tools.tweens.quadraticHalfCircle(
         Math.pow((1-x),exponent)
     );
+}
+
+tools.tweens.triangle = function(x,exponent){
+    return Math.pow(1-x,exponent);
 }
 
 tools.createNote = function(frequencyCallback,note,length,second,waveFunction,tween){
@@ -202,11 +279,17 @@ tools.createNote = function(frequencyCallback,note,length,second,waveFunction,tw
     
     for (var i = 0; i < length * second; i++){
         var intensity = tween(
-            i/(length*second),
+            i / (length*second),
             7
         );
-        data[i] = intensity * waveFunction(frequencyCallback(i,note)*(i/second));
         
+        var x = i / (length * second);
+        var f = frequencyCallback(i, x, note, length * second);
+        
+        data[i] = intensity * waveFunction(
+            f * (i / second),
+            x
+        );
     }
     return data;
 }
@@ -214,7 +297,7 @@ tools.createNote = function(frequencyCallback,note,length,second,waveFunction,tw
 // Math function that starts at [0,0],
 // climbs to y = 1 when x = 0.5
 // and goes back to y = 0 at x = 1
-tools.quadraticHalfCircle = function(x){
+tools.tweens.quadraticHalfCircle = function(x){
     // use gnuplot to see it: 
     // f(x)=-(2*x-1)**2+1
     return -Math.pow((2*x-1),2)+1;
