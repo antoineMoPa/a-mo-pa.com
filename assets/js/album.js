@@ -22,12 +22,14 @@ function play(){
                 return 1-Math.pow(1-x,100) - Math.pow(x,100);
             };
             waveFunction = function(i,x){
-                var clip = 0.4;
-                return tools.softclip((
-                    Math.cos(2 * Math.PI * 1 * i) + 
-                        tools.tweens.triangle(x,6) * Math.cos(2 * Math.PI * 2 * i) + 
-                        Math.cos(2 * Math.PI * 4 * i)
-                ) / 3,-clip,clip,0.4);
+                var clip = 0.6 - (x / 8);
+                
+                return tools.softclip(
+                    0.4 * Math.cos(8 * Math.PI * i) * (1-Math.pow(x,8)) + 
+                    Math.cos(4 * Math.PI * i) * (1-x) + 
+                        Math.cos(2 * Math.PI * i) * Math.cos(1 / 1024 * 2 * Math.PI * (1 - i))
+                    ,-clip,clip,0.1
+                );
             }
         } else if( type == "tsss"){
             tween = tools.tweens.fastInSlowOut;
@@ -68,57 +70,52 @@ function play(){
     
     var tracks = [];
     
-    var melody = [];
+    var melody = [
+        7,0,7,0,
+        0,7,0,7,
+    ];
     
-    function dli(i){
-        melody.push(i);
-        melody.push(i+6);
-        melody.push(i+5);
-        melody.push(i+4);
-        melody.push(i+3);
-        melody.push(i+2);
-        melody.push(i+1);
-        melody.push(i+2);
-        melody.push(i+10);
-    }
+    var bassMelody = [
+        7,0,7,0
+    ];
     
-    dli(2);
-    dli(3);
-    dli(2);
-    dli(5);
-    dli(5);
-    dli(7);
-    dli(7);
-    dli(20);
-    dli(21);
-    dli(24);
-    dli(14);
-
-    var bassMelody = [        
-        //8,6,5,4,3,2,1
+    var doumdoum = [
+        7,7,7,7,7,
+        8,8,8,8,8,
+        5,5,5,5,5,
+        6,5,4,7,6
     ];
     
     var melodyNotes = [];
     var bassNotes = [];
+    var doumdoumNotes = [];
 
     for(var i in melody){
-        melodyNotes.push([tools.minorScale(melody[i],2*12),0.05]);
+        melodyNotes.push([tools.majorScale(melody[i],1*12),0.3]);
     }
     
     for(var i in bassMelody){
-        bassNotes.push([tools.minorScale(bassMelody[i],12),3*0.1]);
+        bassNotes.push([tools.majorScale(bassMelody[i],12),4*0.3]);
     }
     
-    
-    //melodyNotes.push([tools.minorScale(7,2*12+10),2]);
-    
-    tracks[0] = notesToTrack(melodyNotes,"wtf");
+    for(var i in doumdoum){
+        doumdoumNotes.push([tools.majorScale(doumdoum[i],1*12),0.15]);
+    }
+
         
+    tracks[0] = notesToTrack(melodyNotes,"wtf");
+    
     tracks[1] = notesToTrack(bassNotes,"wtf");
+    tracks[2] = notesToTrack(doumdoumNotes,"wtf");
+    
+    tracks[0] = tracks[0].concat(tracks[0]);
     
     //var tsss = instruments.drum.tsss(0.3,20,second);   
     
     var data = tools.mix(tracks);
+        
+    data = data.concat(data);
+    data = data.concat(data);
     
     var wave = new RIFFWAVE(); // create the wave file
     wave.header.sampleRate = second;
@@ -234,6 +231,10 @@ tools.noteToScale = function(i,baseNote,scale){
     }
     var octaveOffset = baseNote + Math.floor( i / scale.length) * 12;
     return scale[Math.abs(i) % scale.length] + octaveOffset;
+}
+
+tools.majorScale = function(i,baseNote){
+    return tools.noteToScale(i,baseNote,[0,2,4,5,7,9,10])
 }
 
 tools.minorScale = function(i,baseNote){
