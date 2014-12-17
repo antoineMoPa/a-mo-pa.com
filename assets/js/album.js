@@ -1,73 +1,5 @@
 
-function play(){    
-    var second = 44100;
-    
-    function notesToTrack(songNotes,type){
-        var track = [];
-        var notes = [];
-        var tween;
-        var waveFunction = instruments.customSin();
-        var frequencyCallback = function(i,x,note){
-            return tools.getFrequencyFromNote(songNotes[note][0]);
-        }
-        
-        if(type == "long"){
-            tween = function(x){
-                return 1-Math.pow(1-x,100) - Math.pow(x,100);
-            };
-        } else if(type == "short"){
-            tween = tools.tweens.fastInSlowOut;
-        } else if( type == "wtf"){
-            tween = function(x){
-                return 1-Math.pow(1-x,100) - Math.pow(x,100);
-            };
-            waveFunction = function(i,x){
-                var clip = 0.6 - (x / 8);
-                
-                return tools.softclip(
-                    0.4 * Math.cos(8 * Math.PI * i) * (1-Math.pow(x,8)) + 
-                    Math.cos(4 * Math.PI * i) * (1-x) + 
-                        Math.cos(2 * Math.PI * i) * Math.cos(1 / 1024 * 2 * Math.PI * (1 - i))
-                    ,-clip,clip,0.1
-                );
-            }
-        } else if( type == "tsss"){
-            tween = tools.tweens.fastInSlowOut;
-            frequencyCallback = function(i,x,note){
-                return (
-                    (
-                        0.99 + 
-                            0.01 * 
-                            Math.sin( 
-                                20000000*i/second
-                            )
-                    ) * tools.getFrequencyFromNote(songNotes[note][0])
-                );
-            }
-        } 
-        
-
-        for(note in songNotes){
-            notes.push(
-                tools.createNote(
-                    frequencyCallback,
-                    note,
-                    songNotes[note][1],
-                    second,
-                    waveFunction,
-                    tween
-                )
-            );
-        }
-            
-        for(var i = 0; i < songNotes.length; i++){
-            var index = i;
-            track = track.concat(notes[index]);
-        }
-        
-        return track;
-    }
-    
+function play(){
     var tracks = [];
     
     var melody = [
@@ -101,16 +33,15 @@ function play(){
     for(var i in doumdoum){
         doumdoumNotes.push([tools.majorScale(doumdoum[i],1*12),0.15]);
     }
-
-        
-    tracks[0] = notesToTrack(melodyNotes,"wtf");
     
-    tracks[1] = notesToTrack(bassNotes,"wtf");
-    tracks[2] = notesToTrack(doumdoumNotes,"wtf");
+    var instrument = tools.ntt.cordInstrument();
     
+    tracks[0] = tools.ntt.make(melodyNotes, instrument);
+    tracks[1] = tools.ntt.make(bassNotes, instrument);
+    tracks[2] = tools.ntt.make(doumdoumNotes, instrument);
     tracks[0] = tracks[0].concat(tracks[0]);
     
-    //var tsss = instruments.drum.tsss(0.3,20,second);   
+    //var tsss = instruments.drum.tsss(0.3,20,tools.second);   
     
     var data = tools.mix(tracks);
         
@@ -118,7 +49,7 @@ function play(){
     data = data.concat(data);
     
     var wave = new RIFFWAVE(); // create the wave file
-    wave.header.sampleRate = second;
+    wave.header.sampleRate = tools.second;
     wave.header.numChannels = 1;
     wave.Make(data);
     var audio = new Audio(wave.dataURI); // create the HTML5 audio element
@@ -127,6 +58,81 @@ function play(){
 }
 
 var tools = {};
+tools.second = 44100;
+
+// ntt is short for notes to track
+
+tools.ntt = {};
+
+
+tools.ntt.cordInstrument = function(){
+    tween = function(x){
+        return 1-Math.pow(1-x,100) - Math.pow(x,100);
+    };
+    waveFunction = function(i,x){
+        var clip = 0.6 - (x / 8);
+        
+        return tools.softclip(
+            0.4 * Math.cos(8 * Math.PI * i) * (1-Math.pow(x,8)) + 
+                Math.cos(4 * Math.PI * i) * (1-x) + 
+                Math.cos(2 * Math.PI * i) * Math.cos(1 / 1024 * 2 * Math.PI * (1 - i))
+            ,-clip,clip,0.1
+        );
+    };
+    
+    return {tween: tween, waveFunction: waveFunction};
+};
+
+tools.ntt.tsss = function(){
+    tween = tools.tweens.fastInSlowOut;
+    
+    frequencyCallback = function(i,x,note){
+        return (
+            (
+                0.99 + 
+                    0.01 * 
+                    Math.sin( 
+                        20000000*i/tools.second
+                    )
+            ) * tools.getFrequencyFromNote(songNotes[note][0])
+        );
+    };
+    
+    return {tween: tween, waveFunction: waveFunction};
+}
+
+tools.ntt.make = function(songNotes,settings){
+    var track = [];
+    var notes = [];
+    // For a 'long' note: 
+    // function(x){return 1-Math.pow(1-x,100) - Math.pow(x,100);}
+    var tween = settings.tween || tools.tweens.fastInSlowOut;
+    var waveFunction = settings.waveFunction || instruments.customSin();
+    var frequencyCallback = settings.frequencyCallback || 
+        function(i,x,note){
+            return tools.getFrequencyFromNote(songNotes[note][0]);
+        };
+    
+    for(note in songNotes){
+        notes.push(
+            tools.createNote(
+                frequencyCallback,
+                note,
+                songNotes[note][1],
+                waveFunction,
+                tween
+            )
+        );
+    }
+    
+    for(var i = 0; i < songNotes.length; i++){
+        var index = i;
+        track = track.concat(notes[index]);
+    }
+    
+    return track;
+}
+
 
 tools.dump = function(data,start,end){
     var str = "";
@@ -288,20 +294,20 @@ tools.tweens.triangle = function(x,exponent){
     return Math.pow(1-x,exponent);
 }
 
-tools.createNote = function(frequencyCallback,note,length,second,waveFunction,tween){
-    var data = new Array(parseInt(length * second));
+tools.createNote = function(frequencyCallback,note,length,waveFunction,tween){
+    var data = new Array(parseInt(length * tools.second));
     
-    for (var i = 0; i < length * second; i++){
+    for (var i = 0; i < length * tools.second; i++){
         var intensity = tween(
-            i / (length*second),
+            i / (length*tools.second),
             7
         );
         
-        var x = i / (length * second);
-        var f = frequencyCallback(i, x, note, length * second);
+        var x = i / (length * tools.second);
+        var f = frequencyCallback(i, x, note, length * tools.second);
         
         data[i] = intensity * waveFunction(
-            f * (i / second),
+            f * (i / tools.second),
             x
         );
     }
@@ -352,8 +358,8 @@ var instruments = {};
 
 instruments.drum = {};
 
-instruments.drum.tsss = function(time,integrations,second){
-    var length = parseInt(second * time);
+instruments.drum.tsss = function(time,integrations){
+    var length = parseInt(tools.second * time);
     var data = new Array(length);
     
     var white = [];
@@ -362,7 +368,7 @@ instruments.drum.tsss = function(time,integrations,second){
         white[i] = Math.random();
     }
     
-    var timing = 2 * Math.PI / second;
+    var timing = 2 * Math.PI / tools.second;
     
     var brown = tools.integrate(white,10,integrations);
     
