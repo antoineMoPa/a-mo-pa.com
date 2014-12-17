@@ -1,26 +1,24 @@
 
 function play(){
     var tracks = [];
+    var melodyNotes = [],
+    bassNotes = [],
+    doumdoumNotes = [];
     
     var melody = [
-        7,0,7,0,
-        0,7,0,7,
+        1,2,4,6
     ];
     
     var bassMelody = [
-        7,0,7,0
+        4,3,2,1
     ];
     
     var doumdoum = [
-        7,7,7,7,7,
-        8,8,8,8,8,
-        5,5,5,5,5,
-        6,5,4,7,6
+        1,2,3,4,5,
+        2,3,4,5,6,
+        4,5,6,7,8,
+        6,7,8,3,2
     ];
-    
-    var melodyNotes = [];
-    var bassNotes = [];
-    var doumdoumNotes = [];
 
     for(var i in melody){
         melodyNotes.push([tools.majorScale(melody[i],1*12),0.3]);
@@ -34,17 +32,22 @@ function play(){
         doumdoumNotes.push([tools.majorScale(doumdoum[i],1*12),0.15]);
     }
     
+    
     var instrument = tools.ntt.cordInstrument();
+    
     
     tracks[0] = tools.ntt.make(melodyNotes, instrument);
     tracks[1] = tools.ntt.make(bassNotes, instrument);
     tracks[2] = tools.ntt.make(doumdoumNotes, instrument);
     tracks[0] = tracks[0].concat(tracks[0]);
     
-    //var tsss = instruments.drum.tsss(0.3,20,tools.second);   
+    
+    var tsssNotes = [[12,0.6],[32,1.2],[12,0.15],[13,0.15],[14,0.15],[15,0.15]];
+    
+    tracks[1] = tools.ntt.make(tsssNotes,tools.ntt.tsss());
     
     var data = tools.mix(tracks);
-        
+    
     data = data.concat(data);
     data = data.concat(data);
     
@@ -84,21 +87,30 @@ tools.ntt.cordInstrument = function(){
 };
 
 tools.ntt.tsss = function(){
-    tween = tools.tweens.fastInSlowOut;
+    var tween = function(x){
+        return (1-Math.pow(x,0.4));
+    };
     
-    frequencyCallback = function(i,x,note){
-        return (
-            (
-                0.99 + 
-                    0.01 * 
-                    Math.sin( 
-                        20000000*i/tools.second
-                    )
-            ) * tools.getFrequencyFromNote(songNotes[note][0])
+    waveFunction = function(i,x){
+        return tools.softclip(
+            Math.cos(5*(1-x) * Math.PI * i) * (1-x)
+            ,-0.2,0.2,0.3
         );
     };
     
-    return {tween: tween, waveFunction: waveFunction};
+    var frequencyModifier = function(f,i,x){
+        return (
+            (
+                0.5 +
+                    0.3 *
+                    Math.sin(
+                        2000000 * i / tools.second
+                    )
+            ) * f
+        );
+    };
+    
+    return {tween: tween, waveFunction: waveFunction, frequencyModifier: frequencyModifier};
 }
 
 tools.ntt.make = function(songNotes,settings){
@@ -113,10 +125,13 @@ tools.ntt.make = function(songNotes,settings){
             return tools.getFrequencyFromNote(songNotes[note][0]);
         };
     
+    var frequencyModifier = settings.frequencyModifier || function(f){return f};
+    
     for(note in songNotes){
         notes.push(
             tools.createNote(
                 frequencyCallback,
+                frequencyModifier,
                 note,
                 songNotes[note][1],
                 waveFunction,
@@ -294,7 +309,7 @@ tools.tweens.triangle = function(x,exponent){
     return Math.pow(1-x,exponent);
 }
 
-tools.createNote = function(frequencyCallback,note,length,waveFunction,tween){
+tools.createNote = function(frequencyCallback,frequencyModifier,note,length,waveFunction,tween){
     var data = new Array(parseInt(length * tools.second));
     
     for (var i = 0; i < length * tools.second; i++){
@@ -305,6 +320,8 @@ tools.createNote = function(frequencyCallback,note,length,waveFunction,tween){
         
         var x = i / (length * tools.second);
         var f = frequencyCallback(i, x, note, length * tools.second);
+        
+        f = frequencyModifier(f,i,x);
         
         data[i] = intensity * waveFunction(
             f * (i / tools.second),
