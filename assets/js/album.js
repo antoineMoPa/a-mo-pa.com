@@ -1,55 +1,63 @@
 
 function play(){
     var tracks = [];
-    var melodyNotes = [],
-    bassNotes = [],
-    doumdoumNotes = [];
+    var melodyNotes = [];
+    var bass1Notes = [];
+    var bass2Notes = [];
     
     var melody = [
-        1,2,4,6
+        0,0,0,0, 0,2,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0, 0,0,0,0,
+        2,2,2,2, 2,4,2,2, 2,2,2,2, 2,3,2,2, 2,2,2,2, 2,2,2,2,
+        4,4,4,4, 4,6,4,4, 4,4,4,4, 4,5,4,4, 4,4,4,4, 4,4,4,4,
+        0,0,0,0, 0,2,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0, 0,0,0,0,
     ];
     
-    var bassMelody = [
-        4,3,2,1
+    var bass1 = [
+        0,0,0,
+        2,2,2,
+        4,4,4,
+        0,0,0,
     ];
     
-    var doumdoum = [
-        1,2,3,4,5,
-        2,3,4,5,6,
-        4,5,6,7,8,
-        6,7,8,3,2
+    var bass2 = [
+        0,4,4,
+        2,6,6,
+        4,8,8,
+        0,4,4
     ];
-
+    
     for(var i in melody){
-        melodyNotes.push([tools.majorScale(melody[i],1*12),0.3]);
+        melodyNotes.push([tools.majorScale(melody[i],2*12),0.15]);
     }
     
-    for(var i in bassMelody){
-        bassNotes.push([tools.majorScale(bassMelody[i],12),4*0.3]);
+    for(var i in bass1){
+        bass1Notes.push([tools.majorScale(bass1[i],12),4*0.3]);
     }
     
-    for(var i in doumdoum){
-        doumdoumNotes.push([tools.majorScale(doumdoum[i],1*12),0.15]);
+    for(var i in bass2){
+        bass2Notes.push([tools.majorScale(bass2[i],1*12),4*0.3]);
     }
     
     
     var instrument = tools.ntt.cordInstrument();
+    var instrument2 = tools.ntt.cordInstrument();
+    var bassInstrument = tools.ntt.cordInstrument({clip: function(x){return 0.8}});
     
+    instrument2.tween = tools.tweens.fastInSlowOut;
     
     tracks[0] = tools.ntt.make(melodyNotes, instrument);
-    tracks[1] = tools.ntt.make(bassNotes, instrument);
-    tracks[2] = tools.ntt.make(doumdoumNotes, instrument);
-    tracks[0] = tracks[0].concat(tracks[0]);
+    tracks[1] = tools.ntt.make(bass1Notes, bassInstrument);
+    tracks[2] = tools.ntt.make(bass2Notes, bassInstrument);
     
     
-    var tsssNotes = [[12,0.6],[32,1.2],[12,0.15],[13,0.15],[14,0.15],[15,0.15]];
+    var tsssNotes = [[2,0.6],[2,0.6],[12,0.15],[13,0.15],[14,0.15],[15,0.15]];
     
-    tracks[1] = tools.ntt.make(tsssNotes,tools.ntt.tsss());
+    //tracks[1] = tools.ntt.make(tsssNotes,tools.ntt.tsss());
     
     var data = tools.mix(tracks);
     
-    data = data.concat(data);
-    data = data.concat(data);
+    //data = data.concat(data);
+    //data = data.concat(data);
     
     var wave = new RIFFWAVE(); // create the wave file
     wave.header.sampleRate = tools.second;
@@ -68,15 +76,21 @@ tools.second = 44100;
 tools.ntt = {};
 
 
-tools.ntt.cordInstrument = function(){
+tools.ntt.cordInstrument = function(settings){
+    var settings  = settings || {};
+    
+    var clipFunction = settings.clip || function(x){
+        return 0.6 - x / 8;
+    };
+    
     tween = function(x){
         return 1-Math.pow(1-x,100) - Math.pow(x,100);
     };
     waveFunction = function(i,x){
-        var clip = 0.6 - (x / 8);
+        var clip = clipFunction(x);
         
         return tools.softclip(
-            0.4 * Math.cos(8 * Math.PI * i) * (1-Math.pow(x,8)) + 
+            0.3 * Math.cos(8 * Math.PI * i) * (1-Math.pow(x,8)) + 
                 Math.cos(4 * Math.PI * i) * (1-x) + 
                 Math.cos(2 * Math.PI * i) * Math.cos(1 / 1024 * 2 * Math.PI * (1 - i))
             ,-clip,clip,0.1
@@ -255,7 +269,7 @@ tools.noteToScale = function(i,baseNote,scale){
 }
 
 tools.majorScale = function(i,baseNote){
-    return tools.noteToScale(i,baseNote,[0,2,4,5,7,9,10])
+    return tools.noteToScale(i,baseNote,[0,2,4,5,7,9,11])
 }
 
 tools.minorScale = function(i,baseNote){
