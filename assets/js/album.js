@@ -2,6 +2,7 @@
 function play(){
     var tracks = [];
     var melodyNotes = [];
+    var melody2Notes = [];
     var bass1Notes = [];
     var bass2Notes = [];
     
@@ -11,7 +12,14 @@ function play(){
         4,4,4,4, 4,6,4,4, 4,4,4,4, 4,5,4,4, 4,4,4,4, 4,4,4,4,
         0,0,0,0, 0,2,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0, 0,0,0,0,
     ];
-
+    
+    var melody2 = [
+        0,0,0,0, 3,3,3,3, 2,2,2,2, 1,1,1,1, 2,2,2,2, 2,2,2,2,
+        2,2,2,2, 5,5,5,5, 3,3,3,3, 1,1,1,1, 2,2,2,2, 2,2,2,2,
+        4,4,4,4, 5,5,5,5, 6,6,6,6, 8,8,4,4, 4,4,4,4, 4,4,4,4,
+        0,0,0,0, 2,2,2,2, 3,3,3,3, 1,1,1,2, 2,2,2,2, 2,2,2,2,
+    ];
+    
     var bass1 = [
         0,0,0,
         2,2,2,
@@ -29,7 +37,9 @@ function play(){
     for(var i in melody){
         melodyNotes.push([tools.majorScale(melody[i],2*12),0.15]);
     }
-    
+    for(var i in melody2){
+        melody2Notes.push([tools.majorScale(melody2[i],3*12),0.15]);
+    }
     for(var i in bass1){
         bass1Notes.push([tools.majorScale(bass1[i],12),4*0.3]);
     }
@@ -39,26 +49,51 @@ function play(){
     }
     
     var instrument = tools.ntt.cordInstrument();
-    var instrument2 = tools.ntt.cordInstrument();
-    var bassInstrument = tools.ntt.cordInstrument({clip: function(x){return [-0.2,0.2,0.08]}});
+    var instrument2 = tools.ntt.cordInstrument({
+        tween: function(x){
+            // plot [x=0:1] [y=0:1] (((x-x**2)*4)**8)**0.03
+            return Math.pow(Math.pow((x-Math.pow(x,2)),8),0.01);
+        },
+        clip: function(x){return [-0.5,0.5,0.5]}
+    });
+    var bassInstrument = tools.ntt.cordInstrument({clip: function(x){return [-0.15,0.15,0.05]}});
     
     instrument2.tween = tools.tweens.fastInSlowOut;
     
     tracks[0] = tools.ntt.make(melodyNotes, instrument);
-    tracks[1] = tools.ntt.make(bass1Notes, bassInstrument);
-    tracks[2] = tools.ntt.make(bass2Notes, bassInstrument);
-
-    tools.amplify(tracks[2]);
+    tracks[1] = tools.ntt.make(melody2Notes, instrument2);
+    tracks[2] = tools.ntt.make(bass1Notes, bassInstrument);
+    tracks[3] = tools.ntt.make(bass2Notes, bassInstrument);
+    tracks[4] = tools.ntt.make([[12,8*0.3]],bassInstrument);
+    console.log(bass2Notes[0][0]);
+    
+    // Silence track
+    // name of var chosen because it contains
+    // the right amount of letter for the
+    // concats below to fit visually!
+    var zerosound = tools.initArray(
+        function(i){return 0.5},
+        tracks[0].length
+    );
+    
+    tools.amplifyByFactor(tracks[2],0.4);
+    tools.amplify(tracks[2],0.8);
+    tools.amplify(tracks[3],0.8);    
+    tools.amplify(tracks[4],2);
+    
+    // todo: something that does that and saves place
+    tracks[0] = zerosound.concat(tracks[0]).concat(tracks[0]).concat(tracks[0]).concat(zerosound);
+    tracks[1] = zerosound.concat(zerosound).concat(tracks[1]).concat(zerosound).concat(zerosound);
+    tracks[2] = tracks[2].concat(tracks[2]).concat(tracks[2]).concat(zerosound).concat(zerosound);
+    tracks[3] = tracks[3].concat(tracks[3]).concat(tracks[3]).concat(tracks[3]).concat(zerosound);
+    tracks[4] = zerosound.concat(zerosound).concat(zerosound).concat(zerosound).concat(tracks[4]);
     
     var tsssNotes = [[2,0.6],[2,0.6],[12,0.15],[13,0.15],[14,0.15],[15,0.15]];
     
     //tracks[1] = tools.ntt.make(tsssNotes,tools.ntt.tsss());
     
     var data = tools.mix(tracks);
-    
-    //data = data.concat(data);
-    //data = data.concat(data);
-    
+
     var wave = new RIFFWAVE(); // create the wave file
     wave.header.sampleRate = tools.second;
     wave.header.numChannels = 1;
@@ -70,6 +105,14 @@ function play(){
 
 var tools = {};
 tools.second = 44100;
+
+tools.initArray = function(value, length){
+    var arr = [];
+    for(var i = 0; i < length; i++){
+        arr[i] = value(i);
+    }
+    return arr;
+}
 
 // ntt is short for notes to track
 
@@ -88,6 +131,7 @@ tools.ntt.cordInstrument = function(settings){
     tween = function(x){
         return 1-Math.pow(1-x,100) - Math.pow(x,100);
     };
+    
     waveFunction = function(i,x){
         var clip = clipFunction(x);
         
