@@ -8,16 +8,16 @@ function play(){
     
     var melody = [
         0,0,0,0, 0,2,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0, 0,0,0,0,
-        2,2,2,2, 2,4,2,2, 2,2,2,2, 2,3,2,2, 2,2,2,2, 2,2,2,2,
+        2,2,2,2, 2,3,2,2, 2,2,2,2, 2,3,2,2, 2,2,2,2, 2,2,2,2,
         4,4,4,4, 4,6,4,4, 4,4,4,4, 4,5,4,4, 4,4,4,4, 4,4,4,4,
-        0,0,0,0, 0,2,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0, 0,0,0,0,
+        0,0,0,0, 0,2,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
     ];
     
     var melody2 = [
-        0,0,0,0, 3,3,3,3, 2,2,2,2, 1,1,1,1, 2,2,2,2, 2,2,2,2,
-        2,2,2,2, 5,5,5,5, 3,3,3,3, 1,1,1,1, 2,2,2,2, 2,2,2,2,
-        4,4,4,4, 5,5,5,5, 6,6,6,6, 8,8,4,4, 4,4,4,4, 4,4,4,4,
-        0,0,0,0, 2,2,2,2, 3,3,3,3, 1,1,1,2, 2,2,2,2, 2,2,2,2,
+        0,0,0,0, 0,2,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0, 0,0,0,0,
+        2,2,2,2, 2,3,2,2, 2,2,2,2, 2,0,2,2, 2,2,2,2, 2,2,2,2,
+        4,4,4,4, 4,6,4,4, 4,4,4,4, 4,5,4,4, 4,4,4,4, 4,4,4,4,
+        0,0,0,0, 0,2,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0, 0,0,0,0,
     ];
     
     var bass1 = [
@@ -56,7 +56,16 @@ function play(){
         },
         clip: function(x){return [-0.5,0.5,0.5]}
     });
-    var bassInstrument = tools.ntt.cordInstrument({clip: function(x){return [-0.15,0.15,0.05]}});
+
+    var bassInductor = tools.createInductor(function factor(i){
+        return 0.2 + 0.1 * Math.cos(2*i/tools.second)
+    });
+    
+    var bassInstrument = tools.ntt.cordInstrument({
+        clip:
+        function(x){return [-0.15,0.15,0.05]},
+        filter: function(x){return bassInductor(x);}
+    });
     
     instrument2.tween = tools.tweens.fastInSlowOut;
     
@@ -65,8 +74,7 @@ function play(){
     tracks[2] = tools.ntt.make(bass1Notes, bassInstrument);
     tracks[3] = tools.ntt.make(bass2Notes, bassInstrument);
     tracks[4] = tools.ntt.make([[12,8*0.3]],bassInstrument);
-    console.log(bass2Notes[0][0]);
-    
+
     // Silence track
     // name of var chosen because it contains
     // the right amount of letter for the
@@ -106,6 +114,18 @@ function play(){
 var tools = {};
 tools.second = 44100;
 
+/* resists change */
+tools.createInductor = function(factorCallback){
+    var lastData = 0.5;
+    var factorCallback = factorCallback || function(i){return 0.1}
+    var i = 0;
+    return function(x){
+        var factor = factorCallback(i);
+        i++;
+        return lastData = factor * x + (1-factor) * lastData;
+    };
+};
+
 tools.initArray = function(value, length){
     var arr = [];
     for(var i = 0; i < length; i++){
@@ -118,7 +138,6 @@ tools.initArray = function(value, length){
 
 tools.ntt = {};
 
-
 tools.ntt.cordInstrument = function(settings){
     var settings  = settings || {};
     
@@ -126,6 +145,10 @@ tools.ntt.cordInstrument = function(settings){
         var val = 0.6 - x / 8;
         // [clip bottom, clip top, 'smoothness']
         return [-val,val,0.1];
+    };
+
+    var filter = settings.filter || function(x){
+        return x;
     };
     
     tween = function(x){
@@ -135,12 +158,12 @@ tools.ntt.cordInstrument = function(settings){
     waveFunction = function(i,x){
         var clip = clipFunction(x);
         
-        return tools.softclip(
+        return filter(tools.softclip(
             0.3 * Math.cos(8 * Math.PI * i) * (1-Math.pow(x,8)) + 
                 Math.cos(4 * Math.PI * i) * (1-x) + 
                 Math.cos(2 * Math.PI * i) * Math.cos(1 / 1024 * 2 * Math.PI * (1 - i))
             ,clip[0],clip[1],clip[2]
-        );
+        ));
     };
     
     return {tween: tween, waveFunction: waveFunction};
