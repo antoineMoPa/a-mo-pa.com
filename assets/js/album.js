@@ -11,7 +11,7 @@ function play(){
         4,4,4,4, 4,6,4,4, 4,4,4,4, 4,5,4,4, 4,4,4,4, 4,4,4,4,
         0,0,0,0, 0,2,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0, 0,0,0,0,
     ];
-    
+
     var bass1 = [
         0,0,0,
         2,2,2,
@@ -38,17 +38,17 @@ function play(){
         bass2Notes.push([tools.majorScale(bass2[i],1*12),4*0.3]);
     }
     
-    
     var instrument = tools.ntt.cordInstrument();
     var instrument2 = tools.ntt.cordInstrument();
-    var bassInstrument = tools.ntt.cordInstrument({clip: function(x){return 0.8}});
+    var bassInstrument = tools.ntt.cordInstrument({clip: function(x){return [-0.2,0.2,0.08]}});
     
     instrument2.tween = tools.tweens.fastInSlowOut;
     
     tracks[0] = tools.ntt.make(melodyNotes, instrument);
     tracks[1] = tools.ntt.make(bass1Notes, bassInstrument);
     tracks[2] = tools.ntt.make(bass2Notes, bassInstrument);
-    
+
+    tools.amplify(tracks[2]);
     
     var tsssNotes = [[2,0.6],[2,0.6],[12,0.15],[13,0.15],[14,0.15],[15,0.15]];
     
@@ -80,7 +80,9 @@ tools.ntt.cordInstrument = function(settings){
     var settings  = settings || {};
     
     var clipFunction = settings.clip || function(x){
-        return 0.6 - x / 8;
+        var val = 0.6 - x / 8;
+        // [clip bottom, clip top, 'smoothness']
+        return [-val,val,0.1];
     };
     
     tween = function(x){
@@ -93,7 +95,7 @@ tools.ntt.cordInstrument = function(settings){
             0.3 * Math.cos(8 * Math.PI * i) * (1-Math.pow(x,8)) + 
                 Math.cos(4 * Math.PI * i) * (1-x) + 
                 Math.cos(2 * Math.PI * i) * Math.cos(1 / 1024 * 2 * Math.PI * (1 - i))
-            ,-clip,clip,0.1
+            ,clip[0],clip[1],clip[2]
         );
     };
     
@@ -288,6 +290,38 @@ tools.getFrequencyFromNote = function(note){
     var octaveMultiplier = Math.pow(2,currentOctave);
     
     return baseFrequency * octaveMultiplier;
+}
+
+tools.extrema = function(data){
+    var max = data[0];
+    var min = max;
+    for(var i = 1; i < data.length; i++){
+        if(data[i] > max){
+            max = data[i];
+        } else if (data[i] < min) {
+            min = data[i];
+        }
+    }    
+    return [min,max];
+}
+
+/* Amplify, but not higher than max  */
+tools.amplify = function(data, max){
+    var max = max || 0.99;
+    var extrema = tools.extrema(data);
+    var minValue = Math.abs(extrema[0]);
+    var maxValue = Math.abs(extrema[1]);
+    maxValue = minValue > maxValue? minValue: maxValue;    
+    var factor = max / maxValue;
+    
+    tools.amplifyByFactor(data,factor);
+}
+
+tools.amplifyByFactor = function(data, factor, max){
+    for(var i = 0; i < data.length; i++){
+        data[i] *= factor;
+    }
+    return data;
 }
 
 tools.tweens = {};
