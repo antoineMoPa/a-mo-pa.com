@@ -58,7 +58,7 @@ function play(){
     });
 
     var bassInductor = tools.createInductor(function factor(i){
-        return 0.2 + 0.1 * Math.cos(2*i/tools.second)
+        return 0.2 + 0.1 * Math.cos(4*i/tools.second)
     });
     
     var bassInstrument = tools.ntt.cordInstrument({
