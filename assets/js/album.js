@@ -1,5 +1,63 @@
 
 function play(){
+    var data = songs.first();
+        
+    var wave = new RIFFWAVE(); // create the wave file
+    wave.header.sampleRate = tools.second;
+    wave.header.numChannels = 1;
+    wave.Make(data);
+    var audio = new Audio(wave.dataURI);    
+    audio.play();
+}
+
+$.ready(keyboard);
+
+function keyboard(){
+    var notes = [];
+        
+    var keys = 
+        [
+            'q','w','e','r','t','y','u','i','o','p',
+            'a','s','d','f','g','h','j','k','l',
+            'z','x','c','v','b','n','m'
+        ];
+
+    
+    for(var i = 0; i < keys.length; i++){
+        var note = tools.majorScale(i,10);
+        var data = tools.mix([tools.ntt.make([[note,0.7]])]);
+        var wave = new RIFFWAVE(); // create the wave file
+        wave.header.sampleRate = tools.second;
+        wave.header.numChannels = 1;
+        wave.Make(data);
+        var audio = new Audio(wave.dataURI);    
+        notes.push(audio)
+    }
+    
+    document.onkeydown = function(e){
+        var id = letterToID(e.key);
+        if(id == -1){
+            return;
+        }
+        notes[id].currentTime = 0;
+        notes[id].play();
+    }
+    function letterToID(letter){
+        for(var i = 0; i < keys.length; i++){
+            if(keys[i] == letter){
+                return i;
+            }
+        }
+        return -1;
+    }
+}
+
+var tools = {};
+tools.second = 44100;
+
+var songs = {};
+
+songs.first = function(){
     var tracks = [];
     var melodyNotes = [];
     var melody2Notes = [];
@@ -96,23 +154,10 @@ function play(){
     tracks[3] = tracks[3].concat(tracks[3]).concat(tracks[3]).concat(tracks[3]).concat(zerosound);
     tracks[4] = zerosound.concat(zerosound).concat(zerosound).concat(zerosound).concat(tracks[4]);
     
-    var tsssNotes = [[2,0.6],[2,0.6],[12,0.15],[13,0.15],[14,0.15],[15,0.15]];
-    
-    //tracks[1] = tools.ntt.make(tsssNotes,tools.ntt.tsss());
-    
-    var data = tools.mix(tracks);
-
-    var wave = new RIFFWAVE(); // create the wave file
-    wave.header.sampleRate = tools.second;
-    wave.header.numChannels = 1;
-    wave.Make(data);
-    var audio = new Audio(wave.dataURI); // create the HTML5 audio element
-    
-    audio.play(); // some noise
+    /*var tsssNotes = [[4,0.6],[2,0.6],[12,0.15],[13,0.15],[14,0.15],[15,0.15]];    
+    tracks[1] = tools.ntt.make(tsssNotes,tools.ntt.tsss());*/
+    return tools.mix(tracks);
 }
-
-var tools = {};
-tools.second = 44100;
 
 /* resists change */
 tools.createInductor = function(factorCallback){
@@ -201,6 +246,7 @@ tools.ntt.make = function(songNotes,settings){
     var notes = [];
     // For a 'long' note: 
     // function(x){return 1-Math.pow(1-x,100) - Math.pow(x,100);}
+    var settings = settings || tools.ntt.cordInstrument();
     var tween = settings.tween || tools.tweens.fastInSlowOut;
     var waveFunction = settings.waveFunction || instruments.customSin();
     var frequencyCallback = settings.frequencyCallback || 
@@ -227,7 +273,6 @@ tools.ntt.make = function(songNotes,settings){
         var index = i;
         track = track.concat(notes[index]);
     }
-    
     return track;
 }
 
