@@ -24,8 +24,10 @@ function keyboard(){
 
     
     for(var i = 0; i < keys.length; i++){
-        var note = tools.minorScale(i,10);
-        var data = tools.mix([tools.ntt.make([[note,0.7]])]);
+        var note = tools.majorScale(i,10);
+        var track = tools.ntt.make([[note,0.7]]);
+        tools.amplify(track,0.4);
+        var data = tools.mix([track]);
         var wave = new RIFFWAVE(); // create the wave file
         wave.header.sampleRate = tools.second;
         wave.header.numChannels = 1;
@@ -35,7 +37,8 @@ function keyboard(){
     }
     
     document.onkeydown = function(e){
-        var id = letterToID(e.key);
+        var letter = String.fromCharCode(e.keyCode);
+        var id = letterToID(letter.toLowerCase());
         if(id == -1){
             return;
         }
@@ -187,7 +190,7 @@ tools.ntt.cordInstrument = function(settings){
     var settings  = settings || {};
     
     var clipFunction = settings.clip || function(x){
-        var val = 0.6 - x / 8;
+        var val = 0.8;
         // [clip bottom, clip top, 'smoothness']
         return [-val,val,0.1];
     };
