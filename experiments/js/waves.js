@@ -4,28 +4,50 @@ initWaves()
 
 function initWaves(){
     var canvas = document.querySelectorAll("canvas[name=waves]")[0];
-    var btn = document.querySelectorAll("a.iterate")[0];
+    var iterateBtn = document.querySelectorAll("a.iterate")[0];
+    var animateBtn = document.querySelectorAll("a.animate")[0];
     var ctx = canvas.getContext("2d");
     var w = canvas.width;
     var h = canvas.height;
     
-    var potentials = bidimentionnalArray(w, h, 0.5);
+    var potentials = bidimentionnalArray(w, h, 0);
     var momentums = bidimentionnalArray(w, h, 0);
     
-    initValue(250,250,100);
+    var animationPotentials = [];
+    var animationImages = [];
+    
+    initValue(100,100,40);
+    initValue(300,100,40);
+    draw();
     
     function initValue(i,j,value){
         potentials[i][j] = value;
     }
     
-    btn.onclick = function(){
-        for(var i = 0; i < 30; i++){        
-            iterate();        
+    iterateBtn.onclick = function(){
+        for(var i = 0; i < 30; i++){
+            iterate();
+            draw();
+            animationImages.push(ctx.getImageData(0,0,w,h));
         }
-        draw();        
+        draw();
     };    
     
-    draw();
+    animateBtn.onclick = function(){
+        animate();
+    };
+    
+    function animate(){        
+        var i = 0;        
+        renderFrame();
+        function renderFrame(){
+            ctx.putImageData(animationImages[i], 0, 0);
+            i++;
+            if(i < animationImages.length){
+                setTimeout(renderFrame,30);
+            }
+        }
+    }
 
     /*
       
@@ -43,14 +65,14 @@ function initWaves(){
         for(var i = 1; i < w - 1; i++){
             for(var j = 1; j < h - 1; j++){                
                 // take potentials into account
-                equilibrate(i,j, i-1 , j-1, factor);
+                //equilibrate(i,j, i-1 , j-1, factor);
                 equilibrate(i,j, i   , j-1, factor);
-                equilibrate(i,j, i+1 , j-1, factor);
+                //equilibrate(i,j, i+1 , j-1, factor);
                 equilibrate(i,j, i+1 , j  , factor);
                                             
-                equilibrate(i,j, i+1 , j+1, factor);
+                //equilibrate(i,j, i+1 , j+1, factor);
                 equilibrate(i,j, i   , j+1, factor);
-                equilibrate(i,j, i-1 , j+1, factor);
+                //equilibrate(i,j, i-1 , j+1, factor);
                 equilibrate(i,j, i-1 , j  , factor);                
             }            
         }
@@ -79,8 +101,12 @@ function initWaves(){
         for(var i = 0; i < w; i++){
             for(var j = 0; j < h; j++){
                 // Set color
-                var red = Math.abs(parseInt(momentums[i][j] * 255)) % 255;
-                var blue = Math.abs(parseInt(potentials[i][j] * 255)) % 255;
+                var red = 55;//Math.abs(parseInt(momentums[i][j] * 255)) % 255;
+                var blue = Math.abs(
+                    parseInt(
+                        1-(Math.pow(1-(potentials[i][j] / 10),40))
+                            * 255)
+                );
                 
                 ctx.fillStyle = "rgba("+red+",0,"+blue+",1)";
                 ctx.fillRect(i,j,1,1);
