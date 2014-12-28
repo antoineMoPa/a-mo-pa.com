@@ -16,8 +16,8 @@ function initWaves(){
     var animationPotentials = [];
     var animationImages = [];
     
-    initValue(100,100,40);
-    initValue(300,100,40);
+    initValue(150,100,40);
+    initValue(250,100,40);
     draw();
     
     function initValue(i,j,value){
@@ -25,12 +25,11 @@ function initWaves(){
     }
     
     iterateBtn.onclick = function(){
-        for(var i = 0; i < 30; i++){
+        for(var i = 0; i < 50; i++){
             iterate();
             draw();
             animationImages.push(ctx.getImageData(0,0,w,h));
-        }
-        draw();
+        }        
     };    
     
     animateBtn.onclick = function(){
@@ -101,14 +100,14 @@ function initWaves(){
         for(var i = 0; i < w; i++){
             for(var j = 0; j < h; j++){
                 // Set color
-                var red = 55;//Math.abs(parseInt(momentums[i][j] * 255)) % 255;
-                var blue = Math.abs(
+                var red =  50;
+                var red = green = blue = Math.abs(
                     parseInt(
                         1-(Math.pow(1-(potentials[i][j] / 10),40))
                             * 255)
                 );
                 
-                ctx.fillStyle = "rgba("+red+",0,"+blue+",1)";
+                ctx.fillStyle = "rgba("+red+","+green+","+blue+",1)";
                 ctx.fillRect(i,j,1,1);
             }
         }

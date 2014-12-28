@@ -1,6 +1,6 @@
 <text-center>
 <a class="btn iterate">iterate</a>    
-<canvas name="waves" width="400" height="200">
+<canvas name="waves" width="600" height="600">
 </canvas>
     
 <a class="btn animate">Show all animation</a>
