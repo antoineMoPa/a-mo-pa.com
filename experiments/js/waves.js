@@ -10,47 +10,38 @@ function initWaves(){
     var h = canvas.height;
     
     var potentials = bidimentionnalArray(w, h, 0.5);
-    var oldPotentials = bidimentionnalArray(w, h, 0.5);
     var momentums = bidimentionnalArray(w, h, 0);
     
-    initValue(250,250,200);
+    initValue(250,250,100);
     
     function initValue(i,j,value){
         potentials[i][j] = value;
-        oldPotentials[i][j] = value;
     }
     
     btn.onclick = function(){
-        for(var i = 0; i < 40; i++){
-            iterate();
+        for(var i = 0; i < 30; i++){        
+            iterate();        
         }
-        
         draw();        
     };    
     
-    draw();    
+    draw();
 
     /*
       
-      Three things are happening here:
+      2 things are happening here:
       
       1- potential is being shared with neighboors
       2- each particle has its momentum
-      3- the is a 'spring' force tending to bring values back to a certain value
       
      */
     
     function iterate(){
-        for(var i = 1; i < w - 1; i++){
-            for(var j = 1; j < h - 1; j++){
-                oldPotentials[i][j] = potentials[i][j];
-            }
-        }
-        
+        var factor = 0.1;
+                
         // equilibrate potentials
         for(var i = 1; i < w - 1; i++){
-            for(var j = 1; j < h - 1; j++){
-                var factor = 0.1;
+            for(var j = 1; j < h - 1; j++){                
                 // take potentials into account
                 equilibrate(i,j, i-1 , j-1, factor);
                 equilibrate(i,j, i   , j-1, factor);
@@ -60,27 +51,26 @@ function initWaves(){
                 equilibrate(i,j, i+1 , j+1, factor);
                 equilibrate(i,j, i   , j+1, factor);
                 equilibrate(i,j, i-1 , j+1, factor);
-                equilibrate(i,j, i   , j  , factor);                
+                equilibrate(i,j, i-1 , j  , factor);                
             }            
         }
         
         for(var i = 1; i < w - 1; i++){
-            for(var j = 1; j < h - 1; j++){
-                // take momentums into account
-                potentials[i][j] += momentums[i][j];                
+            for(var j = 1; j < h - 1; j++){                
+                potentials[i][j] += momentums[i][j];
             }
         }
         
         function equilibrate(i, j, k, l, factor){
             var new1 = 
-                (1 - factor) * oldPotentials[i][j] + 
-                factor * oldPotentials[k][l];
+                (1 - factor) * potentials[i][j] + 
+                factor * potentials[k][l];
             var new2 = 
-                (1 - factor) * oldPotentials[k][l] + 
-                factor * oldPotentials[i][j];
+                (1 - factor) * potentials[k][l] + 
+                factor * potentials[i][j];
             
-            momentums[i][j] += new1 - oldPotentials[i][j];
-            momentums[k][l] += new2 - oldPotentials[k][l];
+            momentums[i][j] += new1 - potentials[i][j];
+            momentums[k][l] += new2 - potentials[k][l];
         }        
     }
     
