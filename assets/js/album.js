@@ -24,7 +24,7 @@ function keyboard(){
 
     
     for(var i = 0; i < keys.length; i++){
-        var note = tools.majorScale(i,10);
+        var note = tools.minorScale(i,10);
         var data = tools.mix([tools.ntt.make([[note,0.7]])]);
         var wave = new RIFFWAVE(); // create the wave file
         wave.header.sampleRate = tools.second;
