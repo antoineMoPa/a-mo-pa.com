@@ -3,6 +3,6 @@
 <canvas name="waves" width="600" height="600">
 </canvas>
     
-<a class="btn animate">Show all animation</a>
+<a class="btn animate">Animate</a>
 
 </text-center>

@@ -13,7 +13,6 @@ function initWaves(){
     var potentials = bidimentionnalArray(w, h, 0);
     var momentums = bidimentionnalArray(w, h, 0);
     
-    var animationPotentials = [];
     var animationImages = [];
     
     initValue(150,100,40);
@@ -25,15 +24,15 @@ function initWaves(){
     }
     
     iterateBtn.onclick = function(){
-        for(var i = 0; i < 10; i++){
-            iterate();
-            draw();
-            animationImages.push(ctx.getImageData(0,0,w,h));
-        }        
-    };    
+        iterate();
+        draw();
+    };  
     
     animateBtn.onclick = function(){
-        animate();
+        setInterval(function(){
+            iterate();
+            draw();
+        },100);
     };
     
     function animate(){        
