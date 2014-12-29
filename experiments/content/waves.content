@@ -1,6 +1,5 @@
 <text-center>
-<a class="btn animate">Animate</a>
-<a class="btn pause">Pause</a>
+<a class="btn play">Play</a>
 <canvas name="waves" width="600" height="600">
 </canvas>
 </text-center>

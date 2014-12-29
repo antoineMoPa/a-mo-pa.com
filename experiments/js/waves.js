@@ -4,8 +4,7 @@ initWaves()
 
 function initWaves(){
     var canvas = document.querySelectorAll("canvas[name=waves]")[0];
-    var animateBtn = document.querySelectorAll("a.animate")[0];
-    var pauseBtn = document.querySelectorAll("a.pause")[0];
+    var playBtn = document.querySelectorAll("a.play")[0];
     var ctx = canvas.getContext("2d");
     var w = canvas.width;
     var h = canvas.height;
@@ -23,8 +22,7 @@ function initWaves(){
         potentials[i][j] = value;
     }
         
-    animateBtn.onclick = animate;
-    pauseBtn.onclick = pause;
+    playBtn.onclick = play;
     
     var animationInterval = null;
     
@@ -35,7 +33,7 @@ function initWaves(){
         },100);        
     }
     
-    function pause(){
+    function play(){
         if(animationInterval != null){
             clearInterval(animationInterval);
             animationInterval = null;
