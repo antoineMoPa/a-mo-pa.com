@@ -54,7 +54,7 @@ function initWaves(){
      */
     
     function iterate(){
-        var factor = 0.1;
+        var factor = 1/4;
                 
         // equilibrate potentials
         for(var i = 1; i < w - 1; i++){
