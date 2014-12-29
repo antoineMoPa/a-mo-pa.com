@@ -25,7 +25,7 @@ function initWaves(){
     }
     
     iterateBtn.onclick = function(){
-        for(var i = 0; i < 50; i++){
+        for(var i = 0; i < 10; i++){
             iterate();
             draw();
             animationImages.push(ctx.getImageData(0,0,w,h));
@@ -97,20 +97,24 @@ function initWaves(){
     
     function draw(){
         ctx.clearRect(0,0,w,h);
+        var data = ctx.createImageData(w,h);
         for(var i = 0; i < w; i++){
-            for(var j = 0; j < h; j++){
+            for(var j = 0; j < h; j++){                
+                var index = 4 * (j * w + i);
                 // Set color
-                var red =  50;
                 var red = green = blue = Math.abs(
                     parseInt(
                         1-(Math.pow(1-(potentials[i][j] / 10),40))
                             * 255)
-                );
+                );                
                 
-                ctx.fillStyle = "rgba("+red+","+green+","+blue+",1)";
-                ctx.fillRect(i,j,1,1);
+                data.data[index] = red;                
+                data.data[index + 1] = red;
+                data.data[index + 2] = red;
+                data.data[index + 3] = 255;
             }
         }
+        ctx.putImageData(data,0,0);
     }
 }
 
