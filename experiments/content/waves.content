@@ -1,8 +1,6 @@
 <text-center>
-<a class="btn iterate">iterate</a>    
+<a class="btn animate">Animate</a>
+<a class="btn pause">Pause</a>
 <canvas name="waves" width="600" height="600">
 </canvas>
-    
-<a class="btn animate">Animate</a>
-
 </text-center>

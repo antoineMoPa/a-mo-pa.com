@@ -4,8 +4,8 @@ initWaves()
 
 function initWaves(){
     var canvas = document.querySelectorAll("canvas[name=waves]")[0];
-    var iterateBtn = document.querySelectorAll("a.iterate")[0];
     var animateBtn = document.querySelectorAll("a.animate")[0];
+    var pauseBtn = document.querySelectorAll("a.pause")[0];
     var ctx = canvas.getContext("2d");
     var w = canvas.width;
     var h = canvas.height;
@@ -22,31 +22,30 @@ function initWaves(){
     function initValue(i,j,value){
         potentials[i][j] = value;
     }
+        
+    animateBtn.onclick = animate;
+    pauseBtn.onclick = pause;
     
-    iterateBtn.onclick = function(){
-        iterate();
-        draw();
-    };  
-    
-    animateBtn.onclick = function(){
-        setInterval(function(){
-            iterate();
-            draw();
-        },100);
-    };
+    var animationInterval = null;
     
     function animate(){        
-        var i = 0;        
-        renderFrame();
-        function renderFrame(){
-            ctx.putImageData(animationImages[i], 0, 0);
-            i++;
-            if(i < animationImages.length){
-                setTimeout(renderFrame,30);
-            }
+        animationInterval = setInterval(function(){
+            iterate();
+            draw();
+        },100);        
+    }
+    
+    function pause(){
+        if(animationInterval != null){
+            clearInterval(animationInterval);
+            animationInterval = null;
+            this.innerHTML = "Play";
+        } else {            
+            this.innerHTML = "Pause";
+            animate();
         }
     }
-
+    
     /*
       
       2 things are happening here:
