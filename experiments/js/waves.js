@@ -1,7 +1,6 @@
 
 initWaves()
 
-
 function initWaves(){
     var canvas = document.querySelectorAll("canvas[name=waves]")[0];
     var playBtn = document.querySelectorAll("a.play")[0];
@@ -14,7 +13,133 @@ function initWaves(){
     
     playBtn.onclick = play;
     
+    var experiments = [];
+    
+    experiments.push({
+        name: "Young double slit",
+        oscillators: function(){
+            oscillators = [];
+            // young double slit
+            oscillators.push({i:250,j:100,radius:80,amplitude:2, periodic: true, omega: 3});    
+            return oscillators;
+        },
+        damping: 0.99,
+        factor: function(factor,i,j){
+            if(j > h/2 && j < h/2+5 && !(i > 230 && i < 235|| i > 265 && i < 270)){
+                factor *= 0;
+            }
+            return factor;
+        }
+    });
+    
+    experiments.push({
+        name: "Interference of 2 punctual sources",
+        oscillators: function(){
+            oscillators = [];
+            oscillators.push({i:245,j:100,radius:2,amplitude:2, periodic: true, omega: 5});
+            oscillators.push({i:255,j:100,radius:2,amplitude:2, periodic: true, omega: 5});
+            return oscillators;
+        },
+        damping: 0.99,
+        factor: function(factor,i,j){
+            return factor;
+        }
+    });    
+
+    
+    experiments.push({
+        name: "Circular wall",
+        oscillators: function(){
+            oscillators = [];
+            // young double slit
+            oscillators.push({i:w/2,j:h/2,radius:10,amplitude:2, periodic: true, omega: 3});
+            return oscillators;
+        },
+        damping: 0.99,
+        factor: function(factor,i,j){
+            if(d(i,j,w/2,h/2) > 80){
+                factor = 0;
+            }
+            return factor;
+        }
+    });
+    
+    experiments.push({
+        name: "Diffraction network",
+        oscillators: function(){
+            oscillators = [];
+            // young double slit
+            oscillators.push({i:250,j:100,radius:80,amplitude:2, periodic: true, omega: 3});    
+            return oscillators;
+        },
+        damping: 0.99,
+        factor: function(factor,i,j){
+            if(j > 180 && j < 185 && !(i%20 < 10)){
+                factor = 0;
+            }            
+            return factor;
+        }
+    });    
+
+    experiments.push({
+        name: "Source moving in a circle",
+        oscillators: function(){
+            oscillators = [];
+            // young double slit
+            var xMoving = function(time){return 250+Math.cos(time)*100;};
+            var yMoving = function(time){return 250+Math.sin(time)*100;};
+            oscillators.push({i:xMoving,j:yMoving,radius:3,amplitude:4, periodic: true, omega: 5});            
+            return oscillators;
+        },
+        damping: 0.99,
+        factor: function(factor,i,j){
+            return factor;
+        }
+    });    
+
+    experiments.push({
+        name: "Source moving linearly",
+        oscillators: function(){
+            oscillators = [];
+            // young double slit
+            oscillators.push(
+                {
+                    i: 250,
+                    j: function(time){return 10*time + 100},
+                    radius: 3,
+                    amplitude: 2,
+                    periodic: true,
+                    omega: 3
+                }
+            );
+            return oscillators;
+        },
+        damping: 0.99,
+        factor: function(factor,i,j){
+            return factor;
+        }
+    });    
+
+    experiments.push({
+        name: "Rain",
+        oscillators: function(){
+            oscillators = [];
+            // young double slit
+            var radius = 4;
+            var xRain = function(time){return Math.random()*(w - 2 * radius) + radius;}
+            var yRain = function(time){return Math.random()*(h - 2 * radius) + radius;}
+            oscillators.push({i:xRain,j:yRain,radius:3,amplitude:4, periodic: false});
+                return oscillators;
+        },
+        damping: 0.8,
+        factor: function(factor,i,j){            
+            return factor;
+        }
+    });    
+    
     var animationInterval = null;
+    
+    var experiment = experiments[2];
     
     function animate(){        
         animationInterval = setInterval(function(){
@@ -36,46 +161,12 @@ function initWaves(){
     
     var heights = bidimentionnalArray(w, h, 0.5);
     var speeds = bidimentionnalArray(w, h, 0);
-    var mass = 1;
     var interval = 0.2;
     var time = 0;
-    var damping = 1; // 1 = no damping 0.1 = lot of damping
+    var damping = experiment.damping; // 1 = no damping 0.1 = lot of damping
     
-    var oscillators = [];
-    
-    oscillators.push({i:w/2,j:h/2,radius:10,amplitude:2, periodic: true, omega: 3});
-    
-    // young double slit
-    //oscillators.push({i:250,j:100,radius:80,amplitude:2, periodic: true, omega: 3});
-    
-    // young-like interference without wall
-    //oscillators.push({i:245,j:100,radius:2,amplitude:2, periodic: true, omega: 5});
-    //oscillators.push({i:255,j:100,radius:2,amplitude:2, periodic: true, omega: 5});
-    
-    // moving source
-    //var xMoving = function(time){return 250+Math.cos(time)*100;}
-    //var yMoving = function(time){return 250+Math.sin(time)*100;}
-    //oscillators.push({i:xMoving,j:yMoving,radius:3,amplitude:4, periodic: true, omega: 5});
-    
-    // rain
-    //var radius = 4;
-    //var xRain = function(time){return Math.random()*(w - 2 * radius) + radius;}
-    //var yRain = function(time){return Math.random()*(h - 2 * radius) + radius;}
-    //oscillators.push({i:xRain,j:yRain,radius:3,amplitude:4, periodic: false});
-
-    /*
-    // Moving object
-    oscillators.push(
-        {
-            i: 250,
-            j: function(time){return 10*time + 100},
-            radius: 3,
-            amplitude: 2,
-            periodic: true,
-            omega: 3
-        }
-    );
-    */
+    var oscillators = experiment.oscillators();
+    console.log(experiment);
     oscillate(0);
     draw();
 
@@ -90,8 +181,7 @@ function initWaves(){
                 }                
             }
         }
-    }
-    
+    }    
     
     // oscillate oscillators
     function oscillate(){
@@ -99,10 +189,18 @@ function initWaves(){
             /* position (i,j) and radius can be callbacks */
             /* Amplitude can be either periodic or not */            
             point(
-                typeof(oscillators[i].i) == 'function'? oscillators[i].i(time): oscillators[i].i,
-                typeof(oscillators[i].j) == 'function'? oscillators[i].j(time): oscillators[i].j,
-                typeof(oscillators[i].radius) == 'function'? oscillators[i].radius(time): oscillators[i].radius,
-                oscillators[i].periodic == false? oscillators[i].amplitude: Math.sin(oscillators[i].omega * time) * oscillators[i].amplitude
+                typeof(oscillators[i].i) == 'function'? 
+                    oscillators[i].i(time): 
+                    oscillators[i].i,
+                typeof(oscillators[i].j) == 'function'?
+                    oscillators[i].j(time):
+                    oscillators[i].j,
+                typeof(oscillators[i].radius) == 'function'? 
+                    oscillators[i].radius(time): 
+                    oscillators[i].radius,
+                oscillators[i].periodic == false? 
+                    oscillators[i].amplitude: 
+                    Math.sin(oscillators[i].omega * time) * oscillators[i].amplitude
             )
         }
     }
@@ -153,19 +251,7 @@ function initWaves(){
         
         function equilibrate(i, j, k, l, factor){
             var deltaH = heights[i][j] - heights[k][l];
-            // young
-            /*if(j > h/2 && j < h/2+5 && !(i > 230 && i < 235|| i > 265 && i < 270)){
-                factor *= 0;
-            }*/
-            // Diffraction network
-            /*if(j > 180 && j < 185 && !(i%20 < 10)){
-                factor = 0;
-            }*/
-            //circular wall
-            if(d(i,j,w/2,h/2) > 80){
-                factor = 0;
-            }
-            
+            var factor = experiment.factor(factor,i,j);
             speeds[i][j] -= factor * deltaH;            
             speeds[k][l] += factor * deltaH;
         }        
