@@ -6,6 +6,9 @@ function initWaves(){
     var canvas = document.querySelectorAll("canvas[name=waves]")[0];
     var playBtn = document.querySelectorAll("a.play")[0];
     var ctx = canvas.getContext("2d");
+    canvas.width = 500;
+    canvas.height = 500;
+    
     var w = canvas.width;
     var h = canvas.height;
     
@@ -36,13 +39,16 @@ function initWaves(){
     var mass = 1;
     var interval = 0.2;
     var time = 0;
-    var damping = 0.99; // 1 = no damping 0.1 = lot of damping
+    var damping = 1; // 1 = no damping 0.1 = lot of damping
     
     var oscillators = [];
     
-    oscillators.push({i:250,j:100,radius:4,amplitude:2, periodic: true, omega: 3});
+    oscillators.push({i:w/2,j:h/2,radius:10,amplitude:2, periodic: true, omega: 3});
     
-    // young
+    // young double slit
+    //oscillators.push({i:250,j:100,radius:80,amplitude:2, periodic: true, omega: 3});
+    
+    // young-like interference without wall
     //oscillators.push({i:245,j:100,radius:2,amplitude:2, periodic: true, omega: 5});
     //oscillators.push({i:255,j:100,radius:2,amplitude:2, periodic: true, omega: 5});
     
@@ -53,8 +59,8 @@ function initWaves(){
     
     // rain
     //var radius = 4;
-    //var xRain = function(time){return Math.random()*(500 - 2 * radius) + radius;}
-    //var yRain = function(time){return Math.random()*(500 - 2 * radius) + radius;}
+    //var xRain = function(time){return Math.random()*(w - 2 * radius) + radius;}
+    //var yRain = function(time){return Math.random()*(h - 2 * radius) + radius;}
     //oscillators.push({i:xRain,j:yRain,radius:3,amplitude:4, periodic: false});
 
     /*
@@ -83,9 +89,6 @@ function initWaves(){
                     heights[k][l] += value * (1-dist / radius);
                 }                
             }
-        }
-        function d(x1,y1,x2,y2){
-            return Math.sqrt(Math.pow(y2-y1,2)+Math.pow(x2-x1,2));
         }
     }
     
@@ -151,13 +154,18 @@ function initWaves(){
         function equilibrate(i, j, k, l, factor){
             var deltaH = heights[i][j] - heights[k][l];
             // young
-            if(j > 140 && j < 145 && !(i > 230 && i < 235|| i > 265 && i < 270)){
+            /*if(j > h/2 && j < h/2+5 && !(i > 230 && i < 235|| i > 265 && i < 270)){
                 factor *= 0;
-            }
+            }*/
             // Diffraction network
             /*if(j > 180 && j < 185 && !(i%20 < 10)){
                 factor = 0;
             }*/
+            //circular wall
+            if(d(i,j,w/2,h/2) > 80){
+                factor = 0;
+            }
+            
             speeds[i][j] -= factor * deltaH;            
             speeds[k][l] += factor * deltaH;
         }        
@@ -175,9 +183,13 @@ function initWaves(){
                 var speed = 
                     parseInt(10*speeds[i][j] * 255);
                 
+                // red
                 data.data[index + 0] = height;
-                data.data[index + 1] = speed;
+                // green
+                data.data[index + 1] = height;
+                // blue
                 data.data[index + 2] = height;
+                // opacity
                 data.data[index + 3] = 255;
             }
         }
@@ -194,4 +206,8 @@ function bidimentionnalArray(w, h, value){
         }
     }
     return arr;
+}
+
+function d(x1,y1,x2,y2){
+    return Math.sqrt(Math.pow(y2-y1,2)+Math.pow(x2-x1,2));
 }
