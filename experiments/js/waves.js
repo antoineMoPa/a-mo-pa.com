@@ -37,7 +37,8 @@ function initWaves(){
     var mass = 1;
     var interval = 0.2;
     
-    initValue(150,100,100,1);
+    initValue(250,300,40,1);
+    initValue(350,300,40,1);
     
     draw();
     
