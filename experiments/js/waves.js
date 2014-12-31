@@ -37,8 +37,8 @@ function initWaves(){
     var mass = 1;
     var interval = 0.2;
     
-    initValue(250,300,40,1);
-    initValue(350,300,40,1);
+    initValue(200,100,4,8);
+    initValue(300,100,4,8);
     
     draw();
     
@@ -97,17 +97,17 @@ function initWaves(){
             for(var j = 0; j < h; j++){
                 var index = 4 * (j * w + i);
                 // Set color
-                var red =
+                var height =
                     Math.abs(
                         parseInt(heights[i][j] * 255)
                     );
-                var green = 
+                var speed = 
                     Math.abs(
                         parseInt(30*speeds[i][j] * 255)
                     );
-                data.data[index + 0] = red;
-                data.data[index + 1] = green;
-                data.data[index + 2] = 0;
+                data.data[index + 0] = height;
+                data.data[index + 1] = height;
+                data.data[index + 2] = height;
                 data.data[index + 3] = 255;
             }
         }
