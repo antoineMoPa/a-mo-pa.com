@@ -31,23 +31,48 @@ function initWaves(){
         }
     }
     
-    var heights = bidimentionnalArray(w, h, 0);
+    var heights = bidimentionnalArray(w, h, 0.5);
     var speeds = bidimentionnalArray(w, h, 0);
-    var springConstant = 10000;
     var mass = 1;
     var interval = 0.2;
+    var time = 0;
     
-    initValue(200,100,4,8);
-    initValue(300,100,4,8);
+    var oscillators = [];
     
+    // young
+    //oscillators.push({i:245,j:100,radius:2,amplitude:2, periodic: true, omega: 5});
+    //oscillators.push({i:255,j:100,radius:2,amplitude:2, periodic: true, omega: 5});
+    
+    // moving source
+    var xMoving = function(time){return 250+Math.cos(time)*100;}
+    var yMoving = function(time){return 250+Math.sin(time)*100;}
+    oscillators.push({i:xMoving,j:yMoving,radius:3,amplitude:4, periodic: true, omega: 5});
+    
+
+    /*
+    // Moving object
+    oscillators.push(
+        {
+            i: 250,
+            j: function(time){return 10*time + 100},
+            radius: 3,
+            amplitude: 2,
+            periodic: true,
+            omega: 3
+        }
+    );
+    */
+    oscillate(0);
     draw();
-    
-    function initValue(i,j,radius,value){
+
+    function point(i,j,radius,value){
+        var i = parseInt(i);
+        var j = parseInt(j);
         for(var k = i - radius; k < i + radius; k++){
             for(var l = j - radius; l < j + radius; l++){
                 var dist = d(i,j,k,l);
                 if(dist < radius){
-                    heights[k][l] = value * (1 - dist / radius);
+                    heights[k][l] += value * (1-dist / radius);
                 }                
             }
         }
@@ -56,8 +81,26 @@ function initWaves(){
         }
     }
     
+    
+    // oscillate oscillators
+    function oscillate(){
+        for(var i = 0; i < oscillators.length; i++){
+            /* position (i,j) and radius can be callbacks */
+            /* Amplitude can be either periodic or not */            
+            point(
+                typeof(oscillators[i].i) == 'function'? oscillators[i].i(time): oscillators[i].i,
+                typeof(oscillators[i].j) == 'function'? oscillators[i].j(time): oscillators[i].j,
+                typeof(oscillators[i].radius) == 'function'? oscillators[i].radius(time): oscillators[i].radius,
+                oscillators[i].periodic == false? oscillators[i].amplitude: Math.sin(oscillators[i].omega * time) * oscillators[i].amplitude
+            )
+        }
+    }
+    
     function iterate(){        
         var factor = 1/4;
+        
+        time += interval;
+        oscillate();
         
         // equilibrate heights
         for(var i = 1; i < w - 1; i++){
@@ -67,10 +110,11 @@ function initWaves(){
                 equilibrate(i,j, i   , j+1, factor);
                 equilibrate(i,j, i-1 , j  , factor);
                 // Corners
-                /*equilibrate(i,j, i-1 , j-1, 0.01 * factor);
-                equilibrate(i,j, i+1 , j-1, 0.01 * factor);
-                equilibrate(i,j, i+1 , j+1, 0.01 * factor);                
-                equilibrate(i,j, i-1 , j+1, 0.01 * factor);                
+                /*
+                  equilibrate(i,j, i-1 , j-1, 0.01 * factor);
+                  equilibrate(i,j, i+1 , j-1, 0.01 * factor);
+                  equilibrate(i,j, i+1 , j+1, 0.01 * factor);                
+                  equilibrate(i,j, i-1 , j+1, 0.01 * factor);                
                 */
             }     
         }
@@ -98,16 +142,13 @@ function initWaves(){
                 var index = 4 * (j * w + i);
                 // Set color
                 var height =
-                    Math.abs(
-                        parseInt(heights[i][j] * 255)
-                    );
+                    parseInt((heights[i][j] - 0.5) * 255);
                 var speed = 
-                    Math.abs(
-                        parseInt(30*speeds[i][j] * 255)
-                    );
+                    parseInt(2*speeds[i][j] * 255);
+                
                 data.data[index + 0] = height;
-                data.data[index + 1] = height;
-                data.data[index + 2] = height;
+                data.data[index + 1] = height < 0? -height:0;
+                data.data[index + 2] = 0;
                 data.data[index + 3] = 255;
             }
         }
