@@ -36,18 +36,26 @@ function initWaves(){
     var mass = 1;
     var interval = 0.2;
     var time = 0;
+    var damping = 0.99; // 1 = no damping 0.1 = lot of damping
     
     var oscillators = [];
+    
+    oscillators.push({i:250,j:100,radius:4,amplitude:2, periodic: true, omega: 3});
     
     // young
     //oscillators.push({i:245,j:100,radius:2,amplitude:2, periodic: true, omega: 5});
     //oscillators.push({i:255,j:100,radius:2,amplitude:2, periodic: true, omega: 5});
     
     // moving source
-    var xMoving = function(time){return 250+Math.cos(time)*100;}
-    var yMoving = function(time){return 250+Math.sin(time)*100;}
-    oscillators.push({i:xMoving,j:yMoving,radius:3,amplitude:4, periodic: true, omega: 5});
+    //var xMoving = function(time){return 250+Math.cos(time)*100;}
+    //var yMoving = function(time){return 250+Math.sin(time)*100;}
+    //oscillators.push({i:xMoving,j:yMoving,radius:3,amplitude:4, periodic: true, omega: 5});
     
+    // rain
+    //var radius = 4;
+    //var xRain = function(time){return Math.random()*(500 - 2 * radius) + radius;}
+    //var yRain = function(time){return Math.random()*(500 - 2 * radius) + radius;}
+    //oscillators.push({i:xRain,j:yRain,radius:3,amplitude:4, periodic: false});
 
     /*
     // Moving object
@@ -119,17 +127,38 @@ function initWaves(){
             }     
         }
         
+        // damp speed of borders
+        for(var i = 0; i < w; i++){
+            speeds[i][0] *= damping;
+            speeds[i][h-1] *= damping;
+        }
+        
+        // damp speed of borders
+        for(var j = 0; j < h; j++){
+            speeds[0][j] *= damping;
+            speeds[w-1][j] *= damping;
+        }
+
+        
         for(var i = 1; i < w - 1; i++){
             for(var j = 1; j < h - 1; j++){
-                // f = ma
-                heights[i][j] += speeds[i][j];
+                // damp speed
+                speeds[i][j] *= damping;
+                heights[i][j] += speeds[i][j];                
             }
         }
         
         function equilibrate(i, j, k, l, factor){
             var deltaH = heights[i][j] - heights[k][l];
-            
-            speeds[i][j] -= factor * deltaH;
+            // young
+            if(j > 140 && j < 145 && !(i > 230 && i < 235|| i > 265 && i < 270)){
+                factor *= 0;
+            }
+            // Diffraction network
+            /*if(j > 180 && j < 185 && !(i%20 < 10)){
+                factor = 0;
+            }*/
+            speeds[i][j] -= factor * deltaH;            
             speeds[k][l] += factor * deltaH;
         }        
     }
@@ -142,13 +171,13 @@ function initWaves(){
                 var index = 4 * (j * w + i);
                 // Set color
                 var height =
-                    parseInt((heights[i][j] - 0.5) * 255);
+                    parseInt((heights[i][j]) * 255);
                 var speed = 
-                    parseInt(2*speeds[i][j] * 255);
+                    parseInt(10*speeds[i][j] * 255);
                 
                 data.data[index + 0] = height;
-                data.data[index + 1] = height < 0? -height:0;
-                data.data[index + 2] = 0;
+                data.data[index + 1] = speed;
+                data.data[index + 2] = height;
                 data.data[index + 3] = 255;
             }
         }
