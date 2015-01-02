@@ -214,6 +214,7 @@ function initWaves(){
             currentColorsSettings = 0;
         }
         updateColorsInfo();
+	draw();
     }
     
     function updateColorsInfo(){
