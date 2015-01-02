@@ -17,4 +17,10 @@
 <a class="btn play">Play</a><br>
 <canvas name="waves" width="500" height="500">
 </canvas>
+
+<br>
+
+<a class="btn toggle-colors">Toggle colors</a>
+<p class="colors-info">Colors info</p>
+
 </text-center>

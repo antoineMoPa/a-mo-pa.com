@@ -6,6 +6,7 @@ function initWaves(){
     var playBtn = document.querySelectorAll("a.play")[0];
     var previousBtn = document.querySelectorAll("a.previous")[0];
     var nextBtn = document.querySelectorAll("a.next")[0];
+    var toggleColorsBtn = document.querySelectorAll("a.toggle-colors")[0];
     var ctx = canvas.getContext("2d");
     canvas.width = 500;
     canvas.height = 500;
@@ -23,11 +24,10 @@ function initWaves(){
         name: "Young double slit",
         oscillators: function(){
             oscillators = [];
-            // young double slit
             oscillators.push({i:250,j:100,radius:80,amplitude:2, periodic: true, omega: 3});    
             return oscillators;
         },
-        damping: 0.99, // 1 = no damping 0.1 = lot of damping
+        damping: 1, // 1 = no damping 0.1 = lot of damping
         factor: function(factor,i,j){
             if(j > h/2 && j < h/2+5 && !(i > 230 && i < 235|| i > 265 && i < 270)){
                 factor *= 0;
@@ -55,7 +55,6 @@ function initWaves(){
         name: "Circular wall",
         oscillators: function(){
             oscillators = [];
-            // young double slit
             oscillators.push({i:w/2,j:h/2,radius:10,amplitude:2, periodic: true, omega: 3});
             return oscillators;
         },
@@ -72,7 +71,6 @@ function initWaves(){
         name: "Diffraction network",
         oscillators: function(){
             oscillators = [];
-            // young double slit
             oscillators.push({i:250,j:100,radius:80,amplitude:2, periodic: true, omega: 3});    
             return oscillators;
         },
@@ -89,7 +87,6 @@ function initWaves(){
         name: "Source moving in a circle",
         oscillators: function(){
             oscillators = [];
-            // young double slit
             var xMoving = function(time){return 250+Math.cos(time)*100;};
             var yMoving = function(time){return 250+Math.sin(time)*100;};
             oscillators.push({i:xMoving,j:yMoving,radius:3,amplitude:4, periodic: true, omega: 5});            
@@ -105,7 +102,6 @@ function initWaves(){
         name: "Source moving linearly",
         oscillators: function(){
             oscillators = [];
-            // young double slit
             oscillators.push(
                 {
                     i: 250,
@@ -128,7 +124,6 @@ function initWaves(){
         name: "Rain",
         oscillators: function(){
             oscillators = [];
-            // young double slit
             var radius = 4;
             var xRain = function(time){return Math.random()*(w - 2 * radius) + radius;}
             var yRain = function(time){return Math.random()*(h - 2 * radius) + radius;}
@@ -187,7 +182,47 @@ function initWaves(){
     var oscillators;
     var experiment;
     
+    var HEIGHT = -1;
+    var SPEED = -2;
+    var colorsSetting;
+    var colorsMultipliers;
+    
+    var colorsSettings = [];
+    var currentColorsSettings = 0;
+    
+    colorsSettings.push({
+        colors: [HEIGHT,HEIGHT,HEIGHT,255],
+        multipliers: [1,1,1,1],
+        info: "black = height of 0<br> white = height of 1"
+    });
+    
+    colorsSettings.push({
+        colors: [HEIGHT,SPEED,HEIGHT,255],
+        multipliers: [10,10,10,1],
+        info: "red,blue = height * 10<br> green = speed * 10"
+    });
+    
+    colorsSettings.push({
+        colors: [SPEED,SPEED,HEIGHT,255],
+        multipliers: [1,1,1,1],
+        info: "red = speed<br>green = speed<br>blue = height"
+    });    
+    
+    toggleColorsBtn.onclick = function(){
+        currentColorsSettings++;
+        if(currentColorsSettings >= colorsSettings.length){
+            currentColorsSettings = 0;
+        }
+        updateColorsInfo();
+    }
+    
+    function updateColorsInfo(){
+        document.querySelectorAll("p.colors-info")[0].innerHTML 
+            = colorsSettings[currentColorsSettings].info;
+    }
+    
     goToExperiment(0);
+    updateColorsInfo();
     
     function goToExperiment(num){
         experiment = experiments[num];
@@ -289,9 +324,14 @@ function initWaves(){
         }        
     }
     
+    
+    
     function draw(){
         ctx.clearRect(0,0,w,h);
         var data = ctx.createImageData(w,h);
+        var colSet = colorsSettings[currentColorsSettings].colors;
+        var colorsMultipliers = colorsSettings[currentColorsSettings].multipliers;
+
         for(var i = 0; i < w; i++){
             for(var j = 0; j < h; j++){
                 var index = 4 * (j * w + i);
@@ -301,14 +341,16 @@ function initWaves(){
                 var speed = 
                     parseInt(20*speeds[i][j] * 255);
                 
-                // red
-                data.data[index + 0] = height;
-                // green
-                data.data[index + 1] = height;
-                // blue
-                data.data[index + 2] = height;
-                // opacity
-                data.data[index + 3] = 255;
+                for(var k = 0; k < 4; k++){
+                    if(colSet[k] == HEIGHT){
+                        data.data[index + k] = height;
+                    } else if(colSet[k] == SPEED){
+                        data.data[index + k] = speed;
+                    } else {
+                        data.data[index + k] = colSet[k];
+                    }                    
+                    data.data[index + k] *= colorsMultipliers[k];
+                }
             }
         }
         ctx.putImageData(data,0,0);
