@@ -4,6 +4,8 @@ initWaves()
 function initWaves(){
     var canvas = document.querySelectorAll("canvas[name=waves]")[0];
     var playBtn = document.querySelectorAll("a.play")[0];
+    var previousBtn = document.querySelectorAll("a.previous")[0];
+    var nextBtn = document.querySelectorAll("a.next")[0];
     var ctx = canvas.getContext("2d");
     canvas.width = 500;
     canvas.height = 500;
@@ -12,6 +14,8 @@ function initWaves(){
     var h = canvas.height;
     
     playBtn.onclick = play;
+    previousBtn.onclick = previous;
+    nextBtn.onclick = next;
     
     var experiments = [];
     
@@ -23,7 +27,7 @@ function initWaves(){
             oscillators.push({i:250,j:100,radius:80,amplitude:2, periodic: true, omega: 3});    
             return oscillators;
         },
-        damping: 0.99,
+        damping: 0.99, // 1 = no damping 0.1 = lot of damping
         factor: function(factor,i,j){
             if(j > h/2 && j < h/2+5 && !(i > 230 && i < 235|| i > 265 && i < 270)){
                 factor *= 0;
@@ -139,8 +143,6 @@ function initWaves(){
     
     var animationInterval = null;
     
-    var experiment = experiments[2];
-    
     function animate(){        
         animationInterval = setInterval(function(){
             iterate();
@@ -159,17 +161,47 @@ function initWaves(){
         }
     }
     
-    var heights = bidimentionnalArray(w, h, 0.5);
-    var speeds = bidimentionnalArray(w, h, 0);
-    var interval = 0.2;
-    var time = 0;
-    var damping = experiment.damping; // 1 = no damping 0.1 = lot of damping
+    var currentExperiment = 0;
     
-    var oscillators = experiment.oscillators();
-    console.log(experiment);
-    oscillate(0);
-    draw();
-
+    function previous(){
+        currentExperiment--;
+        if(currentExperiment < 0){
+            currentExperiment = experiments.length;
+        }
+        goToExperiment(currentExperiment);
+    };
+    
+    function next(){
+        currentExperiment++;
+        if(currentExperiment >= experiments.length){
+            currentExperiment = 0;
+        }
+        goToExperiment(currentExperiment);
+    };
+    
+    var heights;
+    var speeds;
+    var interval;
+    var time;
+    var damping;    
+    var oscillators;
+    var experiment;
+    
+    goToExperiment(0);
+    
+    function goToExperiment(num){
+        experiment = experiments[num];
+        heights = bidimentionnalArray(w, h, 0.5);
+        speeds = bidimentionnalArray(w, h, 0);
+        interval = 0.2;
+        time = 0;
+        damping = experiment.damping;
+        oscillators = experiment.oscillators()
+        oscillate(0);
+        document.querySelectorAll(".experiment-title h1")[0].innerHTML = experiment.name;
+        draw();        
+    }
+    
     function point(i,j,radius,value){
         var i = parseInt(i);
         var j = parseInt(j);
@@ -267,7 +299,7 @@ function initWaves(){
                 var height =
                     parseInt((heights[i][j]) * 255);
                 var speed = 
-                    parseInt(10*speeds[i][j] * 255);
+                    parseInt(20*speeds[i][j] * 255);
                 
                 // red
                 data.data[index + 0] = height;

@@ -16,7 +16,7 @@ class Htmlify
   def htmlify(string)
     string = "<p>#{string}</p>"
     string = headings(string)
-    string = string.gsub("\n","<br>")
+    #string = string.gsub("\n","<br>")
     string = string.gsub("[real-line-break]","\n")
     string = clean(string)
   end

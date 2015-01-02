@@ -1,5 +1,20 @@
+
+<div style="width:500px;margin:auto;">
+    <div style="display:inline-block;text-align:left;width:49%;">
+        <a class="btn previous">Previous</a>        
+    </div>
+    <div style="display:inline-block;text-align:right;width:49%;">
+        <a class="btn next">Next</a>
+    </div>
+</div>
+
+<div class="experiment-title text-center">
+    <h1>Waves</h1>
+</div>
+
+
 <text-center>
-<a class="btn play">Play</a>
+<a class="btn play">Play</a><br>
 <canvas name="waves" width="500" height="500">
 </canvas>
 </text-center>
