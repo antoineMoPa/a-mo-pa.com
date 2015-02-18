@@ -15,20 +15,72 @@ var lastY = 0;
 
 var points = [];
 draw();
-can.onclick = function(e){
+can.onmousedown = function(e){
     x = e.clientX - can.offsetLeft;
     y = e.clientY - can.offsetTop;
-    points.push([x,y]);
-    draw();
+    down(x,y);
 };
+can.onmouseup = function(e){
+    x = e.clientX - can.offsetLeft;
+    y = e.clientY - can.offsetTop;
+    up(x,y);
+};
+
+can.onmousemove = function(e){
+    x = e.clientX - can.offsetLeft;
+    y = e.clientY - can.offsetTop;
+    if(dragging != -1){
+        points[dragging] = [x,y];
+        draw();
+    }
+};
+
+var dragging = -1;
+function down(x,y){
+    // Verify if a point was clicked
+    var selected = -1;
+    var treshold = 6;
+    for(var i in points){
+        var point = points[i];
+        var d = distance(point[0],point[1],x,y);
+        if(d < treshold){
+            selected = i;
+            break;
+        }
+    }
+    if(selected == -1){
+        points.push([x,y]);
+    } else {
+        dragging = selected;
+    }
+    draw();
+}
+
+function up(x,y){
+    if(dragging != -1){
+        points[dragging] = [x,y];
+        dragging = -1;
+        draw();
+    }
+ }
+
+function distance(x1,y1,x2,y2){
+    return Math.sqrt(Math.pow(y2 - y1,2) + Math.pow(x2 - x1,2));
+}
 
 function draw(){
     ctx.fillStyle = "#eee";
     ctx.fillRect(0,0,w,h);
-    ctx.fillStyle = "rgba(0,0,0,0.9)";
     for(var i = 0; i < points.length; i++){
-        ctx.fillRect(points[i][0]-2, points[i][1]-2, 4, 4);   
+        var size = 3;
+        if(dragging != -1 && dragging == i){
+            ctx.fillStyle = "rgba(255,0,0,0.9)";
+        } else {
+            ctx.fillStyle = "rgba(0,0,0,0.9)";
+        }
+        ctx.fillRect(points[i][0]-size, points[i][1]-size, 2*size,2*size);   
     }
+    ctx.fillStyle = "rgba(0,0,0,0.9)";
     for(var i = 1; i < points.length - 1; i+=2){   
         var res = 100;
         // point
