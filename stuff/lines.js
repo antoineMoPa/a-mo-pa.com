@@ -23,14 +23,14 @@ can.onclick = function(e){
 };
 
 function draw(){
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = "#eee";
     ctx.fillRect(0,0,w,h);
     ctx.fillStyle = "rgba(0,0,0,0.9)";
     for(var i = 0; i < points.length; i++){
         ctx.fillRect(points[i][0]-2, points[i][1]-2, 4, 4);   
     }
     for(var i = 1; i < points.length - 1; i+=2){   
-        var res = 20;
+        var res = 100;
         // point
         var p = points[i];
         // lastpoint
@@ -39,24 +39,14 @@ function draw(){
         
         for(var j = 0; j < res ; j++){             
             var k = j/res;
-            var m = k * np[0] + (1-k) * lp[0];
-            var n = k * np[1] + (1-k) * lp[1];
-            if(k < 0.5){
-                var u = 2*k
-                var q = (1-u) * lp[0] + (u) * p[0];
-                var r = (1-u) * lp[1] + (u) * p[1];
-                m = u * q + (1-u) * m;
-                n = u * r + (1-u) * n;
-            }
-            if(k >= 0.5){
-                var u = 1-2*(k-0.5);
-                var q = (1-u) * np[0] + (u) * p[0];
-                var r = (1-u) * np[1] + (u) * p[1];
-                m = u * q + (1-u) * m;
-                n = u * r + (1-u) * n;
-            }
-            
-            ctx.fillRect(m-1, n-1, 2, 2);
+            var m = k * lp[0] + (1-k) * p[0];
+            var n = k * lp[1] + (1-k) * p[1];
+            var q = k * p[0] + (1-k) * np[0];
+            var r = k * p[1] + (1-k) * np[1];
+            var s = k * m + (1-k) * q;
+            var t = k * n + (1-k) * r;
+
+            ctx.fillRect(s-1, t-1, 2, 2);
         }
     }
 }
