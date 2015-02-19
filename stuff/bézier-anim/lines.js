@@ -148,7 +148,7 @@ function draw(){
         // lastpoint
         var lp = points[i-1];
         var np = points[i+1];
-
+        // calculate resolution
         var res = distance(p[0],p[1],lp[0],lp[1]) + distance(p[0],p[1],np[0],np[1]);
         res/=2
         for(var j = 0; j < res ; j++){
