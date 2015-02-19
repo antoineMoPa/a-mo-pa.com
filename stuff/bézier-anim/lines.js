@@ -119,11 +119,11 @@ function initEditor(){
             dragging = -1;
             draw();
         }
-     }
-    
-    function distance(x1,y1,x2,y2){
-        return Math.sqrt(Math.pow(y2 - y1,2) + Math.pow(x2 - x1,2));
-    }
+     }    
+}
+
+function distance(x1,y1,x2,y2){
+    return Math.sqrt(Math.pow(y2 - y1,2) + Math.pow(x2 - x1,2));
 }
 
 function draw(){
@@ -143,13 +143,14 @@ function draw(){
     }
     ctx.fillStyle = "rgba(0,0,0,0.9)";
     for(var i = 1; i < points.length - 1; i+=2){
-        var res = 100;
         // point
         var p = points[i];
         // lastpoint
         var lp = points[i-1];
         var np = points[i+1];
 
+        var res = distance(p[0],p[1],lp[0],lp[1]) + distance(p[0],p[1],np[0],np[1]);
+        res/=2
         for(var j = 0; j < res ; j++){
             var k = j/res;
             var m = k * lp[0] + (1-k) * p[0];
