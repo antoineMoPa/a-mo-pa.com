@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Lines</title>
+        <style>
+            /* Goal: less than 100 lines of well-formatted css */
+            body{
+                margin:0;
+                background:#bbb;
+                font-family:'Open Sans',sans-serif,Arial;                
+            }
+            canvas{
+                box-shadow:0 0 10px rgba(0,0,0,0.04);
+            }
+            h1{font-weight:300;}
+            .rendering-info{
+                position:absolute;
+                color:#fff;
+                font-family:monospace,Sans-Serif,Helvetica,Arial;
+                font-weight:bolder;
+                font-size:20px;
+                padding-left:20px;
+            }
+            .text-center{
+                text-align:center;
+            }
+            .frame-selector{
+                float:right;
+            }
+            .btn{
+                display:inline-block;
+                background:#38F;
+                color:#fff;
+                font-weight:700;
+                padding:0px 5px;
+                cursor:pointer;
+            }
+            .actions{
+                background:#fff;
+                width:480px;
+                margin:auto;
+                padding:10px;                
+            }
+            .clear{
+                clear:both;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="text-center">
+            <h1>Animation editor</h1>
+            <canvas name="tomato">
+            </canvas>
+            <div class="actions">
+                <span class="frame">1</span>/
+                <span class="frames-num">1</span>
+                
+                <div class="frame-selector">
+                    <div class="prev btn"><</div>
+                    <div class="next btn">></div>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <script src="lines.js"></script>
+    </body>
+</html>
