@@ -51,13 +51,17 @@ function initEditorUI(){
     initKeyboard();
     function initKeyboard(){
         var keys = [
-            [39,next_frame],
-            [37,prev_frame]
+            [39,next_frame], // Right
+            [37,prev_frame], // Left
+            ['N',break_obj]
         ];
         
         document.onkeydown = function(e){        
             for(key in keys){
+                /* direct numbers  */
                 if(e.keyCode == keys[key][0]){
+                    keys[key][1]();
+                } else if (String.fromCharCode(e.keyCode) == keys[key][0]){
                     keys[key][1]();
                 }
             }
@@ -73,6 +77,15 @@ function initEditorUI(){
         validate_and_write_frame();
     };
     
+    function break_obj(){
+        if(frames[currentFrame].points < 2){
+            return;
+        } if(frames[currentFrame].points.length % 2 == 0){
+            return;
+        }
+        frames[currentFrame].points.push("break");
+        draw();
+    }
     
     function validate_and_write_frame(){
         if(currentFrame < 0){
@@ -187,9 +200,20 @@ function draw(){
     if(points.length > 0){
         ctx.moveTo(points[0][0],points[0][1]);
     }
+    var breaking = false;
+    
     for(var i = 1; i < points.length - 1; i+=2){
         // point
         var p = points[i];
+        
+        if(p == "break"){
+            breaking = true;
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(points[i+1][0],points[i+1][1]);
+            continue;
+        }
+        
         // lastpoint
         var lp = points[i-1];
         var np = points[i+1];
