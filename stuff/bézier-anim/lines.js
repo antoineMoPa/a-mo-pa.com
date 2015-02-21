@@ -97,8 +97,13 @@ function initEditorUI(){
         draw();
     }
     function copy_last_into_new(){
-        frames[frames.length-1].objects =
-            frames[frames.length-2].objects.slice(0);
+        frames[frames.length-1].objects = [];
+        for(var obj in frames[frames.length-2].objects){
+            console.log(frames[frames.length-2].objects[obj]);
+            frames[frames.length-1].objects[obj] = {points:[]};
+            frames[frames.length-1].objects[obj].points =
+                frames[frames.length-2].objects[obj].points.slice(0);
+        }
     }
 }
 
@@ -140,15 +145,23 @@ function initEditor(){
     };
 
     function down(x,y){
-        var points = frames[currentFrame].objects[currentObject].points;
+        
         // Verify if a point was clicked
         var selected = -1;
         var treshold = 6;
-        for(var i in points){
-            var point = points[i];
-            var d = distance(point[0],point[1],x,y);
-            if(d < treshold){
-                selected = i;
+        for(var obj in frames[currentFrame].objects){
+            var points = frames[currentFrame]
+                .objects[obj].points;
+            for(var i in points){
+                var point = points[i];
+                var d = distance(point[0],point[1],x,y);
+                if(d < treshold){
+                    currentObject = obj;
+                    selected = i;
+                    break;
+                }
+            }
+            if(selected != -1){
                 break;
             }
         }
@@ -185,7 +198,9 @@ function draw(){
         if(editing){
             for(var i = 0; i < points.length; i++){
                 var size = 3;
-                if(dragging != -1 && dragging == i){
+                if( obj == currentObject &&
+                    dragging != -1 &&
+                    dragging == i ){
                     ctx.fillStyle = "rgba(255,0,0,0.9)";
                 } else {
                     ctx.fillStyle = "rgba(0,0,0,0.9)";
