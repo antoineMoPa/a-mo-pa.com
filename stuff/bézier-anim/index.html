@@ -8,12 +8,12 @@
             body{
                 margin:0;
                 background:#bbb;
-                font-family:'Open Sans',sans-serif,Arial;                
+                font-family:'Open Sans',sans-serif,Arial;
             }
             canvas{
                 box-shadow:0 0 10px rgba(0,0,0,0.04);
             }
-            h1{font-weight:300;}
+            h1,h2,h3{font-weight:300;}
             .rendering-info{
                 position:absolute;
                 color:#fff;
@@ -31,42 +31,133 @@
             .left-actions{
                 float:left;
             }
-            .btn{
-                display:inline-block;
-                background:#38F;
-                color:#fff;
-                font-weight:700;
-                padding:4px 5px;
-                cursor:pointer;
-            }
             .actions{
                 background:#fff;
                 width:480px;
                 margin:auto;
-                padding:10px;                
+                padding:10px;
             }
             .clear{
                 clear:both;
+            }
+            .inline-block{
+                display:inline-block;
+                vertical-align:top;
+            }
+            .side-panel{
+                background:#fff;
+                width:300px;
+                height:500px;
+            }
+            tabtitle{
+                background:#eee;
+                line-height:50px;
+                height:50px;
+                width:60px;
+                display:inline-block;
+                font-size:10px;
+            }
+            tab{
+                padding:15px;
+                text-align:left;
+            }
+            tabtitle:hover,
+            tabtitle.active{
+                background:#48f;
+                color:#fff;
+            }
+            tabtitles{
+                display:block;
+            }
+            tabtitles,
+            .text-left{ text-align: left; }
+            .text-center{ text-align: center; }
+            .text-right{ text-align: right; }
+
+            action{
+                cursor:pointer;
+                color:#fff;
+                background:#48f;
+                padding:5px;
+                margin-top:5px;
+                display:inline-block;
+            }
+            action:active{
+                background:#26d;
+                user-select:none;
+            }
+            action,
+            tabtitles,
+            .actions
+            {
+                user-select:none;
+                -moz-user-select:none;
             }
         </style>
     </head>
     <body>
         <div class="text-center">
             <h1>Animation editor</h1>
-            <canvas name="tomato">
-            </canvas>
-            <div class="actions">
-                <div class="left-actions">
-                    <div class="play btn">Play</div>
+            <div class="side-panel inline-block">
+                <tabtitles>
+                    <tabtitle class="text-center">
+                        FRAME
+                    </tabtitle>
+                    <tabtitle class="text-center">
+                        OBJECT
+                    </tabtitle>
+                </tabtitles>
+                <tabs>
+                    <tab>
+                        <h3>Frame</h3>
+                        <action name="clear_frame">Clear</action>
+                        <br>
+                        <action name="copy_frame">Copy</action>
+                        <br>
+                        <action name="paste_frame">Paste</action>
+                        
+                    </tab>
+                    <tab>
+                        <h3>Object</h3>
+                    </tab>
+                </tabs>
+            </div>
+
+
+            <div class="inline-block">
+                <canvas name="tomato">
+                </canvas>
+                <div class="actions">
+                    <div class="left-actions">
+                        <action class="play">Play</action>
+                    </div>
+                    <span class="frame">1</span>/
+                    <span class="frames-num">1</span>
+
+                    <div class="frame-selector">
+                        <action class="prev"><</action>
+                        <action class="next">></action>
+                    </div>
+                    <div class="clear"></div>
                 </div>
-                <span class="frame">1</span>/
-                <span class="frames-num">1</span>
-                
-                <div class="frame-selector">
-                    <div class="prev btn"><</div>
-                    <div class="next btn">></div>
-                </div>
-                <div class="clear"></div>
+            </div>
+            <div class="side-panel inline-block">
+                <tabtitles>
+                    <tabtitle class="text-center">
+                        DRAWING
+                    </tabtitle>
+                    <tabtitle class="text-center">
+                        DATA
+                    </tabtitle>
+                </tabtitles>
+                <tabs>
+                    <tab>
+                        <h3>Drawing Properties</h3>
+                    </tab>
+                    <tab>
+                        <h3>Data</h3>
+                    </tab>
+                </tabs>
             </div>
         </div>
         <script src="lines.js"></script>

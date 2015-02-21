@@ -18,13 +18,53 @@ var points = [];
 var editing = true;
 var dragging = -1;
 
+
+var ADD_MOVE_POINT = 0;
+var DEL_POINT = 1;
+var click_mode = ADD_MOVE_POINT;
+
 initEditorUI();
 initLoopButton();
 initEditor();
+initTabs();
 draw();
 
+function initTabs(){
+    var alltitles = document.querySelectorAll("tabtitles");
+    for(var i = 0; i < alltitles.length; i++){
+        var tabtitles = alltitles[i].children;
+        console.log(alltitles,tabtitles)
+        switchTo(tabtitles[0], 0);
+        for(var j = 0; j < tabtitles.length; j++){
+            addClickToTab(tabtitles[j], j);
+        }
+
+    }
+    
+    function addClickToTab(i,index){
+        i.onclick = function(){
+            switchTo(i,index);
+        }
+    }
+    function switchTo(title,index){
+        var tabs = title
+            .parentNode
+            .parentNode
+            .getElementsByTagName("tabs")[0].children;
+
+        var tabtitles = title.parentNode.children;
+
+        for(var i = 0; i < tabtitles.length; i++){
+            tabtitles[i].classList.remove("active");
+            tabs[i].style.display = "none";
+        }
+        title.classList.add("active");
+        tabs[index].style.display = "block";
+    }
+}
+
 function initLoopButton(){
-    var play_btn = document.querySelectorAll(".actions .play.btn")[0];
+    var play_btn = document.querySelectorAll(".actions .play")[0];
     play_btn.onclick = function(){
         currentFrame = 0;
         for(var i = 0; i < frames.length-1; i++){
@@ -40,11 +80,11 @@ function initLoopButton(){
 
 
 function initEditorUI(){
-    var next_btn = document.querySelectorAll(".actions .next.btn")[0];
-    var prev_btn = document.querySelectorAll(".actions .prev.btn")[0];
+    var next_btn = document.querySelectorAll(".actions .next")[0];
+    var prev_btn = document.querySelectorAll(".actions .prev")[0];
     var curr_frame = document.querySelectorAll(".actions .frame")[0]
     var num_frame = document.querySelectorAll(".actions .frames-num")[0]
-    
+
 
     next_btn.onclick = next_frame;
     prev_btn.onclick = prev_frame;
@@ -54,10 +94,13 @@ function initEditorUI(){
         var keys = [
             [39,next_frame], // Right
             [37,prev_frame], // Left
-            ['N',break_obj]
+            ['D',next_frame],
+            ['A',prev_frame],
+            ['N',break_obj],
+            ['R',del_point]
         ];
-        
-        document.onkeydown = function(e){        
+
+        document.onkeydown = function(e){
             for(key in keys){
                 /* direct numbers  */
                 if(e.keyCode == keys[key][0]){
@@ -66,24 +109,28 @@ function initEditorUI(){
                     keys[key][1]();
                 }
             }
-        }    
+        }
+    }
+
+    function del_point(){
+        click_mode = DEL_POINT;
     }
 
     function next_frame(){
         currentFrame++;
         validate_and_write_frame();
-    };    
+    };
     function prev_frame(){
         currentFrame--;
         validate_and_write_frame();
     };
-    
+
     function break_obj(){
         currentObject++;
         frames[currentFrame].objects.push({points:[]});
         draw();
     }
-    
+
     function validate_and_write_frame(){
         if(currentFrame < 0){
             currentFrame = 0;
@@ -145,8 +192,47 @@ function initEditor(){
     };
 
     function down(x,y){
-        
-        // Verify if a point was clicked
+        switch(click_mode){
+        case DEL_POINT:
+            var selected = clicked_point(x,y);
+
+            if(selected != -1){
+                points = frames[currentFrame]
+                    .objects[currentObject].points;
+
+                points = points.splice(selected,1);
+                draw();
+                click_mode = ADD_MOVE_POINT;
+            }
+            break;
+        case ADD_MOVE_POINT:
+        default:
+            // Verify if a point was clicked
+            var selected = clicked_point(x,y);
+            if(selected == -1){
+                // add point + middle point
+                var points = frames[currentFrame]
+                    .objects[currentObject].points;
+
+                // add middle point
+                if(points.length > 2){
+                    var last = points[points.length - 1];
+                    var dx = x - last[0];
+                    var dy = y - last[1];
+                    var middle = [last[0] + dx/2, last[1] + dy/2];
+                    points.push(middle);
+                }
+                points.push([x,y]);
+            } else {
+                // drag
+                dragging = selected;
+            }
+            draw();
+            break;
+        }
+    }
+
+    function clicked_point(x,y){
         var selected = -1;
         var treshold = 6;
         for(var obj in frames[currentFrame].objects){
@@ -165,12 +251,7 @@ function initEditor(){
                 break;
             }
         }
-        if(selected == -1){
-            points.push([x,y]);
-        } else {
-            dragging = selected;
-        }
-        draw();
+        return selected;
     }
 
     function up(x,y){
@@ -192,9 +273,9 @@ function draw(){
     ctx.fillRect(0,0,w,h);
 
     var frame = frames[currentFrame];
-    
+
     for(var obj = 0; obj < frame.objects.length; obj++){
-        var points = frame.objects[obj].points;        
+        var points = frame.objects[obj].points;
         if(editing){
             for(var i = 0; i < points.length; i++){
                 var size = 3;
@@ -217,7 +298,7 @@ function draw(){
         for(var i = 1; i < points.length - 1; i+=2){
             // point
             var p = points[i];
-            
+
             if(p == "break"){
                 breaking = true;
                 ctx.stroke();
@@ -225,14 +306,14 @@ function draw(){
                 ctx.moveTo(points[i+1][0],points[i+1][1]);
                 continue;
             }
-            
+
             // lastpoint
             var lp = points[i-1];
             var np = points[i+1];
             // calculate resolution
             var res = distance(p[0],p[1],lp[0],lp[1]) + distance(p[0],p[1],np[0],np[1]);
             res/=20
-            
+
             for(var j = 0; j < res; j++){
                 var k = j/res;
                 var m = (1-k) * lp[0] + (k) * p[0];
@@ -248,7 +329,7 @@ function draw(){
             var len = points.length
             var lastIndex = len % 2 == 1? len: len - 1
             var last = points[points.length-1];
-            ctx.lineTo(last[0],last[1]);        
+            ctx.lineTo(last[0],last[1]);
         }
         ctx.stroke();
     }
