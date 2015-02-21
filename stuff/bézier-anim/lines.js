@@ -12,6 +12,7 @@ ctx.fillRect(0,0,w,h)
 
 var frames = [];
 var currentFrame = 0;
+var currentObject = 0;
 
 var points = [];
 var editing = true;
@@ -78,12 +79,8 @@ function initEditorUI(){
     };
     
     function break_obj(){
-        if(frames[currentFrame].points < 2){
-            return;
-        } if(frames[currentFrame].points.length % 2 == 0){
-            return;
-        }
-        frames[currentFrame].points.push("break");
+        currentObject++;
+        frames[currentFrame].objects.push({points:[]});
         draw();
     }
     
@@ -100,14 +97,14 @@ function initEditorUI(){
         draw();
     }
     function copy_last_into_new(){
-        frames[frames.length-1].points =
-            frames[frames.length-2].points.slice(0);
+        frames[frames.length-1].objects =
+            frames[frames.length-2].objects.slice(0);
     }
 }
 
 function newFrame(){
     frames.push({
-        points:[]
+        objects: [{points: []}]
     });
 }
 
@@ -132,7 +129,7 @@ function initEditor(){
     };
 
     can.onmousemove = function(e){
-        var points = frames[currentFrame].points;
+        var points = frames[currentFrame].objects[currentObject].points;
         var pos = getPos(e);
         x = pos[0];
         y = pos[1];
@@ -143,7 +140,7 @@ function initEditor(){
     };
 
     function down(x,y){
-        var points = frames[currentFrame].points;
+        var points = frames[currentFrame].objects[currentObject].points;
         // Verify if a point was clicked
         var selected = -1;
         var treshold = 6;
@@ -164,7 +161,7 @@ function initEditor(){
     }
 
     function up(x,y){
-        var points = frames[currentFrame].points;
+        var points = frames[currentFrame].objects[currentObject].points;
         if(dragging != -1){
             points[dragging] = [x,y];
             dragging = -1;
@@ -182,61 +179,62 @@ function draw(){
     ctx.fillRect(0,0,w,h);
 
     var frame = frames[currentFrame];
-    var points = frame.points;
-
-    if(editing){    
-        for(var i = 0; i < points.length; i++){
-            var size = 3;
-            if(dragging != -1 && dragging == i){
-                ctx.fillStyle = "rgba(255,0,0,0.9)";
-            } else {
-                ctx.fillStyle = "rgba(0,0,0,0.9)";
-            }
-            ctx.fillRect(points[i][0]-size, points[i][1]-size, 2*size,2*size);
-        }
-    }
-    ctx.fillStyle = "rgba(0,0,0,0.9)";
-    ctx.beginPath();
-    if(points.length > 0){
-        ctx.moveTo(points[0][0],points[0][1]);
-    }
-    var breaking = false;
     
-    for(var i = 1; i < points.length - 1; i+=2){
-        // point
-        var p = points[i];
-        
-        if(p == "break"){
-            breaking = true;
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(points[i+1][0],points[i+1][1]);
-            continue;
+    for(var obj = 0; obj < frame.objects.length; obj++){
+        var points = frame.objects[obj].points;        
+        if(editing){
+            for(var i = 0; i < points.length; i++){
+                var size = 3;
+                if(dragging != -1 && dragging == i){
+                    ctx.fillStyle = "rgba(255,0,0,0.9)";
+                } else {
+                    ctx.fillStyle = "rgba(0,0,0,0.9)";
+                }
+                ctx.fillRect(points[i][0]-size, points[i][1]-size, 2*size,2*size);
+            }
         }
-        
-        // lastpoint
-        var lp = points[i-1];
-        var np = points[i+1];
-        // calculate resolution
-        var res = distance(p[0],p[1],lp[0],lp[1]) + distance(p[0],p[1],np[0],np[1]);
-        res/=20
-        
-        for(var j = 0; j < res; j++){
-            var k = j/res;
-            var m = (1-k) * lp[0] + (k) * p[0];
-            var n = (1-k) * lp[1] + (k) * p[1];
-            var q = (1-k) * p[0] + (k) * np[0];
-            var r = (1-k) * p[1] + (k) * np[1];
-            var s = (1-k) * m + (k) * q;
-            var t = (1-k) * n + (k) * r;
-            ctx.lineTo(s,t);
+        ctx.fillStyle = "rgba(0,0,0,0.9)";
+        ctx.beginPath();
+        if(points.length > 0){
+            ctx.moveTo(points[0][0],points[0][1]);
         }
+        var breaking = false;
+        for(var i = 1; i < points.length - 1; i+=2){
+            // point
+            var p = points[i];
+            
+            if(p == "break"){
+                breaking = true;
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(points[i+1][0],points[i+1][1]);
+                continue;
+            }
+            
+            // lastpoint
+            var lp = points[i-1];
+            var np = points[i+1];
+            // calculate resolution
+            var res = distance(p[0],p[1],lp[0],lp[1]) + distance(p[0],p[1],np[0],np[1]);
+            res/=20
+            
+            for(var j = 0; j < res; j++){
+                var k = j/res;
+                var m = (1-k) * lp[0] + (k) * p[0];
+                var n = (1-k) * lp[1] + (k) * p[1];
+                var q = (1-k) * p[0] + (k) * np[0];
+                var r = (1-k) * p[1] + (k) * np[1];
+                var s = (1-k) * m + (k) * q;
+                var t = (1-k) * n + (k) * r;
+                ctx.lineTo(s,t);
+            }
+        }
+        if(points.length > 1){
+            var len = points.length
+            var lastIndex = len % 2 == 1? len: len - 1
+            var last = points[points.length-1];
+            ctx.lineTo(last[0],last[1]);        
+        }
+        ctx.stroke();
     }
-    if(points.length > 1){
-        var len = points.length
-        var lastIndex = len % 2 == 1? len: len - 1
-        var last = points[points.length-1];
-        ctx.lineTo(last[0],last[1]);        
-    }
-    ctx.stroke();
 }
