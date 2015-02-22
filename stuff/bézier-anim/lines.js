@@ -472,8 +472,8 @@ function default_object(){
 function default_object_inputs(){
     return {
         'object_color': '#000000',
-        'object_opacity': 1
-
+        'object_opacity': 1,
+        'object_line_width': 1
     }
 }
 
@@ -678,6 +678,7 @@ function draw(){
         ctx.fillStyle = inputs['object_color'];
         ctx.strokeStyle = inputs['object_color'];
         ctx.globalAlpha = inputs['object_opacity'];
+        ctx.lineWidth = inputs['object_line_width'];
         ctx.beginPath();
         if(points.length > 0){
             ctx.moveTo(points[0][0],points[0][1]);
