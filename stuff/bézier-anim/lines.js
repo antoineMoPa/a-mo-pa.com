@@ -30,12 +30,6 @@ var ctx = can.getContext("2d");
 w = 500;
 h = 500;
 
-can.width = w;
-can.height = h;
-
-ctx.fillStyle = "rgba(0,0,0,0.1)"
-ctx.fillRect(0,0,w,h)
-
 var frames = [];
 var currentFrame = 0;
 var currentObject = 0;
@@ -43,7 +37,7 @@ var currentObject = 0;
 var points = [];
 var editing = true;
 var dragging = -1;
-
+var add_after = 0;
 
 var ADD_MOVE_POINT = 0;
 var DEL_POINT = 1;
@@ -54,7 +48,63 @@ initLoopButton();
 initEditor();
 initTabs();
 initActions();
+
+updateCanvasSize();
+
+function updateCanvasSize(){
+    can.width = w;
+    can.height = h;
+    ctx.fillStyle = "rgba(0,0,0,0.1)"
+    ctx.fillRect(0,0,w,h)
+    draw();
+}
+
 draw();
+
+var inputs = {
+    'object_color':'#000000'
+};
+
+initInputs(inputs);
+
+var object_inputs = default_object_inputs();
+
+initInputs(object_inputs, updateObjectInputs);
+
+function updateObjectInputs(){
+    frames[currentFrame]
+        .objects[currentObject]
+        .inputs = deep_copy(object_inputs);
+
+    draw();
+}
+
+function initInputs(inputs,callback){
+    var callback = callback || function(){};
+    for(input in inputs){
+        var html_input = document
+            .querySelectorAll("input[name="+input+"]")[0];
+        if(html_input.attributes == undefined){
+            continue;
+        }
+        enableInput(html_input, input);
+    }
+
+    function enableInput(html_input, input){
+        html_input.value = inputs[input];
+
+        html_input.onkeyup =
+            html_input.onchange = function(){
+                inputs[input] = this.value;
+                callback();
+            }
+    }
+}
+
+function updateObjectOptions(){
+    updateObjectInputs();
+    updateObjectSwitches();
+}
 
 var switches = {
     'new-points-mode': "not-smooth",
@@ -70,18 +120,20 @@ function updateObjectSwitches(){
     frames[currentFrame]
         .objects[currentObject]
         .switches = deep_copy(object_switches);
+
+    draw();
 }
 
 function initSwitches(switches, callback){
     var callback = callback || function(){};
-    
+
     for(var sw in switches){
         var curr_switch = sw;
         var swit = document
             .querySelectorAll(
                 "switch[name="+sw+"]"
             )[0];
-        
+
         var options = swit.children;
         for(var option in options){
             if(options[option].attributes == undefined){
@@ -99,8 +151,8 @@ function initSwitches(switches, callback){
 
         if(value == switches[curr_switch]){
             options[option].classList.add("active");
-        }        
-        
+        }
+
         options[option].onclick = function(){
             for(var opt in options){
                 if(options[opt].classList == undefined){
@@ -142,7 +194,7 @@ function action_object_delete(){
     if(objs.length == 0){
         objs.push(default_object());
     }
-    updateObjectSwitches();
+    updateObjectOptions();
     draw();
 }
 
@@ -271,6 +323,8 @@ function validate_and_write_frame(){
     }
     curr_frame.innerHTML = currentFrame + 1;
     num_frame.innerHTML = frames.length;
+    // I like it better if it switches back to that
+    click_mode = ADD_MOVE_POINT;
     draw();
 }
 
@@ -335,11 +389,12 @@ function initEditorUI(){
         var pts = frames[currentFrame]
             .objects[currentObject].points;
         
+        pts.push("break");
+        add_after++;
+        
         if(pts.length % 2 == 0){
-            pts.push(pts[pts.length-1].slice(0));
             pts.push("break");
-        } else {
-            pts.push("break");
+            add_after++;
         }
     }
 }
@@ -347,7 +402,14 @@ function initEditorUI(){
 function default_object(){
     return {
         points:[],
-        switches: default_object_switches()
+        switches: default_object_switches(),
+        inputs: default_object_inputs()
+    }
+}
+
+function default_object_inputs(){
+    return {
+        'object_color': '#000000'
     }
 }
 
@@ -370,7 +432,7 @@ function emptyFrame(){
 function update_object_ui(){
     var switches = frames[currentFrame]
         .objects[currentObject].switches;
-    
+
     initSwitches(switches);
 }
 
@@ -403,8 +465,6 @@ function initEditor(){
             draw();
         }
     };
-
-    var add_after = 0;
     
     function down(x,y){
         switch(click_mode){
@@ -422,7 +482,7 @@ function initEditor(){
         case ADD_MOVE_POINT:
         default:
             // Verify if a point was clicked
-            var selected = clicked_point(x,y);            
+            var selected = clicked_point(x,y);
             if(selected == -1){
                 var points = frames[currentFrame]
                     .objects[currentObject].points;
@@ -430,7 +490,7 @@ function initEditor(){
                 if(points.length == 0){
                     add_after = 0;
                 }
-                
+
                 // add middle point
                 if(points.length > 0 &&
                    switches['new-points-mode'] != 'smooth' &&
@@ -457,9 +517,9 @@ function initEditor(){
                         points[add_after+1] = points[add_after];
                         points[add_after] = temp;
                     }*/
-                    
+
                     add_after++;
-                }               
+                }
             } else {
                 // drag
                 dragging = selected;
@@ -470,7 +530,7 @@ function initEditor(){
             break;
         }
     }
-    
+
     function clicked_point(x,y){
         var selected = -1;
         var treshold = 6;
@@ -512,37 +572,36 @@ function draw(){
     ctx.fillRect(0,0,w,h);
 
     var frame = frames[currentFrame];
-    
+
     for(var obj = 0; obj < frame.objects.length; obj++){
         var points = frame.objects[obj].points;
-        if(editing){
-            for(var i = 0; i < points.length; i++){
-                var size = 3;
-                if( obj == currentObject &&
-                    dragging != -1 &&
-                    dragging == i ){
-                    ctx.fillStyle = "rgba(255,0,0,0.9)";
-                } else {
-                    ctx.fillStyle = "rgba(0,0,0,0.9)";
-                }
-                ctx.fillRect(points[i][0]-size, points[i][1]-size, 2*size,2*size);
-            }
-        }
-        ctx.fillStyle = "rgba(0,0,0,0.9)";
+
+        var switches = frame.objects[obj].switches;
+        var inputs = frame.objects[obj].inputs;
+
+        ctx.fillStyle = inputs['object_color'];
+        ctx.strokeStyle = inputs['object_color'];
         ctx.beginPath();
         if(points.length > 0){
             ctx.moveTo(points[0][0],points[0][1]);
         }
-        var breaking = false;
-        for(var i = 1; i < points.length - 1; i+=2){
-            // point
-            var p = points[i];
 
-            if(p == "break"){
-                breaking = true;
+        for(var i = 1; i < points.length - 1; i+=2){
+            if(points[i] == "break" || points[i-1] == "break"){
+                while(points[i] == "break"){
+                    i++;
+                }
+                if(points[i+1] != undefined){
+                    ctx.fillStyle = "#ff0000";
+                    ctx.moveTo(points[i+1][0],points[i+1][1]);
+                }
+            }
+
+            if( i >= points.length - 1){
                 continue;
             }
 
+            var p = points[i];
             // lastpoint
             var lp = points[i-1];
             var np = points[i+1];
@@ -567,12 +626,24 @@ function draw(){
             var last = points[points.length-1];
             ctx.lineTo(last[0],last[1]);
 
-            var switches = frame.objects[obj].switches;
-
             if(switches['object-fill'] == "no-fill"){
                 ctx.stroke();
             } else {
                 ctx.fill();
+            }
+        }
+
+        if(editing){
+            for(var i = 0; i < points.length; i++){
+                var size = 3;
+                if( obj == currentObject &&
+                    dragging != -1 &&
+                    dragging == i ){
+                    ctx.fillStyle = "rgba(255,0,0,0.9)";
+                } else {
+                    ctx.fillStyle = "rgba(0,0,0,0.9)";
+                }
+                ctx.fillRect(points[i][0]-size, points[i][1]-size, 2*size,2*size);
             }
         }
     }

@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <title>Lines</title>
         <style>
-            /* Goal: less than 100 lines of well-formatted css */
+            /* Goal: less than 150 lines of well-formatted css */
             body{
                 margin:0;
                 background:#bbb;
@@ -105,6 +105,15 @@
                 color:#444;
                 background:#eee;
             }
+            input{
+                border-radius:0;
+                background:#ddd;
+                border:none;
+                font-size: 14px;
+                padding: 4px;
+                color: #555;
+                margin:10px 0;
+            }
         </style>
     </head>
     <body>
@@ -188,6 +197,11 @@
                             </switchoption>
                         </switch>
                         <br>
+                        <label>Color</label><br>
+                        <input name="object_color" value="#000000">
+                        <br>
+                        <br>
+                        <label>Actions</label><br>
                         <action name="object_delete">Delete</action>
                         
                     </tab>
