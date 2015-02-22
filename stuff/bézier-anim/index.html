@@ -142,7 +142,16 @@
                     </tab>
                     <tab>
                         <h3>Animation</h3>
+                        <label>Width</label><br>
+                        <input name="animation_width">
+                        <br>
+                        <label>Height</label><br>
+                        <input name="animation_height">
+                        <br>
+                        <br>
+                        <label>Actions</label><br>
                         <action name="animation_clear">Clear</action>
+                        
                     </tab>
                 </tabs>
             </div>
@@ -177,6 +186,15 @@
                 <tabs>
                     <tab>
                         <h3>Drawing Properties</h3>
+                        <label>Global mode</label>
+                        <switch name="global-mode">
+                            <switchoption data-value="draw">
+                                Draw
+                            </switchoption><switchoption data-value="move">
+                                Move
+                            </switchoption>
+                        </switch>
+
                         <label>New points mode</label>
                         <switch name="new-points-mode">
                             <switchoption data-value="smooth">
@@ -185,6 +203,7 @@
                                 Not smooth
                             </switchoption>
                         </switch>
+                        <br>
                     </tab>
                     <tab>
                         <h3>Object</h3>
@@ -202,6 +221,9 @@
                         <br>
                         <br>
                         <label>Actions</label><br>
+                        <action name="object_bring_up">Bring up</action><br>
+                        <action name="object_bring_down">Bring down</action><br>
+
                         <action name="object_delete">Delete</action>
                         
                     </tab>

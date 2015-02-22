@@ -41,6 +41,7 @@ var add_after = 0;
 
 var ADD_MOVE_POINT = 0;
 var DEL_POINT = 1;
+var MOVE_POINTS = 2;
 var click_mode = ADD_MOVE_POINT;
 
 initEditorUI();
@@ -49,23 +50,27 @@ initEditor();
 initTabs();
 initActions();
 
-updateCanvasSize();
+var inputs = {
+    'animation_width':'500',
+    'animation_height':'500'
+};
+
+initInputs(inputs, updateInputs);
+
+function updateInputs(){
+    updateCanvasSize();
+}
 
 function updateCanvasSize(){
+    w = inputs['animation_width'];
+    h = inputs['animation_height'];
     can.width = w;
     can.height = h;
-    ctx.fillStyle = "rgba(0,0,0,0.1)"
-    ctx.fillRect(0,0,w,h)
     draw();
 }
 
+updateCanvasSize();
 draw();
-
-var inputs = {
-    'object_color':'#000000'
-};
-
-initInputs(inputs);
 
 var object_inputs = default_object_inputs();
 
@@ -93,10 +98,16 @@ function initInputs(inputs,callback){
     function enableInput(html_input, input){
         html_input.value = inputs[input];
 
+        /* don't change frame on arrow down! */
+        html_input.onkeydown = function(e){
+            e.stopPropagation();
+        }
+
         html_input.onkeyup =
             html_input.onchange = function(){
                 inputs[input] = this.value;
                 callback();
+                draw();
             }
     }
 }
@@ -107,10 +118,22 @@ function updateObjectOptions(){
 }
 
 var switches = {
+    'global-mode': 'draw',
     'new-points-mode': "not-smooth",
 };
 
-initSwitches(switches);
+initSwitches(switches,update_switches);
+
+function update_switches(){
+    switch(switches['global-mode']){
+    case 'draw':
+        click_mode = ADD_MOVE_POINT;
+        break;
+    case 'move':
+        click_mode = MOVE_POINTS;
+        break;
+    }
+}
 
 object_switches = default_object_switches();
 
@@ -120,7 +143,7 @@ function updateObjectSwitches(){
     frames[currentFrame]
         .objects[currentObject]
         .switches = deep_copy(object_switches);
-
+    
     draw();
 }
 
@@ -159,10 +182,10 @@ function initSwitches(switches, callback){
                     continue;
                 }
                 options[opt].classList.remove("active");
-                callback();
             }
             options[option].classList.add("active");
             switches[curr_switch] = value;
+            callback();
             draw();
         }
     }
@@ -176,6 +199,8 @@ function initActions(){
         ["frame_copy",action_frame_copy],
         ["frame_paste",action_frame_paste],
         ["object_delete",action_object_delete],
+        ["object_bring_up",action_object_bring_up],
+        ["object_bring_down",action_object_bring_down],
     ];
 
     for(var act = 0; act < actions.length; act++){
@@ -185,6 +210,38 @@ function initActions(){
             )[0];
         btn.onclick = actions[act][1];
     }
+}
+
+function action_object_bring_up(){
+    if(swap_objects(
+        currentObject,currentObject+1)
+      ){
+        currentObject++;
+    }
+}
+
+function action_object_bring_down(){
+    if(swap_objects(
+        currentObject,parseInt(currentObject)-1)
+      ){
+        currentObject--;
+    }
+}
+
+function swap_objects(lhs, rhs){
+    var objects = frames[currentFrame]
+        .objects;
+    var temp = deep_copy(objects[lhs]);
+
+    if(lhs >= objects.length || lhs < 0 ||
+       rhs >= objects.length || rhs < 0
+      ){
+        return false;
+    }
+    objects[lhs] = deep_copy(objects[rhs]);
+    objects[rhs] = temp;
+    draw();
+    return true;
 }
 
 function action_object_delete(){
@@ -323,8 +380,9 @@ function validate_and_write_frame(){
     }
     curr_frame.innerHTML = currentFrame + 1;
     num_frame.innerHTML = frames.length;
-    // I like it better if it switches back to that
-    click_mode = ADD_MOVE_POINT;
+    if(click_mode == DEL_POINT){
+        click_mode = ADD_MOVE_POINT;
+    }
     draw();
 }
 
@@ -388,10 +446,10 @@ function initEditorUI(){
     function break_obj(){
         var pts = frames[currentFrame]
             .objects[currentObject].points;
-        
+
         pts.push("break");
         add_after++;
-        
+
         if(pts.length % 2 == 0){
             pts.push("break");
             add_after++;
@@ -434,6 +492,11 @@ function update_object_ui(){
         .objects[currentObject].switches;
 
     initSwitches(switches);
+    
+    var inputs = frames[currentFrame]
+        .objects[currentObject].inputs;
+
+    initInputs(inputs);
 }
 
 function initEditor(){
@@ -465,7 +528,7 @@ function initEditor(){
             draw();
         }
     };
-    
+
     function down(x,y){
         switch(click_mode){
         case DEL_POINT:
@@ -479,11 +542,12 @@ function initEditor(){
                 draw();
             }
             break;
+        case MOVE_POINTS:
         case ADD_MOVE_POINT:
         default:
             // Verify if a point was clicked
             var selected = clicked_point(x,y);
-            if(selected == -1){
+            if(selected == -1 && click_mode != MOVE_POINTS){
                 var points = frames[currentFrame]
                     .objects[currentObject].points;
 
@@ -509,15 +573,6 @@ function initEditor(){
                 } else {
                     // add point
                     points.splice(add_after,0,[x,y]);
-                    /*
-                    if(add_after > 1 &&
-                       add_after + 1 < points.length){
-                        var temp = points[add_after];
-
-                        points[add_after+1] = points[add_after];
-                        points[add_after] = temp;
-                    }*/
-
                     add_after++;
                 }
             } else {
@@ -541,7 +596,7 @@ function initEditor(){
                 var point = points[i];
                 var d = distance(point[0],point[1],x,y);
                 if(d < treshold){
-                    currentObject = obj;
+                    currentObject = parseInt(obj);
                     selected = i;
                     break;
                 }
