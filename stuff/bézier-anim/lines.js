@@ -57,23 +57,37 @@ initActions();
 draw();
 
 var switches = {
-    'new-points-mode': "smooth"
+    'new-points-mode': "not-smooth",
 };
-initSwitches();
 
-function initSwitches(){
+initSwitches(switches);
+
+object_switches = default_object_switches();
+
+initSwitches(object_switches, updateObjectSwitches);
+
+function updateObjectSwitches(){
+    frames[currentFrame]
+        .objects[currentObject]
+        .switches = deep_copy(object_switches);
+}
+
+function initSwitches(switches, callback){
+    var callback = callback || function(){};
+    
     for(var sw in switches){
         var curr_switch = sw;
         var swit = document
             .querySelectorAll(
                 "switch[name="+sw+"]"
             )[0];
-
+        
         var options = swit.children;
         for(var option in options){
             if(options[option].attributes == undefined){
                 continue;
             }
+            options[option].classList.remove("active");
             enableSwitch(curr_switch, options, option);
         }
     }
@@ -93,9 +107,11 @@ function initSwitches(){
                     continue;
                 }
                 options[opt].classList.remove("active");
+                callback();
             }
             options[option].classList.add("active");
             switches[curr_switch] = value;
+            draw();
         }
     }
 }
@@ -107,6 +123,7 @@ function initActions(){
         ["frame_delete",action_frame_delete],
         ["frame_copy",action_frame_copy],
         ["frame_paste",action_frame_paste],
+        ["object_delete",action_object_delete],
     ];
 
     for(var act = 0; act < actions.length; act++){
@@ -116,6 +133,17 @@ function initActions(){
             )[0];
         btn.onclick = actions[act][1];
     }
+}
+
+function action_object_delete(){
+    var objs = frames[currentFrame].objects;
+    objs.splice(currentObject,1);
+    currentObject = 0;
+    if(objs.length == 0){
+        objs.push(default_object());
+    }
+    updateObjectSwitches();
+    draw();
 }
 
 function action_frame_clear(){
@@ -263,10 +291,9 @@ function initEditorUI(){
         var keys = [
             [39,next_frame], // Right
             [37,prev_frame], // Left
-            ['D',next_frame],
-            ['A',prev_frame],
-            ['N',break_obj],
-            ['R',del_point]
+            ['N',new_obj],
+            ['B',break_obj],
+            ['D',del_point],
         ];
 
         document.onkeydown = function(e){
@@ -282,7 +309,11 @@ function initEditorUI(){
     }
 
     function del_point(){
-        click_mode = DEL_POINT;
+        if(click_mode == DEL_POINT){
+            click_mode = ADD_MOVE_POINT;
+        } else {
+            click_mode = DEL_POINT;
+        }
     }
 
     function next_frame(){
@@ -294,11 +325,36 @@ function initEditorUI(){
         validate_and_write_frame();
     };
 
-    function break_obj(){
+    function new_obj(){
         currentObject++;
-        frames[currentFrame].objects.push({points:[]});
+        frames[currentFrame]
+            .objects.push(default_object());
         draw();
     }
+    function break_obj(){
+        var pts = frames[currentFrame]
+            .objects[currentObject].points;
+        
+        if(pts.length % 2 == 0){
+            pts.push(pts[pts.length-1].slice(0));
+            pts.push("break");
+        } else {
+            pts.push("break");
+        }
+    }
+}
+
+function default_object(){
+    return {
+        points:[],
+        switches: default_object_switches()
+    }
+}
+
+function default_object_switches(){
+    return {
+        'object-fill': "no-fill"
+    };
 }
 
 function newFrame(){
@@ -307,10 +363,16 @@ function newFrame(){
 
 function emptyFrame(){
     return {
-        objects: [{points: []}]
+        objects: [default_object()]
     };
 }
 
+function update_object_ui(){
+    var switches = frames[currentFrame]
+        .objects[currentObject].switches;
+    
+    initSwitches(switches);
+}
 
 function initEditor(){
     newFrame();
@@ -342,6 +404,8 @@ function initEditor(){
         }
     };
 
+    var add_after = 0;
+    
     function down(x,y){
         switch(click_mode){
         case DEL_POINT:
@@ -353,40 +417,60 @@ function initEditor(){
 
                 points = points.splice(selected,1);
                 draw();
-                click_mode = ADD_MOVE_POINT;
             }
             break;
         case ADD_MOVE_POINT:
         default:
             // Verify if a point was clicked
-            var selected = clicked_point(x,y);
+            var selected = clicked_point(x,y);            
             if(selected == -1){
-                // add point + middle point
                 var points = frames[currentFrame]
                     .objects[currentObject].points;
-                
+
+                if(points.length == 0){
+                    add_after = 0;
+                }
                 
                 // add middle point
                 if(points.length > 0 &&
                    switches['new-points-mode'] != 'smooth' &&
-                   points.length % 2 == 1
+                   points.length % 2 == 1 &&
+                   add_after == points.length
                   ){
-                   var last = points[points.length - 1];
+                    var last = points[points.length - 1];
                     var dx = x - last[0];
                     var dy = y - last[1];
                     var middle = [last[0] + dx/2, last[1] + dy/2];
-                    points.push(middle);
-                }
-                points.push([x,y]);
+                    points.splice(add_after,0,middle);
+
+                    // add point
+                    points.splice(add_after+1,0,[x,y]);
+                    add_after+=2
+                } else {
+                    // add point
+                    points.splice(add_after,0,[x,y]);
+                    /*
+                    if(add_after > 1 &&
+                       add_after + 1 < points.length){
+                        var temp = points[add_after];
+
+                        points[add_after+1] = points[add_after];
+                        points[add_after] = temp;
+                    }*/
+                    
+                    add_after++;
+                }               
             } else {
                 // drag
                 dragging = selected;
+                add_after = selected;
             }
+            update_object_ui();
             draw();
             break;
         }
     }
-
+    
     function clicked_point(x,y){
         var selected = -1;
         var treshold = 6;
@@ -428,7 +512,7 @@ function draw(){
     ctx.fillRect(0,0,w,h);
 
     var frame = frames[currentFrame];
-
+    
     for(var obj = 0; obj < frame.objects.length; obj++){
         var points = frame.objects[obj].points;
         if(editing){
@@ -456,9 +540,6 @@ function draw(){
 
             if(p == "break"){
                 breaking = true;
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(points[i+1][0],points[i+1][1]);
                 continue;
             }
 
@@ -485,7 +566,14 @@ function draw(){
             var lastIndex = len % 2 == 1? len: len - 1
             var last = points[points.length-1];
             ctx.lineTo(last[0],last[1]);
+
+            var switches = frame.objects[obj].switches;
+
+            if(switches['object-fill'] == "no-fill"){
+                ctx.stroke();
+            } else {
+                ctx.fill();
+            }
         }
-        ctx.stroke();
     }
 }
