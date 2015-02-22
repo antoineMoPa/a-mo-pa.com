@@ -455,7 +455,7 @@ function break_obj(){
     pts.push("break");
     add_after++;
     
-    if(pts.length % 2 == 0){
+    if(pts.length % 2 == 1){
         pts.push("break");
         add_after++;
     }
@@ -511,28 +511,32 @@ function path_invert_direction(){
 
     var start = add_after;
     var end = add_after;
-    
-    for(var i = add_after-1; i > 0; i--){
-        start = i;
-        if(points[i] == "break"){            
-            start++;
-            break;
+
+    if(points[add_after-1] != undefined){
+        for(var i = add_after-1; i > 0; i--){
+            start = i;
+            if(points[i] == "break" || points[i] == undefined){
+                start++;
+                break;
+            }
         }
     }
-    for(var i = add_after+1; i < points.length; i++){
-        end = i;
-        if(points[i] == "break"){
-            end--;
-            break;
+    if(points[add_after+1] != undefined){
+        for(var i = add_after+1; i < points.length; i++){
+            end = i;
+            if(points[i] == "break"){
+                end--;
+                break;
+            }
         }
     }
     var copy = [];
-    for(var i = start; i <= end; i++){
-        copy.push(points[i]);
-    }
     for(var i = start; i < end; i++){
-        // 2 is an #magicConstant
-        points[i] = copy[end-(i-start)-2];
+        copy.push(points[i].slice(0));
+    }
+    copy = copy.reverse();
+    for(var i = start; i < end; i++){
+        points[i] = copy[i-start];
     }
     draw();
 }
