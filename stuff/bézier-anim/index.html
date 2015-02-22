@@ -14,6 +14,7 @@
                 box-shadow:0 0 10px rgba(0,0,0,0.04);
             }
             h1,h2,h3{font-weight:300;}
+            h3{margin: 5px 0;}
             .rendering-info{
                 position:absolute;
                 color:#fff;
@@ -99,7 +100,7 @@
                 display:block;
             }
             switchoption{
-                margin:10px 0;             
+                margin:10px 0;
             }
             switchoption:not(.active){
                 color:#444;
@@ -151,7 +152,7 @@
                         <br>
                         <label>Actions</label><br>
                         <action name="animation_clear">Clear</action>
-                        
+
                     </tab>
                 </tabs>
             </div>
@@ -204,10 +205,11 @@
                             </switchoption>
                         </switch>
                         <br>
+                        <action name="object_break_path">Break path</action>
+                        <action name="object_new">New object</action>        
                     </tab>
                     <tab>
                         <h3>Object</h3>
-                        <label>Fill</label>
                         <switch name="object-fill">
                             <switchoption data-value="fill">
                                 Fill
@@ -215,17 +217,18 @@
                                 No fill
                             </switchoption>
                         </switch>
-                        <br>
                         <label>Color</label><br>
                         <input name="object_color" value="#000000">
                         <br>
+                        <label>Opacity</label><br>
+                        <input name="object_opacity" value="1">
                         <br>
                         <label>Actions</label><br>
-                        <action name="object_bring_up">Bring up</action><br>
+                        <action name="object_bring_up">Bring up</action>
                         <action name="object_bring_down">Bring down</action><br>
 
                         <action name="object_delete">Delete</action>
-                        
+
                     </tab>
                 </tabs>
             </div>

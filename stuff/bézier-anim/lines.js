@@ -143,7 +143,7 @@ function updateObjectSwitches(){
     frames[currentFrame]
         .objects[currentObject]
         .switches = deep_copy(object_switches);
-    
+
     draw();
 }
 
@@ -201,6 +201,8 @@ function initActions(){
         ["object_delete",action_object_delete],
         ["object_bring_up",action_object_bring_up],
         ["object_bring_down",action_object_bring_down],
+        ["object_break_path",break_obj],
+        ["object_new",new_obj],
     ];
 
     for(var act = 0; act < actions.length; act++){
@@ -436,24 +438,25 @@ function initEditorUI(){
         currentFrame--;
         validate_and_write_frame();
     };
+}
 
-    function new_obj(){
-        currentObject++;
-        frames[currentFrame]
-            .objects.push(default_object());
-        draw();
-    }
-    function break_obj(){
-        var pts = frames[currentFrame]
-            .objects[currentObject].points;
+function new_obj(){
+    currentObject++;
+    frames[currentFrame]
+        .objects.push(default_object());
+    draw();
+}
 
+function break_obj(){
+    var pts = frames[currentFrame]
+        .objects[currentObject].points;
+    
+    pts.push("break");
+    add_after++;
+    
+    if(pts.length % 2 == 0){
         pts.push("break");
         add_after++;
-
-        if(pts.length % 2 == 0){
-            pts.push("break");
-            add_after++;
-        }
     }
 }
 
@@ -467,7 +470,9 @@ function default_object(){
 
 function default_object_inputs(){
     return {
-        'object_color': '#000000'
+        'object_color': '#000000',
+        'object_opacity': 1
+
     }
 }
 
@@ -492,7 +497,7 @@ function update_object_ui(){
         .objects[currentObject].switches;
 
     initSwitches(switches);
-    
+
     var inputs = frames[currentFrame]
         .objects[currentObject].inputs;
 
@@ -636,6 +641,7 @@ function draw(){
 
         ctx.fillStyle = inputs['object_color'];
         ctx.strokeStyle = inputs['object_color'];
+        ctx.globalAlpha = inputs['object_opacity'];
         ctx.beginPath();
         if(points.length > 0){
             ctx.moveTo(points[0][0],points[0][1]);
@@ -687,7 +693,7 @@ function draw(){
                 ctx.fill();
             }
         }
-
+        ctx.globalAlpha = 1;
         if(editing){
             for(var i = 0; i < points.length; i++){
                 var size = 3;
@@ -695,6 +701,8 @@ function draw(){
                     dragging != -1 &&
                     dragging == i ){
                     ctx.fillStyle = "rgba(255,0,0,0.9)";
+                } else if ( obj == currentObject){
+                    ctx.fillStyle = "rgba(255,100,0,0.9)";
                 } else {
                     ctx.fillStyle = "rgba(0,0,0,0.9)";
                 }
