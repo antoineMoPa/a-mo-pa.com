@@ -203,6 +203,7 @@ function initActions(){
         ["object_bring_down",action_object_bring_down],
         ["object_break_path",break_obj],
         ["object_new",new_obj],
+        ["path_invert_direction",path_invert_direction],
     ];
 
     for(var act = 0; act < actions.length; act++){
@@ -504,6 +505,38 @@ function update_object_ui(){
     initInputs(inputs);
 }
 
+function path_invert_direction(){
+    var points = frames[currentFrame]
+        .objects[currentObject].points;
+
+    var start = add_after;
+    var end = add_after;
+    
+    for(var i = add_after-1; i > 0; i--){
+        start = i;
+        if(points[i] == "break"){            
+            start++;
+            break;
+        }
+    }
+    for(var i = add_after+1; i < points.length; i++){
+        end = i;
+        if(points[i] == "break"){
+            end--;
+            break;
+        }
+    }
+    var copy = [];
+    for(var i = start; i <= end; i++){
+        copy.push(points[i]);
+    }
+    for(var i = start; i < end; i++){
+        // 2 is an #magicConstant
+        points[i] = copy[end-(i-start)-2];
+    }
+    draw();
+}
+
 function initEditor(){
     newFrame();
 
@@ -583,7 +616,6 @@ function initEditor(){
             } else {
                 // drag
                 dragging = selected;
-                add_after = selected;
             }
             update_object_ui();
             draw();
@@ -638,7 +670,7 @@ function draw(){
 
         var switches = frame.objects[obj].switches;
         var inputs = frame.objects[obj].inputs;
-
+        
         ctx.fillStyle = inputs['object_color'];
         ctx.strokeStyle = inputs['object_color'];
         ctx.globalAlpha = inputs['object_opacity'];
@@ -653,8 +685,10 @@ function draw(){
                     i++;
                 }
                 if(points[i+1] != undefined){
-                    ctx.fillStyle = "#ff0000";
-                    ctx.moveTo(points[i+1][0],points[i+1][1]);
+                    ctx.moveTo(
+                        points[i+1][0],
+                        points[i+1][1]
+                    );
                 }
             }
 
