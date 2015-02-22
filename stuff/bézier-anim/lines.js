@@ -1,4 +1,30 @@
-var can = document.querySelectorAll("canvas[name=tomato]")[0];
+/*
+
+  Copyright Antoine Morin-Paulhus 2014
+
+  You can use/share/modify/eat
+  this file under the terms of
+  the GNU GPL V3
+
+  The legal text is there:
+
+  http://www.gnu.org/licenses/gpl-3.0.txt
+
+  And remember that a non-free software
+  is a software that sucks!
+
+*/
+/*
+  Goals:
+
+  - No external libraries
+  - No direct copy paste from stackoverflow
+    without understanding and rewriting.
+
+*/
+
+var can = document
+    .querySelectorAll("canvas[name=tomato]")[0];
 var ctx = can.getContext("2d");
 
 w = 500;
@@ -27,20 +53,144 @@ initEditorUI();
 initLoopButton();
 initEditor();
 initTabs();
+initActions();
 draw();
+
+var switches = {
+    'new-points-mode': "smooth"
+};
+initSwitches();
+
+function initSwitches(){
+    for(var sw in switches){
+        var curr_switch = sw;
+        var swit = document
+            .querySelectorAll(
+                "switch[name="+sw+"]"
+            )[0];
+
+        var options = swit.children;
+        for(var option in options){
+            if(options[option].attributes == undefined){
+                continue;
+            }
+            enableSwitch(curr_switch, options, option);
+        }
+    }
+    function enableSwitch(curr_switch, options, option){
+        var value = options[option]
+            .attributes
+            .getNamedItem("data-value")
+            .value;
+
+        if(value == switches[curr_switch]){
+            options[option].classList.add("active");
+        }        
+        
+        options[option].onclick = function(){
+            for(var opt in options){
+                if(options[opt].classList == undefined){
+                    continue;
+                }
+                options[opt].classList.remove("active");
+            }
+            options[option].classList.add("active");
+            switches[curr_switch] = value;
+        }
+    }
+}
+
+function initActions(){
+    var actions = [
+        ["animation_clear",action_animation_clear],
+        ["frame_clear",action_frame_clear],
+        ["frame_delete",action_frame_delete],
+        ["frame_copy",action_frame_copy],
+        ["frame_paste",action_frame_paste],
+    ];
+
+    for(var act = 0; act < actions.length; act++){
+        var btn = document
+            .querySelectorAll(
+                "action[name="+actions[act][0]+"]"
+            )[0];
+        btn.onclick = actions[act][1];
+    }
+}
+
+function action_frame_clear(){
+    frames[currentFrame] = emptyFrame();
+    currentObject = 0;
+    draw();
+}
+
+function action_frame_delete(){
+    frames.splice(currentFrame,1);
+    currentFrame--;
+    if(currentFrame < 0){
+        currentFrame = 0;
+    }
+    if(frames.length == 0){
+        frames.push(emptyFrame());
+    }
+    validate_and_write_frame();
+}
+
+var current_frame_clipboard = emptyFrame();
+
+function action_animation_clear(){
+    frames = [];
+    frames.push(emptyFrame());
+    currentFrame = 0;
+    currentObject = 0;
+    validate_and_write_frame();
+    draw();
+    click_mode = ADD_MOVE_POINT;
+}
+
+function action_frame_copy(){
+    current_frame_clipboard =
+        deep_copy(frames[currentFrame]);
+}
+
+function action_frame_paste(){
+    frame_copy = deep_copy(
+        current_frame_clipboard
+    );
+    frames.splice(currentFrame, 0, frame_copy);
+    currentFrame++;
+    validate_and_write_frame();
+    draw();
+}
+
+function deep_copy(obj){
+    var new_obj = {};
+    if(obj instanceof Array){
+        new_obj = [];
+    }
+    if(obj == null){
+        return null;
+    }
+    for(el in obj){
+        if(typeof(obj[el]) == "object"){
+            new_obj[el] = deep_copy(obj[el]);
+        } else {
+            new_obj[el] = obj[el];
+        }
+    }
+    return new_obj;
+}
 
 function initTabs(){
     var alltitles = document.querySelectorAll("tabtitles");
     for(var i = 0; i < alltitles.length; i++){
         var tabtitles = alltitles[i].children;
-        console.log(alltitles,tabtitles)
         switchTo(tabtitles[0], 0);
         for(var j = 0; j < tabtitles.length; j++){
             addClickToTab(tabtitles[j], j);
         }
-
     }
-    
+
     function addClickToTab(i,index){
         i.onclick = function(){
             switchTo(i,index);
@@ -67,6 +217,7 @@ function initLoopButton(){
     var play_btn = document.querySelectorAll(".actions .play")[0];
     play_btn.onclick = function(){
         currentFrame = 0;
+        draw();
         for(var i = 0; i < frames.length-1; i++){
             setTimeout(function(){
                 currentFrame++;
@@ -79,12 +230,30 @@ function initLoopButton(){
 }
 
 
+var curr_frame = document.querySelectorAll(".actions .frame")[0]
+var num_frame = document.querySelectorAll(".actions .frames-num")[0]
+
+function validate_and_write_frame(){
+    if(currentFrame < 0){
+        currentFrame = 0;
+    } else if (currentFrame >= frames.length){
+        newFrame();
+        currentFrame = frames.length - 1;
+        copy_last_frame_into_new();
+    }
+    curr_frame.innerHTML = currentFrame + 1;
+    num_frame.innerHTML = frames.length;
+    draw();
+}
+
+function copy_last_frame_into_new(){
+    frames[frames.length-1] =
+        deep_copy(frames[frames.length-2]);
+}
+
 function initEditorUI(){
     var next_btn = document.querySelectorAll(".actions .next")[0];
     var prev_btn = document.querySelectorAll(".actions .prev")[0];
-    var curr_frame = document.querySelectorAll(".actions .frame")[0]
-    var num_frame = document.querySelectorAll(".actions .frames-num")[0]
-
 
     next_btn.onclick = next_frame;
     prev_btn.onclick = prev_frame;
@@ -130,34 +299,16 @@ function initEditorUI(){
         frames[currentFrame].objects.push({points:[]});
         draw();
     }
-
-    function validate_and_write_frame(){
-        if(currentFrame < 0){
-            currentFrame = 0;
-        } else if (currentFrame >= frames.length){
-            newFrame();
-            currentFrame = frames.length - 1;
-            copy_last_into_new();
-        }
-        curr_frame.innerHTML = currentFrame + 1;
-        num_frame.innerHTML = frames.length;
-        draw();
-    }
-    function copy_last_into_new(){
-        frames[frames.length-1].objects = [];
-        for(var obj in frames[frames.length-2].objects){
-            console.log(frames[frames.length-2].objects[obj]);
-            frames[frames.length-1].objects[obj] = {points:[]};
-            frames[frames.length-1].objects[obj].points =
-                frames[frames.length-2].objects[obj].points.slice(0);
-        }
-    }
 }
 
 function newFrame(){
-    frames.push({
+    frames.push(emptyFrame());
+}
+
+function emptyFrame(){
+    return {
         objects: [{points: []}]
-    });
+    };
 }
 
 
@@ -213,10 +364,14 @@ function initEditor(){
                 // add point + middle point
                 var points = frames[currentFrame]
                     .objects[currentObject].points;
-
+                
+                
                 // add middle point
-                if(points.length > 2){
-                    var last = points[points.length - 1];
+                if(points.length > 0 &&
+                   switches['new-points-mode'] != 'smooth' &&
+                   points.length % 2 == 1
+                  ){
+                   var last = points[points.length - 1];
                     var dx = x - last[0];
                     var dy = y - last[1];
                     var middle = [last[0] + dx/2, last[1] + dy/2];

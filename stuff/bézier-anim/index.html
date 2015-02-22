@@ -53,9 +53,9 @@
                 background:#eee;
                 line-height:50px;
                 height:50px;
-                width:60px;
                 display:inline-block;
                 font-size:10px;
+                padding:0 8px;
             }
             tab{
                 padding:15px;
@@ -73,13 +73,15 @@
             .text-left{ text-align: left; }
             .text-center{ text-align: center; }
             .text-right{ text-align: right; }
-
-            action{
+            .actions action{
+                margin:0;
+            }
+            switchoption,action{
                 cursor:pointer;
                 color:#fff;
                 background:#48f;
                 padding:5px;
-                margin-top:5px;
+                margin:5px;
                 display:inline-block;
             }
             action:active{
@@ -88,10 +90,20 @@
             }
             action,
             tabtitles,
-            .actions
+            switch
             {
                 user-select:none;
                 -moz-user-select:none;
+            }
+            switch{
+                display:block;
+            }
+            switchoption{
+                margin:10px 0;             
+            }
+            switchoption:not(.active){
+                color:#444;
+                background:#eee;
             }
         </style>
     </head>
@@ -101,24 +113,27 @@
             <div class="side-panel inline-block">
                 <tabtitles>
                     <tabtitle class="text-center">
-                        FRAME
+                        ANIMATION
                     </tabtitle>
                     <tabtitle class="text-center">
-                        OBJECT
+                        FRAME
                     </tabtitle>
                 </tabtitles>
                 <tabs>
                     <tab>
-                        <h3>Frame</h3>
-                        <action name="clear_frame">Clear</action>
-                        <br>
-                        <action name="copy_frame">Copy</action>
-                        <br>
-                        <action name="paste_frame">Paste</action>
-                        
+                        <h3>Animation</h3>
+                        <action name="animation_clear">Clear</action>
                     </tab>
                     <tab>
-                        <h3>Object</h3>
+                        <h3>Frame</h3>
+                        <action name="frame_copy">Copy</action>
+                        <br>
+                        <action name="frame_paste">Paste</action>
+                        <br><br>
+                        <action name="frame_clear">Clear</action>
+                        <br>
+                        <action name="frame_delete">Delete</action>
+
                     </tab>
                 </tabs>
             </div>
@@ -147,15 +162,23 @@
                         DRAWING
                     </tabtitle>
                     <tabtitle class="text-center">
-                        DATA
+                        OBJECT
                     </tabtitle>
                 </tabtitles>
                 <tabs>
                     <tab>
                         <h3>Drawing Properties</h3>
+                        <label>New points mode</label>
+                        <switch name="new-points-mode">
+                            <switchoption data-value="smooth">
+                                Smooth
+                            </switchoption><switchoption data-value="not-smooth">
+                                Not smooth
+                            </switchoption>
+                        </switch>
                     </tab>
                     <tab>
-                        <h3>Data</h3>
+                        <h3>Object</h3>
                     </tab>
                 </tabs>
             </div>
