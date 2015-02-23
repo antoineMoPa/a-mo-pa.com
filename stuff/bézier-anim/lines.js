@@ -210,6 +210,8 @@ function initActions(){
         ["object_bring_down",action_object_bring_down],
         ["object_break_path",break_obj],
         ["object_new",new_obj],
+        ["object_copy",action_object_copy],
+        ["object_paste",action_object_paste],
         ["path_invert_direction",path_invert_direction],
     ];
 
@@ -220,6 +222,24 @@ function initActions(){
             )[0];
         btn.onclick = actions[act][1];
     }
+}
+
+var object_clipboard = default_object();
+
+function action_object_copy(){
+    object_clipboard = deep_copy(
+        frames[currentFrame].objects[currentObject]
+    );
+}
+
+function action_object_paste(){
+    var new_object = deep_copy(object_clipboard);
+    move_points(new_object.points,14,14);
+    frames[currentFrame]
+        .objects
+        .push(new_object);
+
+    draw();
 }
 
 function action_object_bring_up(){
@@ -551,6 +571,13 @@ function path_invert_direction(){
     draw();
 }
 
+function move_points(object,dx,dy){
+    for(point in object){
+        object[point][0] += dx;
+        object[point][1] += dy;
+    }
+}
+
 function initEditor(){
     newFrame();
 
@@ -593,12 +620,9 @@ function initEditor(){
                 );
                 var dx = x - obj_move.initialX;
                 var dy = y - obj_move.initialY;
-                for(point in new_points){
-                    new_points[point][0] += dx;
-                    new_points[point][1] += dy;
-                }
+                move_points(new_points,dx,dy);
                 frames[currentFrame]
-                .objects[currentObject]
+                    .objects[currentObject]
                     .points = new_points;
                 draw();
             }
