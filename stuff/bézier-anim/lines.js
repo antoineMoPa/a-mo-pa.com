@@ -34,7 +34,6 @@ var frames = [];
 var currentFrame = 0;
 var currentObject = 0;
 
-var points = [];
 var editing = true;
 var dragging = -1;
 var add_after = 0;
@@ -201,6 +200,8 @@ function initSwitches(switches, callback){
 function initActions(){
     var actions = [
         ["animation_clear",action_animation_clear],
+        ["animation_save",action_animation_save],
+        ["animation_restore",action_animation_restore],
         ["frame_clear",action_frame_clear],
         ["frame_delete",action_frame_delete],
         ["frame_copy",action_frame_copy],
@@ -222,6 +223,22 @@ function initActions(){
             )[0];
         btn.onclick = actions[act][1];
     }
+}
+
+
+function action_animation_save(){
+    window.localStorage.saved_animation =
+        JSON.stringify(deep_copy(frames));
+}
+
+function action_animation_restore(){
+    frames =
+        JSON.parse(window.localStorage.saved_animation);
+    currentFrame = 0;
+    currentObject = 0;
+    add_after = 0;
+    draw();
+    validate_and_write_frame();
 }
 
 var object_clipboard = default_object();
@@ -748,7 +765,6 @@ function draw(){
     ctx.fillRect(0,0,w,h);
 
     var frame = frames[currentFrame];
-
     for(var obj = 0; obj < frame.objects.length; obj++){
         var points = frame.objects[obj].points;
 
