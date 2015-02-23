@@ -693,8 +693,8 @@ function initEditor(){
             }
             if( points.length > 0 &&
                 switches['new-points-mode'] == 'not-smooth' &&
-                points.length > 0 &&
-                points[points-1][2] == POINT_GUIDE &&
+                points.length > 1 &&
+                points[points.length-1][2] == POINT_GUIDE &&
                 add_after == points.length
               ){             
                 // add middle point
@@ -709,7 +709,7 @@ function initEditor(){
                 // add point
                 points.splice(add_after+1,
                               0,
-                              [x,y,POINT_POINT_NOT_SMOOTH]
+                              [x,y,POINT_NOT_SMOOTH]
                              );
                 add_after+=2
             } else {
