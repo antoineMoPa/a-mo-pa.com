@@ -17,7 +17,7 @@
 /*
   Goals:
 
-  - No external libraries
+  - No external libraries (except gif conversion)
   - No direct copy paste from stackoverflow
     without understanding and rewriting.
 
@@ -489,9 +489,10 @@ function initEditorUI(){
 }
 
 function new_obj(){
-    currentObject++;
     frames[currentFrame]
         .objects.push(default_object());
+    currentObject = frames[currentFrame].objects.length - 1;
+    click_mode = ADD_POINTS;
     draw();
 }
 
