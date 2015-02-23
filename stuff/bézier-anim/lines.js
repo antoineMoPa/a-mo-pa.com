@@ -23,8 +23,7 @@
 
 */
 
-var can = document
-    .querySelectorAll("canvas[name=tomato]")[0];
+var can = QSA("canvas[name=tomato]")[0];
 var ctx = can.getContext("2d");
 
 w = 500;
@@ -44,8 +43,6 @@ var MOVE_POINTS = 2;
 var MOVE_OBJECTS = 3;
 var click_mode = ADD_POINTS;
 
-initEditorUI();
-initLoopButton();
 initEditor();
 initTabs();
 initActions();
@@ -56,6 +53,11 @@ var inputs = {
 };
 
 initInputs(inputs, updateInputs);
+
+function QSA(selector){
+    // shit is so long to write
+    return document.querySelectorAll(selector);
+}
 
 function updateInputs(){
     updateCanvasSize();
@@ -87,8 +89,7 @@ function updateObjectInputs(){
 function initInputs(inputs,callback){
     var callback = callback || function(){};
     for(input in inputs){
-        var html_input = document
-            .querySelectorAll("input[name="+input+"]")[0];
+        var html_input = QSA("input[name="+input+"]")[0];
         if(html_input.attributes == undefined){
             continue;
         }
@@ -158,8 +159,7 @@ function initSwitches(switches, callback){
 
     for(var sw in switches){
         var curr_switch = sw;
-        var swit = document
-            .querySelectorAll(
+        var swit = QSA(
                 "switch[name="+sw+"]"
             )[0];
 
@@ -199,30 +199,51 @@ function initSwitches(switches, callback){
 
 function initActions(){
     var actions = [
-        ["animation_clear",action_animation_clear],
-        ["animation_save",action_animation_save],
-        ["animation_restore",action_animation_restore],
-        ["frame_clear",action_frame_clear],
-        ["frame_delete",action_frame_delete],
-        ["frame_copy",action_frame_copy],
-        ["frame_paste",action_frame_paste],
-        ["object_delete",action_object_delete],
-        ["object_bring_up",action_object_bring_up],
-        ["object_bring_down",action_object_bring_down],
-        ["object_break_path",break_obj],
-        ["object_new",new_obj],
-        ["object_copy",action_object_copy],
-        ["object_paste",action_object_paste],
-        ["path_invert_direction",path_invert_direction],
+        ["animation_play","",action_animation_play],
+        ["animation_clear","",action_animation_clear],
+        ["animation_save","",action_animation_save],
+        ["animation_restore","",action_animation_restore],
+        ["frame_clear","",action_frame_clear],
+        ["frame_delete","",action_frame_delete],
+        ["frame_copy","",action_frame_copy],
+        ["frame_paste","",action_frame_paste],
+        ["object_delete","",action_object_delete],
+        ["object_bring_up","",action_object_bring_up],
+        ["object_bring_down","",action_object_bring_down],
+        ["object_break_path","B",break_obj],
+        ["object_new","N",new_obj],
+        ["object_copy","",action_object_copy],
+        ["object_paste","",action_object_paste],
+        ["","D",action_toggle_point_mode],
+        ["path_invert_direction","",path_invert_direction],
+        ["frame_next",39,action_next_frame], // Right
+        ["frame_prev",37,action_prev_frame], // Left
     ];
 
     for(var act = 0; act < actions.length; act++){
-        var btn = document
-            .querySelectorAll(
+        if(actions[act][0] != ""){
+            var btn = QSA(
                 "action[name="+actions[act][0]+"]"
             )[0];
-        btn.onclick = actions[act][1];
+            btn.onclick = actions[act][2];
+        }
     }
+
+    initKeyboard();
+    function initKeyboard(){
+        document.onkeydown = function(e){
+            for(key in actions){
+                str = String.fromCharCode(e.keyCode);
+                /* direct numbers  */
+                if(e.keyCode == actions[key][1]){
+                    actions[key][2]();
+                } else if (str == actions[key][1]){
+                    actions[key][2]();
+                }
+            }
+        }
+    }
+
 }
 
 
@@ -320,6 +341,16 @@ function action_frame_delete(){
     validate_and_write_frame();
 }
 
+function action_next_frame(){
+    currentFrame++;
+    validate_and_write_frame();
+};
+function action_prev_frame(){
+    currentFrame--;
+    validate_and_write_frame();
+};
+
+
 var current_frame_clipboard = emptyFrame();
 
 function action_animation_clear(){
@@ -347,6 +378,18 @@ function action_frame_paste(){
     draw();
 }
 
+function action_toggle_point_mode(){
+    if(click_mode == DEL_POINTS){
+        click_mode = ADD_POINTS;
+        switches['global-mode'] = 'add-points';
+    } else {
+        click_mode = DEL_POINTS;
+        switches['global-mode'] = 'delete-points';
+    }
+    initSwitches(switches,updateSwitches);
+}
+
+
 function deep_copy(obj){
     var new_obj = {};
     if(obj instanceof Array){
@@ -366,7 +409,7 @@ function deep_copy(obj){
 }
 
 function initTabs(){
-    var alltitles = document.querySelectorAll("tabtitles");
+    var alltitles = QSA("tabtitles");
     for(var i = 0; i < alltitles.length; i++){
         var tabtitles = alltitles[i].children;
         switchTo(tabtitles[0], 0);
@@ -397,25 +440,23 @@ function initTabs(){
     }
 }
 
-function initLoopButton(){
-    var play_btn = document.querySelectorAll(".actions .play")[0];
-    play_btn.onclick = function(){
-        currentFrame = 0;
-        draw();
-        for(var i = 0; i < frames.length-1; i++){
-            setTimeout(function(){
-                currentFrame++;
-                editing = false;
-                draw();
-                editing = true;
-            },i*130);
-        }
+function action_animation_play(){
+    currentFrame = 0;
+    editing = false;
+    draw();
+    for(var i = 0; i < frames.length-1; i++){
+        setTimeout(function(){
+            currentFrame++;
+            editing = false;
+            draw();
+            editing = true;
+            validate_and_write_frame();
+        },(i+1)*130);
     }
 }
 
-
-var curr_frame = document.querySelectorAll(".actions .frame")[0]
-var num_frame = document.querySelectorAll(".actions .frames-num")[0]
+var curr_frame = QSA(".actions .frame")[0]
+var num_frame = QSA(".actions .frames-num")[0]
 
 function validate_and_write_frame(){
     if(currentFrame < 0){
@@ -436,56 +477,6 @@ function validate_and_write_frame(){
 function copy_last_frame_into_new(){
     frames[frames.length-1] =
         deep_copy(frames[frames.length-2]);
-}
-
-function initEditorUI(){
-    var next_btn = document.querySelectorAll(".actions .next")[0];
-    var prev_btn = document.querySelectorAll(".actions .prev")[0];
-
-    next_btn.onclick = next_frame;
-    prev_btn.onclick = prev_frame;
-
-    initKeyboard();
-    function initKeyboard(){
-        var keys = [
-            [39,next_frame], // Right
-            [37,prev_frame], // Left
-            ['N',new_obj],
-            ['B',break_obj],
-            ['D',del_point],
-        ];
-
-        document.onkeydown = function(e){
-            for(key in keys){
-                /* direct numbers  */
-                if(e.keyCode == keys[key][0]){
-                    keys[key][1]();
-                } else if (String.fromCharCode(e.keyCode) == keys[key][0]){
-                    keys[key][1]();
-                }
-            }
-        }
-    }
-
-    function del_point(){
-        if(click_mode == DEL_POINTS){
-            click_mode = ADD_POINTS;
-            switches['global-mode'] = 'add-points';
-        } else {
-            click_mode = DEL_POINTS;
-            switches['global-mode'] = 'delete-points';
-        }
-        initSwitches(switches,updateSwitches);
-    }
-
-    function next_frame(){
-        currentFrame++;
-        validate_and_write_frame();
-    };
-    function prev_frame(){
-        currentFrame--;
-        validate_and_write_frame();
-    };
 }
 
 function new_obj(){
