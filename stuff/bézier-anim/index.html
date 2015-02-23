@@ -114,9 +114,11 @@
             }
             switch{
                 display:block;
+                margin:10px 0;
+                background:#eee;
             }
             switchoption{
-                margin:10px 0;
+                margin:0;
             }
             switchoption:not(.active){
                 color:#444;
@@ -151,9 +153,10 @@
                     <action name="frame_paste">Paste</action>
                     <br><br>
                     <action name="frame_clear">Clear</action>
-                    <br>
+                    <br><br>
+                    <label>Delete</label><br>
                     <action name="frame_delete">Delete</action>
-                    
+
                 </tab>
                 <tab>
                     <h3>Animation</h3>
@@ -166,14 +169,14 @@
                     <br>
                     <label>Actions</label><br>
                     <action name="animation_clear">Clear</action>
-                    
+
                 </tab>
             </tabs>
         </div>
-        
+
         <div class="text-center">
             <h1>Animation editor</h1>
-            
+
             <div class="inline-block">
                 <canvas name="tomato">
                 </canvas>
@@ -186,7 +189,7 @@
                     <span class="frame">1</span>/
                     <span class="frames-num">1</span>
                     </span>
-                    
+
                     <div class="frame-selector">
                         <action class="prev"><</action>
                         <action class="next">></action>
@@ -209,13 +212,18 @@
                     <h3>Drawing Properties</h3>
                     <label>Global mode</label>
                     <switch name="global-mode">
-                        <switchoption data-value="draw">
+                        <switchoption data-value="add-points">
                             Draw
-                        </switchoption><switchoption data-value="move">
-                            Move
+                        </switchoption><switchoption data-value="move-points">
+                            Move points
+                        </switchoption><switchoption data-value="move-objects">
+                            Move objects
+                        </switchoption><switchoption data-value="delete-points">
+                            Delete points
                         </switchoption>
+
                     </switch>
-                    
+
                     <label>New points mode</label>
                     <switch name="new-points-mode">
                         <switchoption data-value="smooth">
@@ -227,7 +235,7 @@
                     <br>
                     <action name="object_break_path">Break path</action>
                     <action name="object_new">New object</action>
-                    <action name="path_invert_direction">Invert path part direction</action>        
+                    <action name="path_invert_direction">Invert path part direction</action>
                 </tab>
                 <tab>
                     <h3>Object</h3>
@@ -242,19 +250,20 @@
                     <input name="object_color" type="color" value="#000000">
                     <br>
                     <label>Opacity</label><br>
-                    <input name="object_opacity" value="1"><br>                       
+                    <input name="object_opacity" value="1"><br>
                     <label>Line width</label><br>
                     <input name="object_line_width" value="1">
                     <br>
                     <label>Actions</label><br>
                     <action name="object_bring_up">Bring up</action>
                     <action name="object_bring_down">Bring down</action><br>
-                    
-                    <action name="object_delete">Delete</action>                    
+                    <br>
+                    <label>Delete</label><br>
+                    <action name="object_delete">Delete</action>
                 </tab>
             </tabs>
         </div>
-        
+
         <script src="lines.js"></script>
     </body>
 </html>
