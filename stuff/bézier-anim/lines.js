@@ -20,7 +20,8 @@
   - No external libraries (except gif conversion)
   - No direct copy paste from stackoverflow
     without understanding and rewriting.
-
+  - Limit the width of code lines so they fit in 
+    half a emacs window on my thinkpad laptop
 */
 
 var can = QSA("canvas[name=tomato]")[0];
@@ -42,6 +43,9 @@ var DEL_POINTS = 1;
 var MOVE_POINTS = 2;
 var MOVE_OBJECTS = 3;
 var click_mode = ADD_POINTS;
+var POINT_POINT = 0;
+var POINT_GUIDE = 1;
+var POINT_NOT_SMOOTH = 2;
 
 initEditor();
 initTabs();
@@ -587,9 +591,18 @@ function move_points(object,dx,dy){
     }
 }
 
+function invert_point_type(point_type){
+    if(point_type == POINT_GUIDE){
+        point_type = POINT_POINT;
+    } else {
+        point_type = POINT_GUIDE
+    }
+    return point_type;
+}
+
 function initEditor(){
     newFrame();
-
+    
     function getPos(e){
         x = e.clientX - can.offsetLeft + window.scrollX;
         y = e.clientY - can.offsetTop + window.scrollY;
@@ -642,7 +655,8 @@ function initEditor(){
             if(mouse_down){
                 var points = frames[currentFrame].objects[currentObject].points;
                 if(dragging != -1){
-                    points[dragging] = [x,y];
+                    points[dragging][0] = x;
+                    points[dragging][1] = y;
                     draw();
                 }
             }
@@ -682,27 +696,40 @@ function initEditor(){
                 add_after = 0;
             }
 
-            // add middle point
-            if(points.length > 0 &&
-               switches['new-points-mode'] != 'smooth' &&
-               points.length % 2 == 1 &&
-               add_after == points.length
-              ){
+            var point_type = POINT_POINT;
+            if(points.length > 2){
+                point_type = points[points.length-1][2];
+            }
+            point_type = invert_point_type(point_type);
+            if( points.length > 0 &&
+                switches['new-points-mode'] == 'smooth' &&
+                points.length % 2 == 1 &&
+                add_after == points.length
+              ){             
+                // add middle point
                 var last = points[points.length - 1];
                 var dx = x - last[0];
                 var dy = y - last[1];
-                var middle = [last[0] + dx/2, last[1] + dy/2];
+                var middle = [last[0] + dx/2,
+                              last[1] + dy/2,
+                              point_type
+                             ];
                 points.splice(add_after,0,middle);
-
+                point_type = invert_point_type(point_type);
                 // add point
-                points.splice(add_after+1,0,[x,y]);
+                points.splice(add_after+1,
+                              0,
+                              [x,y,point_type]
+                             );
                 add_after+=2
             } else {
                 // add point
-                points.splice(add_after,0,[x,y]);
+                points.splice(add_after,
+                              0,
+                              [x,y,POINT_NOT_SMOOTH]
+                             );
                 add_after++;
             }
-
             update_object_ui();
             draw();
             break;
@@ -713,7 +740,6 @@ function initEditor(){
             dragging = selected;
             update_object_ui();
             draw();
-
         }
     }
 
@@ -741,7 +767,8 @@ function initEditor(){
     function up(x,y){
         var points = frames[currentFrame].objects[currentObject].points;
         if(dragging != -1){
-            points[dragging] = [x,y];
+            points[dragging][0] = x;
+            points[dragging][1] = y;
             dragging = -1;
             draw();
         }
@@ -772,7 +799,7 @@ function draw(){
             ctx.moveTo(points[0][0],points[0][1]);
         }
 
-        for(var i = 1; i < points.length - 1; i+=2){
+        for(var i = 1; i < points.length; i++){
             if(points[i] == "break" || points[i-1] == "break"){
                 while(points[i] == "break"){
                     i++;
@@ -785,35 +812,41 @@ function draw(){
                 }
             }
 
-            if( i >= points.length - 1){
-                continue;
-            }
 
             var p = points[i];
-            // lastpoint
             var lp = points[i-1];
             var np = points[i+1];
-            // calculate resolution
-            var res = distance(p[0],p[1],lp[0],lp[1]) + distance(p[0],p[1],np[0],np[1]);
-            res/=20
+            
+            if( i < points.length -1 &&
+                p[2] == POINT_POINT &&
+                lp[2] == POINT_GUIDE &&
+                np[2] == POINT_GUIDE ){
+                // lastpoint
+                // calculate resolution
+                var res = distance(p[0],p[1],lp[0],lp[1]) + distance(p[0],p[1],np[0],np[1]);
+                res/=20
 
-            for(var j = 0; j < res; j++){
-                var k = j/res;
-                var m = (1-k) * lp[0] + (k) * p[0];
-                var n = (1-k) * lp[1] + (k) * p[1];
-                var q = (1-k) * p[0] + (k) * np[0];
-                var r = (1-k) * p[1] + (k) * np[1];
-                var s = (1-k) * m + (k) * q;
-                var t = (1-k) * n + (k) * r;
-                ctx.lineTo(s,t);
+                for(var j = 0; j < res; j++){
+                    var k = j/res;
+                    var m = (1-k) * lp[0] + (k) * p[0];
+                    var n = (1-k) * lp[1] + (k) * p[1];
+                    var q = (1-k) * p[0] + (k) * np[0];
+                    var r = (1-k) * p[1] + (k) * np[1];
+                    var s = (1-k) * m + (k) * q;
+                    var t = (1-k) * n + (k) * r;
+                    ctx.lineTo(s,t);
+                }
+                ctx.lineTo(np[0],np[1]);
+            }
+            if(p[2] == POINT_NOT_SMOOTH){
+                ctx.lineTo(p[0],p[1]);
             }
         }
         if(points.length > 1){
             var len = points.length
             var lastIndex = len % 2 == 1? len: len - 1
             var last = points[points.length-1];
-            ctx.lineTo(last[0],last[1]);
-
+            
             if(switches['object-fill'] == "no-fill"){
                 ctx.stroke();
             } else {
