@@ -47,6 +47,8 @@ var POINT_POINT = 0;
 var POINT_GUIDE = 1;
 var POINT_NOT_SMOOTH = 2;
 
+var selected_point = 0;
+
 initEditor();
 initTabs();
 initActions();
@@ -591,15 +593,6 @@ function move_points(object,dx,dy){
     }
 }
 
-function invert_point_type(point_type){
-    if(point_type == POINT_GUIDE){
-        point_type = POINT_POINT;
-    } else {
-        point_type = POINT_GUIDE
-    }
-    return point_type;
-}
-
 function initEditor(){
     newFrame();
     
@@ -695,15 +688,13 @@ function initEditor(){
             if(points.length == 0){
                 add_after = 0;
             }
-
-            var point_type = POINT_POINT;
             if(points.length > 2){
                 point_type = points[points.length-1][2];
             }
-            point_type = invert_point_type(point_type);
             if( points.length > 0 &&
-                switches['new-points-mode'] == 'smooth' &&
-                points.length % 2 == 1 &&
+                switches['new-points-mode'] == 'not-smooth' &&
+                points.length > 0 &&
+                points[points-1][2] == POINT_GUIDE &&
                 add_after == points.length
               ){             
                 // add middle point
@@ -712,21 +703,26 @@ function initEditor(){
                 var dy = y - last[1];
                 var middle = [last[0] + dx/2,
                               last[1] + dy/2,
-                              point_type
+                              POINT_GUIDE
                              ];
                 points.splice(add_after,0,middle);
-                point_type = invert_point_type(point_type);
                 // add point
                 points.splice(add_after+1,
                               0,
-                              [x,y,point_type]
+                              [x,y,POINT_POINT_NOT_SMOOTH]
                              );
                 add_after+=2
             } else {
+                var point_type = POINT_GUIDE;
+                if( points.length > 0 &&
+                    points[points.length-1][2]
+                    == POINT_GUIDE ){
+                    point_type = POINT_POINT;
+                }
                 // add point
                 points.splice(add_after,
                               0,
-                              [x,y,POINT_NOT_SMOOTH]
+                              [x,y,point_type]
                              );
                 add_after++;
             }
@@ -751,6 +747,10 @@ function initEditor(){
             for(var i in points){
                 var point = points[i];
                 var d = distance(point[0],point[1],x,y);
+                if(!point_viewable(obj,i)){
+                    continue;
+                }
+
                 if(d < treshold){
                     currentObject = parseInt(obj);
                     selected = i;
@@ -761,6 +761,7 @@ function initEditor(){
                 break;
             }
         }
+        selected_point = selected;
         return selected;
     }
 
@@ -773,6 +774,20 @@ function initEditor(){
             draw();
         }
      }
+}
+
+function point_viewable(obj,i){
+    var points = frames[currentFrame]
+        .objects[obj].points;
+
+    if(points[i][2] != POINT_GUIDE){
+        return true;
+    }
+    return !( Math.abs(i - points.length) > 2 &&
+             points[i][2] == POINT_GUIDE &&
+             ( obj != currentObject ||
+               Math.abs(i - selected_point) >= 3 )
+               );
 }
 
 function distance(x1,y1,x2,y2){
@@ -816,11 +831,11 @@ function draw(){
             var p = points[i];
             var lp = points[i-1];
             var np = points[i+1];
-            
+
             if( i < points.length -1 &&
-                p[2] == POINT_POINT &&
-                lp[2] == POINT_GUIDE &&
-                np[2] == POINT_GUIDE ){
+                p[2] == POINT_GUIDE &&
+                lp[2] == POINT_POINT &&
+                np[2] == POINT_POINT ){
                 // lastpoint
                 // calculate resolution
                 var res = distance(p[0],p[1],lp[0],lp[1]) + distance(p[0],p[1],np[0],np[1]);
@@ -846,7 +861,6 @@ function draw(){
             var len = points.length
             var lastIndex = len % 2 == 1? len: len - 1
             var last = points[points.length-1];
-            
             if(switches['object-fill'] == "no-fill"){
                 ctx.stroke();
             } else {
@@ -856,6 +870,26 @@ function draw(){
         ctx.globalAlpha = 1;
         if(editing){
             for(var i = 0; i < points.length; i++){
+                ctx.setLineDash([5,5]);
+                if( points[i][2] == POINT_POINT &&
+                    obj == currentObject &&
+                    Math.abs(i - selected_point) < 2 &&
+                    i > 1
+                  ){
+                    ctx.beginPath();
+                    ctx.moveTo(points[i-1][0],
+                               points[i-1][1]);
+                    ctx.lineTo(points[i][0],
+                               points[i][1]);
+
+                    if(points.length > i+1){
+                        ctx.lineTo(points[i+1][0],
+                                   points[i+1][1]);
+                    }
+                    ctx.stroke();
+                    ctx.closePath();
+                }
+                ctx.setLineDash([5,0]);
                 var size = 3;
                 if( obj == currentObject &&
                     dragging != -1 &&
@@ -866,6 +900,10 @@ function draw(){
                 } else {
                     ctx.fillStyle = "rgba(0,0,0,0.9)";
                 }
+                if(!point_viewable(obj,i)){
+                    continue;
+                }
+
                 ctx.fillRect(points[i][0]-size, points[i][1]-size, 2*size,2*size);
             }
         }
