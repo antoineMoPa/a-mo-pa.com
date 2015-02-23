@@ -5,6 +5,9 @@
         <title>Lines</title>
         <style>
             /* Goal: less than 150 lines of well-formatted css */
+            *{
+                transition:all 0.3s;
+            }
             body{
                 margin:0;
                 background:#bbb;
@@ -45,10 +48,22 @@
                 display:inline-block;
                 vertical-align:top;
             }
+            .side-panel, canvas{
+                border:3px solid #aaa;
+            }
             .side-panel{
+                position:absolute;
+                top:0;
+                height:100%;
                 background:#fff;
                 width:300px;
-                height:500px;
+                border-top:none;
+            }
+            .side-panel.left{
+                left:0;
+            }
+            .side-panel.right{
+                right:0;
             }
             tabtitle{
                 background:#eee;
@@ -61,10 +76,12 @@
             tab{
                 padding:15px;
                 text-align:left;
+                border-top:8px solid #3af;
             }
+            action:active,
             tabtitle:hover,
             tabtitle.active{
-                background:#48f;
+                background:#3af;
                 color:#fff;
             }
             tabtitles{
@@ -84,10 +101,6 @@
                 padding:5px;
                 margin:5px;
                 display:inline-block;
-            }
-            action:active{
-                background:#26d;
-                user-select:none;
             }
             action,
             tabtitles,
@@ -118,46 +131,46 @@
         </style>
     </head>
     <body>
+        <div class="side-panel left inline-block">
+            <tabtitles>
+                <tabtitle class="text-center">
+                    FRAME
+                </tabtitle>
+                <tabtitle class="text-center">
+                    ANIMATION
+                </tabtitle>
+            </tabtitles>
+            <tabs>
+                <tab>
+                    <h3>Frame</h3>
+                    <action name="frame_copy">Copy</action>
+                    <br>
+                    <action name="frame_paste">Paste</action>
+                    <br><br>
+                    <action name="frame_clear">Clear</action>
+                    <br>
+                    <action name="frame_delete">Delete</action>
+                    
+                </tab>
+                <tab>
+                    <h3>Animation</h3>
+                    <label>Width</label><br>
+                    <input name="animation_width">
+                    <br>
+                    <label>Height</label><br>
+                    <input name="animation_height">
+                    <br>
+                    <br>
+                    <label>Actions</label><br>
+                    <action name="animation_clear">Clear</action>
+                    
+                </tab>
+            </tabs>
+        </div>
+        
         <div class="text-center">
             <h1>Animation editor</h1>
-            <div class="side-panel inline-block">
-                <tabtitles>
-                    <tabtitle class="text-center">
-                        FRAME
-                    </tabtitle>
-                    <tabtitle class="text-center">
-                        ANIMATION
-                    </tabtitle>
-                </tabtitles>
-                <tabs>
-                    <tab>
-                        <h3>Frame</h3>
-                        <action name="frame_copy">Copy</action>
-                        <br>
-                        <action name="frame_paste">Paste</action>
-                        <br><br>
-                        <action name="frame_clear">Clear</action>
-                        <br>
-                        <action name="frame_delete">Delete</action>
-
-                    </tab>
-                    <tab>
-                        <h3>Animation</h3>
-                        <label>Width</label><br>
-                        <input name="animation_width">
-                        <br>
-                        <label>Height</label><br>
-                        <input name="animation_height">
-                        <br>
-                        <br>
-                        <label>Actions</label><br>
-                        <action name="animation_clear">Clear</action>
-
-                    </tab>
-                </tabs>
-            </div>
-
-
+            
             <div class="inline-block">
                 <canvas name="tomato">
                 </canvas>
@@ -175,67 +188,67 @@
                     <div class="clear"></div>
                 </div>
             </div>
-            <div class="side-panel inline-block">
-                <tabtitles>
-                    <tabtitle class="text-center">
-                        DRAWING
-                    </tabtitle>
-                    <tabtitle class="text-center">
-                        OBJECT
-                    </tabtitle>
-                </tabtitles>
-                <tabs>
-                    <tab>
-                        <h3>Drawing Properties</h3>
-                        <label>Global mode</label>
-                        <switch name="global-mode">
-                            <switchoption data-value="draw">
-                                Draw
-                            </switchoption><switchoption data-value="move">
-                                Move
-                            </switchoption>
-                        </switch>
-
-                        <label>New points mode</label>
-                        <switch name="new-points-mode">
-                            <switchoption data-value="smooth">
-                                Smooth
-                            </switchoption><switchoption data-value="not-smooth">
-                                Not smooth
-                            </switchoption>
-                        </switch>
-                        <br>
-                        <action name="object_break_path">Break path</action>
-                        <action name="object_new">New object</action>
-                        <action name="path_invert_direction">Invert path part direction</action>        
-                    </tab>
-                    <tab>
-                        <h3>Object</h3>
-                        <switch name="object-fill">
-                            <switchoption data-value="fill">
-                                Fill
-                            </switchoption><switchoption data-value="no-fill">
-                                No fill
-                            </switchoption>
-                        </switch>
-                        <label>Color</label><br>
-                        <input name="object_color" type="color" value="#000000">
-                        <br>
-                        <label>Opacity</label><br>
-                        <input name="object_opacity" value="1"><br>                       
-                        <label>Line width</label><br>
-                        <input name="object_line_width" value="1">
-                        <br>
-                        <label>Actions</label><br>
-                        <action name="object_bring_up">Bring up</action>
-                        <action name="object_bring_down">Bring down</action><br>
-
-                        <action name="object_delete">Delete</action>
-
-                    </tab>
-                </tabs>
-            </div>
         </div>
+        <div class="side-panel right inline-block">
+            <tabtitles>
+                <tabtitle class="text-center">
+                    DRAWING
+                </tabtitle>
+                <tabtitle class="text-center">
+                    OBJECT
+                </tabtitle>
+            </tabtitles>
+            <tabs>
+                <tab>
+                    <h3>Drawing Properties</h3>
+                    <label>Global mode</label>
+                    <switch name="global-mode">
+                        <switchoption data-value="draw">
+                            Draw
+                        </switchoption><switchoption data-value="move">
+                            Move
+                        </switchoption>
+                    </switch>
+                    
+                    <label>New points mode</label>
+                    <switch name="new-points-mode">
+                        <switchoption data-value="smooth">
+                            Smooth
+                        </switchoption><switchoption data-value="not-smooth">
+                            Not smooth
+                        </switchoption>
+                    </switch>
+                    <br>
+                    <action name="object_break_path">Break path</action>
+                    <action name="object_new">New object</action>
+                    <action name="path_invert_direction">Invert path part direction</action>        
+                </tab>
+                <tab>
+                    <h3>Object</h3>
+                    <switch name="object-fill">
+                        <switchoption data-value="fill">
+                            Fill
+                        </switchoption><switchoption data-value="no-fill">
+                            No fill
+                        </switchoption>
+                    </switch>
+                    <label>Color</label><br>
+                    <input name="object_color" type="color" value="#000000">
+                    <br>
+                    <label>Opacity</label><br>
+                    <input name="object_opacity" value="1"><br>                       
+                    <label>Line width</label><br>
+                    <input name="object_line_width" value="1">
+                    <br>
+                    <label>Actions</label><br>
+                    <action name="object_bring_up">Bring up</action>
+                    <action name="object_bring_down">Bring down</action><br>
+                    
+                    <action name="object_delete">Delete</action>                    
+                </tab>
+            </tabs>
+        </div>
+        
         <script src="lines.js"></script>
     </body>
 </html>
