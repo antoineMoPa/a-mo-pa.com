@@ -337,10 +337,12 @@ function action_animation_play(){
     for(var i = 0; i < frames.length-1; i++){
         setTimeout(function(){
             currentFrame++;
-            editing = false;
             draw();
-            editing = true;
             validate_and_write_frame();
+            if(currentFrame == frames.length-1){
+                editing = true;
+                draw();
+            }
         },(i+1)*130);
     }
 }
@@ -553,13 +555,15 @@ function initEditor(){
         
         case MOVE_OBJECTS:
             var selected = clicked_point(x,y,10);
-            obj_move.initialX = x;
-            obj_move.initialY = y;
-            obj_move.initialPoints = deep_copy(
-                frames[currentFrame]
-                    .objects[currentObject]
-                    .points
-            );
+            if(selected != -1){
+                obj_move.initialX = x;
+                obj_move.initialY = y;
+                obj_move.initialPoints = deep_copy(
+                    frames[currentFrame]
+                        .objects[currentObject]
+                        .points
+                );
+            }
             break;
         case ADD_MOVE_POINTS:
             // Verify if a point was clicked

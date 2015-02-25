@@ -60,6 +60,7 @@ h3{
     position:absolute;
     top:0;
     height:100%;
+    min-height:800px;
     background:#fff;
     width:300px;
     border-top:none;
@@ -95,7 +96,6 @@ tabtitles{
     background:#eee;
     display:block;
 }
-tabtitles,
 
 text-left,text-center,text-right{
     display:block;
