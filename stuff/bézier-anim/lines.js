@@ -36,7 +36,6 @@ var current_frame;
 var selected_point;
 var current_object;
 
-
 var animations = [default_animation()];
 
 set_animation_globals();
@@ -173,16 +172,16 @@ function action_animation_to_gif(){
 }
 
 function action_animation_save(){
-    window.localStorage.saved_animation =
-        JSON.stringify(deep_copy(frames));
+    window.localStorage.saved_animations =
+        JSON.stringify(deep_copy(animations));
 }
 
 function action_animation_restore(){
-    frames =
-        JSON.parse(window.localStorage.saved_animation);
-    current_frame = 0;
-    currentObject = 0;
-    add_after = 0;
+    animations =
+        JSON.parse(window.localStorage.saved_animations);
+        
+    set_animation_globals();
+    update_object_ui();
     draw();
     validate_and_write_frame();
 }
@@ -415,7 +414,7 @@ function default_animation_inputs(){
     };
 }
 
-function set_animation_globals(){    
+function set_animation_globals(){
     frames = animations[current_animation].frames;
     current_frame = animations[current_animation].current_frame;
     selected_point = animations[current_animation].selected_point;
@@ -513,16 +512,13 @@ function move_points(object,dx,dy){
 }
 
 function initEditor(){
-    newFrame();
-    
     function getPos(e){
         x = e.clientX - can.offsetLeft + window.scrollX;
         y = e.clientY - can.offsetTop + window.scrollY;
         return [x,y];
     }
-
+    
     var mouse_down = false;
-
     can.onmousedown = function(e){
         var pos = getPos(e);
         mouse_down = true;
