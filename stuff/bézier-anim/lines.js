@@ -17,7 +17,8 @@
 /*
   Goals:
 
-  - No external libraries (except gif conversion)
+  - No external libraries for UI
+    or things that are easy to code.    
   - No direct copy paste from stackoverflow
     without understanding and rewriting.
   - Limit the width of code lines so they fit in 
@@ -728,6 +729,7 @@ function initEditor(){
             }
             update_object_ui();
             draw();
+            selected_point = add_after;
             break;
         default:
         case MOVE_POINTS:
@@ -741,6 +743,8 @@ function initEditor(){
 
     function clicked_point(x,y,treshold){
         var selected = -1;
+        var closest = -1;
+        var closest_distance = treshold;
         for(var obj in frames[currentFrame].objects){
             var points = frames[currentFrame]
                 .objects[obj].points;
@@ -750,17 +754,15 @@ function initEditor(){
                 if(!point_viewable(obj,i)){
                     continue;
                 }
-
-                if(d < treshold){
+                
+                if(d < treshold && d < closest_distance){
                     currentObject = parseInt(obj);
+                    closest_distance = d;
                     selected = i;
-                    break;
                 }
             }
-            if(selected != -1){
-                break;
-            }
         }
+        console.log(frames[currentFrame].objects[currentObject].points[selected]);
         selected_point = selected;
         return selected;
     }
@@ -780,14 +782,16 @@ function point_viewable(obj,i){
     var points = frames[currentFrame]
         .objects[obj].points;
 
+    if(obj != currentObject){
+        return false;
+    }
     if(points[i][2] != POINT_GUIDE){
         return true;
     }
-    return !( Math.abs(i - points.length) > 2 &&
-             points[i][2] == POINT_GUIDE &&
-             ( obj != currentObject ||
-               Math.abs(i - selected_point) >= 3 )
-               );
+    if(Math.abs(i - selected_point) < 3){
+        return true;
+    }
+    return false;
 }
 
 function distance(x1,y1,x2,y2){
@@ -838,10 +842,11 @@ function draw(){
                 np[2] == POINT_POINT ){
                 // lastpoint
                 // calculate resolution
-                var res = distance(p[0],p[1],lp[0],lp[1]) + distance(p[0],p[1],np[0],np[1]);
-                res/=20
-
-                for(var j = 0; j < res; j++){
+                var res = distance(p[0],p[1],lp[0],lp[1])
+                    + distance(p[0],p[1],np[0],np[1]);
+                res /= 20;
+                ctx.moveTo(lp[0],lp[1]);
+                for(var j = 0; j <= res; j++){
                     var k = j/res;
                     var m = (1-k) * lp[0] + (k) * p[0];
                     var n = (1-k) * lp[1] + (k) * p[1];
@@ -851,38 +856,42 @@ function draw(){
                     var t = (1-k) * n + (k) * r;
                     ctx.lineTo(s,t);
                 }
-                ctx.lineTo(np[0],np[1]);
+                if(np[2] != POINT_GUIDE){
+                    ctx.lineTo(np[0],np[1]);
+                }
             }
             if(p[2] == POINT_NOT_SMOOTH){
                 ctx.lineTo(p[0],p[1]);
             }
         }
         if(points.length > 1){
-            var len = points.length
-            var lastIndex = len % 2 == 1? len: len - 1
-            var last = points[points.length-1];
             if(switches['object-fill'] == "no-fill"){
                 ctx.stroke();
             } else {
                 ctx.fill();
             }
         }
+
         ctx.globalAlpha = 1;
+
         if(editing){
             for(var i = 0; i < points.length; i++){
                 ctx.setLineDash([5,5]);
-                if( points[i][2] == POINT_POINT &&
-                    obj == currentObject &&
-                    Math.abs(i - selected_point) < 2 &&
-                    i > 1
+                if( i > 0
+                    && point_viewable(obj,i-1)
+                    && point_viewable(obj,i)
                   ){
                     ctx.beginPath();
-                    ctx.moveTo(points[i-1][0],
-                               points[i-1][1]);
-                    ctx.lineTo(points[i][0],
-                               points[i][1]);
-
-                    if(points.length > i+1){
+                    if(points[i-1][2] == POINT_GUIDE){
+                        ctx.moveTo(points[i-1][0],
+                                   points[i-1][1]);
+                        ctx.lineTo(points[i][0],
+                                   points[i][1]);
+                    }
+                    if(points.length > i+1
+                       && point_viewable(obj,i+1)){
+                        ctx.moveTo(points[i][0],
+                                   points[i][1]);
                         ctx.lineTo(points[i+1][0],
                                    points[i+1][1]);
                     }
