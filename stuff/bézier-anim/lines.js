@@ -332,19 +332,22 @@ function deep_copy(obj){
 }
 
 function action_animation_play(){
-    currentFrame = 0;
-    editing = false;
-    draw();
-    for(var i = 0; i < frames.length-1; i++){
-        setTimeout(function(){
-            currentFrame++;
-            draw();
-            validate_and_write_frame();
-            if(currentFrame == frames.length-1){
-                editing = true;
+    if(frames.length > 1){
+        currentFrame = 0;
+        editing = false;
+        draw();
+        for(var i = 0; i < frames.length-1; i++){
+            setTimeout(function(){
+                currentFrame++;
+                
                 draw();
-            }
-        },(i+1)*130);
+                validate_and_write_frame();
+                if(currentFrame == frames.length-1){
+                    editing = true;
+                    draw();
+                }
+            },(i+1)*130);
+        }
     }
 }
 
