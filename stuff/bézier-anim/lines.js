@@ -266,6 +266,7 @@ function action_frame_delete(){
 function action_next_frame(){
     currentFrame++;
     validate_and_write_frame();
+    update_object_ui();
 };
 function action_prev_frame(){
     currentFrame--;
@@ -661,16 +662,17 @@ function point_viewable(obj,i){
     var points = frames[currentFrame]
         .objects[obj].points;
 
-    if(obj != currentObject){
+    if( obj != currentObject
+        && points[i][2] == POINT_GUIDE){
         return false;
     }
-    if(points[i][2] != POINT_GUIDE){
+    if( points[i][2] != POINT_GUIDE){
         return true;
     }
-    if(click_mode != ADD_MOVE_POINTS){
+    if( click_mode != ADD_MOVE_POINTS){
         return false;
     }
-    if(Math.abs(i - selected_point) < 3){
+    if( Math.abs(i - selected_point) < 3){
         return true;
     }
     return false;
@@ -699,6 +701,11 @@ function draw(){
         if(points.length > 0){
             ctx.moveTo(points[0][0],points[0][1]);
         }
+        var fill = true;
+        if(switches['object-fill'] == "no-fill"){
+            fill = false;
+        }
+
 
         for(var i = 1; i < points.length; i++){
             if(points[i] == "break"){
@@ -722,7 +729,10 @@ function draw(){
                 var res = distance(p[0],p[1],lp[0],lp[1])
                     + distance(p[0],p[1],np[0],np[1]);
                 res /= 20;
-                ctx.moveTo(lp[0],lp[1]);
+                
+                if(!fill){
+                    ctx.moveTo(lp[0],lp[1]);
+                }
                 for(var j = 0; j <= res; j++){
                     var k = j/res;
                     var m = (1-k) * lp[0] + (k) * p[0];
@@ -742,10 +752,10 @@ function draw(){
             }
         }
         if(points.length > 1){
-            if(switches['object-fill'] == "no-fill"){
-                ctx.stroke();
-            } else {
+            if(fill){
                 ctx.fill();
+            } else {
+                ctx.stroke();
             }
         }
 
@@ -759,14 +769,15 @@ function draw(){
                     && point_viewable(obj,i)
                   ){
                     ctx.beginPath();
-                    if(points[i-1][2] == POINT_GUIDE){
+                    if( points[i-1][2] == POINT_GUIDE ){
                         ctx.moveTo(points[i-1][0],
                                    points[i-1][1]);
                         ctx.lineTo(points[i][0],
                                    points[i][1]);
                     }
-                    if(points.length > i+1
-                       && point_viewable(obj,i+1)){
+                    if( points.length > i+1
+                        && point_viewable(obj,i+1)
+                        && points[i+1][2] == POINT_GUIDE){
                         ctx.moveTo(points[i][0],
                                    points[i][1]);
                         ctx.lineTo(points[i+1][0],
