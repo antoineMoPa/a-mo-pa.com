@@ -39,11 +39,10 @@ var editing = true;
 var dragging = -1;
 var add_after = 0;
 
-var ADD_POINTS = 0;
+var ADD_MOVE_POINTS = 0;
 var DEL_POINTS = 1;
-var MOVE_POINTS = 2;
 var MOVE_OBJECTS = 3;
-var click_mode = ADD_POINTS;
+var click_mode = ADD_MOVE_POINTS;
 var POINT_POINT = 0;
 var POINT_GUIDE = 1;
 var POINT_NOT_SMOOTH = 2;
@@ -118,7 +117,7 @@ var actions = [
 initActions(actions);
 
 var switches = {
-    'global-mode': 'add-points',
+    'global-mode': 'add-move-points',
     'new-points-mode': "not-smooth",
 };
 
@@ -126,11 +125,8 @@ initSwitches(switches,updateSwitches);
 
 function updateSwitches(){
     switch(switches['global-mode']){
-    case 'add-points':
-        click_mode = ADD_POINTS;
-        break;
-    case 'move-points':
-        click_mode = MOVE_POINTS;
+    case 'add-move-points':
+        click_mode = ADD_MOVE_POINTS;
         break;
     case 'delete-points':
         click_mode = DEL_POINTS;
@@ -286,7 +282,7 @@ function action_animation_clear(){
     currentObject = 0;
     validate_and_write_frame();
     draw();
-    click_mode = ADD_POINTS;
+    click_mode = ADD_MOVE_POINTS;
 }
 
 function action_frame_copy(){
@@ -306,7 +302,7 @@ function action_frame_paste(){
 
 function action_toggle_point_mode(){
     if(click_mode == DEL_POINTS){
-        click_mode = ADD_POINTS;
+        click_mode = ADD_MOVE_POINTS;
         switches['global-mode'] = 'add-points';
     } else {
         click_mode = DEL_POINTS;
@@ -363,7 +359,7 @@ function validate_and_write_frame(){
     curr_frame.innerHTML = currentFrame + 1;
     num_frame.innerHTML = frames.length;
     if(click_mode == DEL_POINTS){
-        click_mode = ADD_POINTS;
+        click_mode = ADD_MOVE_POINTS;
     }
     draw();
 }
@@ -377,7 +373,7 @@ function new_obj(){
     frames[currentFrame]
         .objects.push(default_object());
     currentObject = frames[currentFrame].objects.length - 1;
-    click_mode = ADD_POINTS;
+    click_mode = ADD_MOVE_POINTS;
     draw();
 }
 
@@ -387,6 +383,8 @@ function action_break_path(){
 
     pts.push("break");
     add_after++;
+    click_mode = ADD_MOVE_POINTS;
+    update_object_ui();
 }
 
 function default_object(){
@@ -512,7 +510,7 @@ function initEditor(){
 
         switch(click_mode){
         case MOVE_OBJECTS:
-            if(mouse_down){
+            if(mouse_down && selected_point != -1){
                 var new_points = deep_copy(
                     obj_move.initialPoints
                 );
@@ -524,8 +522,6 @@ function initEditor(){
                     .points = new_points;
                 draw();
             }
-            break;
-        case ADD_POINTS:
             break;
         default:
             if(mouse_down){
@@ -554,6 +550,7 @@ function initEditor(){
                 draw();
             }
             break;
+        
         case MOVE_OBJECTS:
             var selected = clicked_point(x,y,10);
             obj_move.initialX = x;
@@ -564,10 +561,19 @@ function initEditor(){
                     .points
             );
             break;
-        case ADD_POINTS:
+        case ADD_MOVE_POINTS:
+            // Verify if a point was clicked
+            var selected = clicked_point(x,y,15);
+            if(selected != -1){
+                dragging = selected;
+                update_object_ui();
+                draw();
+                break;
+            }
+            
             var points = frames[currentFrame]
                 .objects[currentObject].points;
-
+            
             if(points.length == 0){
                 add_after = 0;
             }
@@ -602,17 +608,12 @@ function initEditor(){
                              );
                 add_after++;
             }
-            update_object_ui();
+            selected_point = points.length-1;
+            update_object_ui();            
             draw();
-            selected_point = add_after;
             break;
         default:
-        case MOVE_POINTS:
-            // Verify if a point was clicked
-            var selected = clicked_point(x,y,10);
-            dragging = selected;
-            update_object_ui();
-            draw();
+            break;
         }
     }
 
@@ -661,6 +662,9 @@ function point_viewable(obj,i){
     }
     if(points[i][2] != POINT_GUIDE){
         return true;
+    }
+    if(click_mode != ADD_MOVE_POINTS){
+        return false;
     }
     if(Math.abs(i - selected_point) < 3){
         return true;
