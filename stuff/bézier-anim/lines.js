@@ -28,12 +28,18 @@
 var can = QSA("canvas[name=tomato]")[0];
 var ctx = can.getContext("2d");
 
-w = 500;
-h = 500;
+var w;
+var h;
+var current_animation = 0;
+var frames;
+var current_frame;
+var selected_point;
+var current_object;
 
-var frames = [];
-var currentFrame = 0;
-var currentObject = 0;
+
+var animations = [default_animation()];
+
+set_animation_globals();
 
 var editing = true;
 var dragging = -1;
@@ -46,26 +52,23 @@ var click_mode = ADD_MOVE_POINTS;
 var POINT_POINT = 0;
 var POINT_GUIDE = 1;
 var POINT_NOT_SMOOTH = 2;
-
-var selected_point = 0;
+var TYPE_PATH = 0;
+var TYPE_IMAGE = 1;
 
 initEditor();
 initTabs();
 
-var inputs = {
-    'animation_width':'500',
-    'animation_height':'500'
-};
+initInputs(animations[current_animation].inputs, updateAnimationInputs);
 
-initInputs(inputs, updateInputs);
-
-function updateInputs(){
+function updateAnimationInputs(){
     updateCanvasSize();
 }
 
 function updateCanvasSize(){
-    w = inputs['animation_width'];
-    h = inputs['animation_height'];
+    w = animations[current_animation]
+        .inputs['animation_width'];
+    h = animations[current_animation]
+        .inputs['animation_height'];
     can.width = w;
     can.height = h;
     draw();
@@ -79,7 +82,7 @@ var object_inputs = default_object_inputs();
 initInputs(object_inputs, updateObjectInputs);
 
 function updateObjectInputs(){
-    frames[currentFrame]
+    frames[current_frame]
         .objects[currentObject]
         .inputs = deep_copy(object_inputs);
 
@@ -142,7 +145,7 @@ object_switches = default_object_switches();
 initSwitches(object_switches, updateObjectSwitches);
 
 function updateObjectSwitches(){
-    frames[currentFrame]
+    frames[current_frame]
         .objects[currentObject]
         .switches = deep_copy(object_switches);
 
@@ -158,7 +161,7 @@ function action_animation_to_gif(){
     
     for(var i = 0; i < frames.length; i++){
         draw();
-        currentFrame = i;
+        current_frame = i;
         to_export.data
             .push(can.toDataURL());
     }    
@@ -177,7 +180,7 @@ function action_animation_save(){
 function action_animation_restore(){
     frames =
         JSON.parse(window.localStorage.saved_animation);
-    currentFrame = 0;
+    current_frame = 0;
     currentObject = 0;
     add_after = 0;
     draw();
@@ -188,14 +191,14 @@ var object_clipboard = default_object();
 
 function action_object_copy(){
     object_clipboard = deep_copy(
-        frames[currentFrame].objects[currentObject]
+        frames[current_frame].objects[currentObject]
     );
 }
 
 function action_object_paste(){
     var new_object = deep_copy(object_clipboard);
     move_points(new_object.points,14,14);
-    frames[currentFrame]
+    frames[current_frame]
         .objects
         .push(new_object);
 
@@ -219,7 +222,7 @@ function action_object_bring_down(){
 }
 
 function swap_objects(lhs, rhs){
-    var objects = frames[currentFrame]
+    var objects = frames[current_frame]
         .objects;
     var temp = deep_copy(objects[lhs]);
 
@@ -235,7 +238,7 @@ function swap_objects(lhs, rhs){
 }
 
 function action_object_delete(){
-    var objs = frames[currentFrame].objects;
+    var objs = frames[current_frame].objects;
     objs.splice(currentObject,1);
     currentObject = 0;
     if(objs.length == 0){
@@ -246,40 +249,40 @@ function action_object_delete(){
 }
 
 function action_frame_clear(){
-    frames[currentFrame] = emptyFrame();
+    frames[current_frame] = empty_frame();
     currentObject = 0;
     draw();
 }
 
 function action_frame_delete(){
-    frames.splice(currentFrame,1);
-    currentFrame--;
-    if(currentFrame < 0){
-        currentFrame = 0;
+    frames.splice(current_frame,1);
+    current_frame--;
+    if(current_frame < 0){
+        current_frame = 0;
     }
     if(frames.length == 0){
-        frames.push(emptyFrame());
+        frames.push(empty_frame());
     }
     validate_and_write_frame();
 }
 
 function action_next_frame(){
-    currentFrame++;
+    current_frame++;
     validate_and_write_frame();
     update_object_ui();
 };
 function action_prev_frame(){
-    currentFrame--;
+    current_frame--;
     validate_and_write_frame();
 };
 
 
-var current_frame_clipboard = emptyFrame();
+var current_frame_clipboard = empty_frame();
 
 function action_animation_clear(){
     frames = [];
-    frames.push(emptyFrame());
-    currentFrame = 0;
+    frames.push(empty_frame());
+    current_frame = 0;
     currentObject = 0;
     validate_and_write_frame();
     draw();
@@ -288,15 +291,15 @@ function action_animation_clear(){
 
 function action_frame_copy(){
     current_frame_clipboard =
-        deep_copy(frames[currentFrame]);
+        deep_copy(frames[current_frame]);
 }
 
 function action_frame_paste(){
     frame_copy = deep_copy(
         current_frame_clipboard
     );
-    frames.splice(currentFrame, 0, frame_copy);
-    currentFrame++;
+    frames.splice(current_frame, 0, frame_copy);
+    current_frame++;
     validate_and_write_frame();
     draw();
 }
@@ -333,16 +336,16 @@ function deep_copy(obj){
 
 function action_animation_play(){
     if(frames.length > 1){
-        currentFrame = 0;
+        current_frame = 0;
         editing = false;
         draw();
         for(var i = 0; i < frames.length-1; i++){
             setTimeout(function(){
-                currentFrame++;
+                current_frame++;
                 
                 draw();
                 validate_and_write_frame();
-                if(currentFrame == frames.length-1){
+                if(current_frame == frames.length-1){
                     editing = true;
                     draw();
                 }
@@ -355,14 +358,14 @@ var curr_frame = QSA(".actions .frame")[0]
 var num_frame = QSA(".actions .frames-num")[0]
 
 function validate_and_write_frame(){
-    if(currentFrame < 0){
-        currentFrame = 0;
-    } else if (currentFrame >= frames.length){
+    if(current_frame < 0){
+        current_frame = 0;
+    } else if (current_frame >= frames.length){
         newFrame();
-        currentFrame = frames.length - 1;
+        current_frame = frames.length - 1;
         copy_last_frame_into_new();
     }
-    curr_frame.innerHTML = currentFrame + 1;
+    curr_frame.innerHTML = current_frame + 1;
     num_frame.innerHTML = frames.length;
     if(click_mode == DEL_POINTS){
         click_mode = ADD_MOVE_POINTS;
@@ -376,15 +379,15 @@ function copy_last_frame_into_new(){
 }
 
 function new_obj(){
-    frames[currentFrame]
+    frames[current_frame]
         .objects.push(default_object());
-    currentObject = frames[currentFrame].objects.length - 1;
+    currentObject = frames[current_frame].objects.length - 1;
     click_mode = ADD_MOVE_POINTS;
     draw();
 }
 
 function action_break_path(){
-    var pts = frames[currentFrame]
+    var pts = frames[current_frame]
         .objects[currentObject].points;
 
     pts.push("break");
@@ -393,9 +396,38 @@ function action_break_path(){
     update_object_ui();
 }
 
+function default_animation(){
+    return {
+        name: "",
+        frames: [empty_frame()],
+        images: [],
+        current_frame: 0,
+        current_object: 0,
+        selected_point: 0,
+        inputs: default_animation_inputs(),
+    }
+}
+
+function default_animation_inputs(){
+    return {
+        'animation_width':'500',
+        'animation_height':'500'
+    };
+}
+
+function set_animation_globals(){    
+    frames = animations[current_animation].frames;
+    current_frame = animations[current_animation].current_frame;
+    selected_point = animations[current_animation].selected_point;
+    current_object = animations[current_animation].current_object;
+    
+}
+
 function default_object(){
     return {
+        name:"Object",
         points:[],
+        type: TYPE_PATH,
         switches: default_object_switches(),
         inputs: default_object_inputs()
     }
@@ -416,30 +448,30 @@ function default_object_switches(){
 }
 
 function newFrame(){
-    frames.push(emptyFrame());
+    frames.push(empty_frame());
 }
 
-function emptyFrame(){
+function empty_frame(){
     return {
         objects: [default_object()]
     };
 }
 
 function update_object_ui(){
-    var switches = frames[currentFrame]
-        .objects[currentObject].switches;
+    var switches = frames[current_frame]
+        .objects[current_object].switches;
 
     initSwitches(switches);
 
-    var inputs = frames[currentFrame]
-        .objects[currentObject].inputs;
+    var inputs = frames[current_frame]
+        .objects[current_object].inputs;
 
     initInputs(inputs);
 }
 
 function path_invert_direction(){
-    var points = frames[currentFrame]
-        .objects[currentObject].points;
+    var points = frames[current_frame]
+        .objects[current_object].points;
 
     var start = add_after;
     var end = add_after;
@@ -523,15 +555,15 @@ function initEditor(){
                 var dx = x - obj_move.initialX;
                 var dy = y - obj_move.initialY;
                 move_points(new_points,dx,dy);
-                frames[currentFrame]
-                    .objects[currentObject]
+                frames[current_frame]
+                    .objects[current_object]
                     .points = new_points;
                 draw();
             }
             break;
         default:
             if(mouse_down){
-                var points = frames[currentFrame].objects[currentObject].points;
+                var points = frames[current_frame].objects[current_object].points;
                 if(dragging != -1){
                     points[dragging][0] = x;
                     points[dragging][1] = y;
@@ -549,8 +581,8 @@ function initEditor(){
             var selected = clicked_point(x,y,6);
 
             if(selected != -1){
-                points = frames[currentFrame]
-                    .objects[currentObject].points;
+                points = frames[current_frame]
+                    .objects[current_object].points;
 
                 points = points.splice(selected,1);
                 draw();
@@ -563,8 +595,8 @@ function initEditor(){
                 obj_move.initialX = x;
                 obj_move.initialY = y;
                 obj_move.initialPoints = deep_copy(
-                    frames[currentFrame]
-                        .objects[currentObject]
+                    frames[current_frame]
+                        .objects[current_object]
                         .points
                 );
             }
@@ -579,8 +611,8 @@ function initEditor(){
                 break;
             }
             
-            var points = frames[currentFrame]
-                .objects[currentObject].points;
+            var points = frames[current_frame]
+                .objects[current_object].points;
             
             if(points.length == 0){
                 add_after = 0;
@@ -628,8 +660,8 @@ function initEditor(){
         var selected = -1;
         var closest = -1;
         var closest_distance = treshold;
-        for(var obj in frames[currentFrame].objects){
-            var points = frames[currentFrame]
+        for(var obj in frames[current_frame].objects){
+            var points = frames[current_frame]
                 .objects[obj].points;
             for(var i in points){
                 var point = points[i];
@@ -639,7 +671,7 @@ function initEditor(){
                 }
                 
                 if(d < treshold && d < closest_distance){
-                    currentObject = parseInt(obj);
+                    current_object = parseInt(obj);
                     closest_distance = d;
                     selected = i;
                 }
@@ -650,7 +682,7 @@ function initEditor(){
     }
 
     function up(x,y){
-        var points = frames[currentFrame].objects[currentObject].points;
+        var points = frames[current_frame].objects[current_object].points;
         if(dragging != -1){
             points[dragging][0] = x;
             points[dragging][1] = y;
@@ -661,10 +693,10 @@ function initEditor(){
 }
 
 function point_viewable(obj,i){
-    var points = frames[currentFrame]
+    var points = frames[current_frame]
         .objects[obj].points;
 
-    if( obj != currentObject
+    if( obj != current_object
         && points[i][2] == POINT_GUIDE){
         return false;
     }
@@ -688,7 +720,7 @@ function draw(){
     ctx.fillStyle = "#fff";
     ctx.fillRect(0,0,w,h);
 
-    var frame = frames[currentFrame];
+    var frame = frames[current_frame];
     for(var obj = 0; obj < frame.objects.length; obj++){
         var points = frame.objects[obj].points;
 
@@ -790,11 +822,11 @@ function draw(){
                 }
                 ctx.setLineDash([5,0]);
                 var size = 3;
-                if( obj == currentObject &&
+                if( obj == current_object &&
                     dragging != -1 &&
                     dragging == i ){
                     ctx.fillStyle = "rgba(255,0,0,0.9)";
-                } else if ( obj == currentObject){
+                } else if ( obj == current_object){
                     ctx.fillStyle = "rgba(255,100,0,0.9)";
                 } else {
                     ctx.fillStyle = "rgba(0,0,0,0.9)";
