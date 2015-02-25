@@ -615,7 +615,7 @@ function initEditor(){
                              );
             }
             selected_point = points.length-1;
-            add_after = selected_point;
+            add_after = points.length
             update_object_ui();
             draw();            
             break;
