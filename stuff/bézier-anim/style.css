@@ -27,9 +27,6 @@ h3{
     font-size:20px;
     padding-left:20px;
 }
-.text-center{
-    text-align:center;
-}
 .frame-selector{
     float:right;
 }
@@ -70,38 +67,52 @@ h3{
     right:0;
 }
 tabtitle{
-    background:#eee;
+    background:#bbb;
     line-height:50px;
     height:50px;
     display:inline-block;
     font-size:10px;
     padding:0 8px;
+    opacity:0.8;
 }
 tab{
     padding:15px;
     text-align:left;
-    border-top:8px solid #3af;
 }
-action:active,
-tabtitle:hover,
 tabtitle.active{
-    background:#3af;
-    color:#fff;
+    background:#fff;
+    color:#000;
+    opacity:1;
+}
+action:active{
+    background:#18d;
 }
 tabtitles{
+    background:#eee;
     display:block;
 }
 tabtitles,
-.text-left{ text-align: left; }
-.text-center{ text-align: center; }
-.text-right{ text-align: right; }
+
+text-left,text-center,text-right{
+    display:block;
+}
+
+text-left, .text-left{
+    text-align: left; 
+}
+text-center, .text-center{
+    text-align: center;
+}
+text-right, .text-right{
+    text-align: right;
+}
 .actions action{
     margin:0;
 }
 switchoption,action{
     cursor:pointer;
     color:#fff;
-    background:#48f;
+    background:#3af;
     padding:5px;
     margin:5px;
     display:inline-block;
@@ -133,8 +144,4 @@ input{
     padding: 4px;
     color: #555;
     margin: 10px 0;
-}
-text-center{
-    display:block;
-    text-align: center;
 }
