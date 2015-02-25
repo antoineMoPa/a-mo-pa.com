@@ -590,7 +590,6 @@ function initEditor(){
                               0,
                               [x,y,POINT_NOT_SMOOTH]
                              );
-                add_after++;
             } else {
                 // smooth
                 var point_type = POINT_GUIDE;
@@ -611,11 +610,11 @@ function initEditor(){
                               0,
                               [x,y,point_type]
                              );
-                add_after++;
             }
             selected_point = points.length-1;
-            update_object_ui();            
-            draw();
+            add_after = selected_point;
+            update_object_ui();
+            draw();            
             break;
         default:
             break;
