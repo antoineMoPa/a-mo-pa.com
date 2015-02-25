@@ -692,32 +692,22 @@ function initEditor(){
             if(points.length > 2){
                 point_type = points[points.length-1][2];
             }
-            if( points.length > 0 &&
-                switches['new-points-mode'] == 'not-smooth' &&
-                points.length > 1 &&
-                points[points.length-1][2] == POINT_GUIDE &&
-                add_after == points.length
-              ){             
-                // add middle point
-                var last = points[points.length - 1];
-                var dx = x - last[0];
-                var dy = y - last[1];
-                var middle = [last[0] + dx/2,
-                              last[1] + dy/2,
-                              POINT_GUIDE
-                             ];
-                points.splice(add_after,0,middle);
-                // add point
+            if( switches['new-points-mode'] == 'not-smooth'){
                 points.splice(add_after+1,
                               0,
                               [x,y,POINT_NOT_SMOOTH]
                              );
-                add_after+=2
+                add_after++;
             } else {
+                // smooth
                 var point_type = POINT_GUIDE;
-                if( points.length > 0 &&
-                    points[points.length-1][2]
-                    == POINT_GUIDE ){
+                if( points.length > 0
+                    && points[
+                        points.length-1
+                    ][2] == POINT_GUIDE ){
+                    point_type = POINT_POINT;
+                }
+                if(points[points.length-1] == "break"){
                     point_type = POINT_POINT;
                 }
                 // add point
@@ -762,7 +752,6 @@ function initEditor(){
                 }
             }
         }
-        console.log(frames[currentFrame].objects[currentObject].points[selected]);
         selected_point = selected;
         return selected;
     }
@@ -819,27 +808,22 @@ function draw(){
         }
 
         for(var i = 1; i < points.length; i++){
-            if(points[i] == "break" || points[i-1] == "break"){
-                while(points[i] == "break"){
-                    i++;
-                }
+            if(points[i] == "break"){
                 if(points[i+1] != undefined){
                     ctx.moveTo(
                         points[i+1][0],
                         points[i+1][1]
                     );
                 }
+                continue;
             }
-
 
             var p = points[i];
             var lp = points[i-1];
             var np = points[i+1];
 
             if( i < points.length -1 &&
-                p[2] == POINT_GUIDE &&
-                lp[2] == POINT_POINT &&
-                np[2] == POINT_POINT ){
+                p[2] == POINT_GUIDE ){
                 // lastpoint
                 // calculate resolution
                 var res = distance(p[0],p[1],lp[0],lp[1])
