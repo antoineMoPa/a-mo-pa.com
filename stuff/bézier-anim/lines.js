@@ -217,7 +217,7 @@ function initActions(){
         ["object_delete","",action_object_delete],
         ["object_bring_up","",action_object_bring_up],
         ["object_bring_down","",action_object_bring_down],
-        ["object_break_path","B",break_obj],
+        ["object_break_path","B",action_break_path],
         ["object_new","N",new_obj],
         ["object_copy","",action_object_copy],
         ["object_paste","",action_object_paste],
@@ -494,17 +494,12 @@ function new_obj(){
     draw();
 }
 
-function break_obj(){
+function action_break_path(){
     var pts = frames[currentFrame]
         .objects[currentObject].points;
 
     pts.push("break");
     add_after++;
-
-    if(pts.length % 2 == 1){
-        pts.push("break");
-        add_after++;
-    }
 }
 
 function default_object(){
@@ -708,6 +703,9 @@ function initEditor(){
                     point_type = POINT_POINT;
                 }
                 if(points[points.length-1] == "break"){
+                    point_type = POINT_POINT;
+                }
+                if(points.length == 0){
                     point_type = POINT_POINT;
                 }
                 // add point
