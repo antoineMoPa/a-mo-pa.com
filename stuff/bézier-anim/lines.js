@@ -210,6 +210,7 @@ function initActions(){
         ["animation_clear","",action_animation_clear],
         ["animation_save","",action_animation_save],
         ["animation_restore","",action_animation_restore],
+        ["animation_to_gif","",action_animation_to_gif],
         ["frame_clear","",action_frame_clear],
         ["frame_delete","",action_frame_delete],
         ["frame_copy","",action_frame_copy],
@@ -253,6 +254,25 @@ function initActions(){
 
 }
 
+function action_animation_to_gif(){
+    var to_export = {};
+
+    to_export.delay = 100;
+    editing = false;
+    to_export.data = [];
+    
+    for(var i = 0; i < frames.length; i++){
+        draw();
+        currentFrame = i;
+        to_export.data
+            .push(can.toDataURL());
+    }    
+
+    editing = true;
+    window.localStorage.to_gif_export = JSON.stringify(to_export);
+    draw();
+    window.open("gif-export.html");
+}
 
 function action_animation_save(){
     window.localStorage.saved_animation =

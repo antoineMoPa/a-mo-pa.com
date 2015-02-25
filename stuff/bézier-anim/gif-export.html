@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Cucumbers are nice</title>
+        <style>
+        h1{
+            text-align: center;
+            font-family:'Open Sans', sans-serif;   
+        }
+        body{
+            background:#eee;
+            font-family:sans-serif;
+        }
+        text-center{
+            text-align:center;
+            display:block;
+        }
+        action{
+            display:inline-block;
+            width:100px;
+            margin:auto;
+            line-height:40px;
+            margin:10px;
+            background:#3af;
+            color:#fff;
+            font-weight: bolder;
+            cursor:pointer;
+        }
+        </style>
+        <script src="lib/gifjs/gif.js"></script>
+    </head>
+    <body>
+        <h1>GIF CONVERSION</h1>
+        <text-center>
+            <action id="convert-button">Convert</action>
+            <br>
+            <img id="result-img">
+        </text-center>
+        <script>
+
+        var button = document
+            .getElementById("convert-button"); 
+
+        button.onclick = function(){
+            var gif = new GIF({
+                workers: 2,
+                quality: 10,
+                workerScript: "lib/gifjs/gif.worker.js"
+            });
+            
+            var imported = window.localStorage.to_gif_export;
+            
+            imported = JSON.parse(imported);
+            
+            data = imported.data;
+    
+            for(var i = 0; i < data.length; i++){
+                var image = new Image();
+                image.src = data[i];
+                gif.addFrame(image,{delay: imported.delay});
+            }
+            
+            gif.render();
+            
+            gif.on('finished',function(blob){
+                var img = document.getElementById("result-img");
+                img.src = URL.createObjectURL(blob);
+            })
+
+        };
+            
+        </script>
+    </body>
+</html>
+    
