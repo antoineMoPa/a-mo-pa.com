@@ -52,7 +52,6 @@ var selected_point = 0;
 
 initEditor();
 initTabs();
-initActions();
 
 var inputs = {
     'animation_width':'500',
@@ -60,11 +59,6 @@ var inputs = {
 };
 
 initInputs(inputs, updateInputs);
-
-function QSA(selector){
-    // shit is so long to write
-    return document.querySelectorAll(selector);
-}
 
 function updateInputs(){
     updateCanvasSize();
@@ -93,37 +87,35 @@ function updateObjectInputs(){
     draw();
 }
 
-function initInputs(inputs,callback){
-    var callback = callback || function(){};
-    for(input in inputs){
-        var html_input = QSA("input[name="+input+"]")[0];
-        if(html_input.attributes == undefined){
-            continue;
-        }
-        enableInput(html_input, input);
-    }
-
-    function enableInput(html_input, input){
-        html_input.value = inputs[input];
-
-        /* don't change frame on arrow down! */
-        html_input.onkeydown = function(e){
-            e.stopPropagation();
-        }
-
-        html_input.onkeyup =
-            html_input.onchange = function(){
-                inputs[input] = this.value;
-                callback();
-                draw();
-            }
-    }
-}
-
 function updateObjectOptions(){
     updateObjectInputs();
     updateObjectSwitches();
 }
+
+var actions = [
+    ["animation_play","",action_animation_play],
+    ["animation_clear","",action_animation_clear],
+    ["animation_save","",action_animation_save],
+    ["animation_restore","",action_animation_restore],
+    ["animation_to_gif","",action_animation_to_gif],
+    ["frame_clear","",action_frame_clear],
+    ["frame_delete","",action_frame_delete],
+    ["frame_copy","",action_frame_copy],
+    ["frame_paste","",action_frame_paste],
+    ["object_delete","",action_object_delete],
+    ["object_bring_up","",action_object_bring_up],
+    ["object_bring_down","",action_object_bring_down],
+    ["object_break_path","B",action_break_path],
+    ["object_new","N",new_obj],
+    ["object_copy","",action_object_copy],
+    ["object_paste","",action_object_paste],
+    ["","D",action_toggle_point_mode],
+    ["path_invert_direction","",path_invert_direction],
+    ["frame_next",39,action_next_frame], // Right
+    ["frame_prev",37,action_prev_frame], // Left
+];
+
+initActions(actions);
 
 var switches = {
     'global-mode': 'add-points',
@@ -159,99 +151,6 @@ function updateObjectSwitches(){
         .switches = deep_copy(object_switches);
 
     draw();
-}
-
-function initSwitches(switches, callback){
-    var callback = callback || function(){};
-
-    for(var sw in switches){
-        var curr_switch = sw;
-        var swit = QSA(
-                "switch[name="+sw+"]"
-            )[0];
-
-        var options = swit.children;
-        for(var option in options){
-            if(options[option].attributes == undefined){
-                continue;
-            }
-            options[option].classList.remove("active");
-            enableSwitch(curr_switch, options, option);
-        }
-    }
-    function enableSwitch(curr_switch, options, option){
-        var value = options[option]
-            .attributes
-            .getNamedItem("data-value")
-            .value;
-
-        if(value == switches[curr_switch]){
-            options[option].classList.add("active");
-        }
-
-        options[option].onclick = function(){
-            for(var opt in options){
-                if(options[opt].classList == undefined){
-                    continue;
-                }
-                options[opt].classList.remove("active");
-            }
-            options[option].classList.add("active");
-            switches[curr_switch] = value;
-            callback();
-            draw();
-        }
-    }
-}
-
-function initActions(){
-    var actions = [
-        ["animation_play","",action_animation_play],
-        ["animation_clear","",action_animation_clear],
-        ["animation_save","",action_animation_save],
-        ["animation_restore","",action_animation_restore],
-        ["animation_to_gif","",action_animation_to_gif],
-        ["frame_clear","",action_frame_clear],
-        ["frame_delete","",action_frame_delete],
-        ["frame_copy","",action_frame_copy],
-        ["frame_paste","",action_frame_paste],
-        ["object_delete","",action_object_delete],
-        ["object_bring_up","",action_object_bring_up],
-        ["object_bring_down","",action_object_bring_down],
-        ["object_break_path","B",action_break_path],
-        ["object_new","N",new_obj],
-        ["object_copy","",action_object_copy],
-        ["object_paste","",action_object_paste],
-        ["","D",action_toggle_point_mode],
-        ["path_invert_direction","",path_invert_direction],
-        ["frame_next",39,action_next_frame], // Right
-        ["frame_prev",37,action_prev_frame], // Left
-    ];
-
-    for(var act = 0; act < actions.length; act++){
-        if(actions[act][0] != ""){
-            var btn = QSA(
-                "action[name="+actions[act][0]+"]"
-            )[0];
-            btn.onclick = actions[act][2];
-        }
-    }
-
-    initKeyboard();
-    function initKeyboard(){
-        document.onkeydown = function(e){
-            for(key in actions){
-                str = String.fromCharCode(e.keyCode);
-                /* direct numbers  */
-                if(e.keyCode == actions[key][1]){
-                    actions[key][2]();
-                } else if (str == actions[key][1]){
-                    actions[key][2]();
-                }
-            }
-        }
-    }
-
 }
 
 function action_animation_to_gif(){
@@ -433,38 +332,6 @@ function deep_copy(obj){
         }
     }
     return new_obj;
-}
-
-function initTabs(){
-    var alltitles = QSA("tabtitles");
-    for(var i = 0; i < alltitles.length; i++){
-        var tabtitles = alltitles[i].children;
-        switchTo(tabtitles[0], 0);
-        for(var j = 0; j < tabtitles.length; j++){
-            addClickToTab(tabtitles[j], j);
-        }
-    }
-
-    function addClickToTab(i,index){
-        i.onclick = function(){
-            switchTo(i,index);
-        }
-    }
-    function switchTo(title,index){
-        var tabs = title
-            .parentNode
-            .parentNode
-            .getElementsByTagName("tabs")[0].children;
-
-        var tabtitles = title.parentNode.children;
-
-        for(var i = 0; i < tabtitles.length; i++){
-            tabtitles[i].classList.remove("active");
-            tabs[i].style.display = "none";
-        }
-        title.classList.add("active");
-        tabs[index].style.display = "block";
-    }
 }
 
 function action_animation_play(){

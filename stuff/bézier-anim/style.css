@@ -2,7 +2,11 @@
 *{
     transition:all 0.3s;
 }
+html{
+    height:100%;
+}
 body{
+    height:100%;
     margin:0;
     background:#bbb;
     font-family:'Open Sans',sans-serif,Arial;
@@ -114,8 +118,10 @@ switchoption,action{
     color:#fff;
     background:#3af;
     padding:5px;
-    margin:5px;
+    margin:5px 0;
     display:inline-block;
+    line-height: 21px;
+    font-size: 14px;
 }
 action,
 tabtitles,
@@ -127,13 +133,12 @@ switch
 switch{
     display:block;
     margin:10px 0;
-    background:#eee;
 }
 switchoption{
-    margin:0;
+    margin:5px 0;
 }
 switchoption:not(.active){
-    color:#444;
+    color:#666;
     background:#eee;
 }
 input{
@@ -144,4 +149,11 @@ input{
     padding: 4px;
     color: #555;
     margin: 10px 0;
+}
+half-width{
+    display:inline-block;
+    width:49%;
+}
+input{
+    max-width:90%;
 }
