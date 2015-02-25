@@ -82,7 +82,7 @@ initInputs(object_inputs, updateObjectInputs);
 
 function updateObjectInputs(){
     frames[current_frame]
-        .objects[currentObject]
+        .objects[current_object]
         .inputs = deep_copy(object_inputs);
 
     draw();
@@ -107,7 +107,7 @@ var actions = [
     ["object_bring_up","",action_object_bring_up],
     ["object_bring_down","",action_object_bring_down],
     ["object_break_path","B",action_break_path],
-    ["object_new","N",new_obj],
+    ["object_new","N",new_object],
     ["object_copy","",action_object_copy],
     ["object_paste","",action_object_paste],
     ["","D",action_toggle_point_mode],
@@ -145,7 +145,7 @@ initSwitches(object_switches, updateObjectSwitches);
 
 function updateObjectSwitches(){
     frames[current_frame]
-        .objects[currentObject]
+        .objects[current_object]
         .switches = deep_copy(object_switches);
 
     draw();
@@ -190,33 +190,33 @@ var object_clipboard = default_object();
 
 function action_object_copy(){
     object_clipboard = deep_copy(
-        frames[current_frame].objects[currentObject]
+        frames[current_frame].objects[current_object]
     );
 }
 
 function action_object_paste(){
-    var new_object = deep_copy(object_clipboard);
-    move_points(new_object.points,14,14);
+    var new_objectect = deep_copy(object_clipboard);
+    move_points(new_objectect.points,14,14);
     frames[current_frame]
         .objects
-        .push(new_object);
+        .push(new_objectect);
 
     draw();
 }
 
 function action_object_bring_up(){
     if(swap_objects(
-        currentObject,currentObject+1)
+        current_object,current_object+1)
       ){
-        currentObject++;
+        current_object++;
     }
 }
 
 function action_object_bring_down(){
     if(swap_objects(
-        currentObject,parseInt(currentObject)-1)
+        current_object,parseInt(current_object)-1)
       ){
-        currentObject--;
+        current_object--;
     }
 }
 
@@ -238,8 +238,8 @@ function swap_objects(lhs, rhs){
 
 function action_object_delete(){
     var objs = frames[current_frame].objects;
-    objs.splice(currentObject,1);
-    currentObject = 0;
+    objs.splice(current_object,1);
+    current_object = 0;
     if(objs.length == 0){
         objs.push(default_object());
     }
@@ -249,7 +249,7 @@ function action_object_delete(){
 
 function action_frame_clear(){
     frames[current_frame] = empty_frame();
-    currentObject = 0;
+    current_object = 0;
     draw();
 }
 
@@ -273,6 +273,7 @@ function action_next_frame(){
 function action_prev_frame(){
     current_frame--;
     validate_and_write_frame();
+    update_object_ui();
 };
 
 
@@ -282,7 +283,7 @@ function action_animation_clear(){
     frames = [];
     frames.push(empty_frame());
     current_frame = 0;
-    currentObject = 0;
+    current_object = 0;
     validate_and_write_frame();
     draw();
     click_mode = ADD_MOVE_POINTS;
@@ -297,7 +298,7 @@ function action_frame_paste(){
     frame_copy = deep_copy(
         current_frame_clipboard
     );
-    frames.splice(current_frame, 0, frame_copy);
+    frames.splice(current_frame + 1, 0, frame_copy);
     current_frame++;
     validate_and_write_frame();
     draw();
@@ -316,21 +317,21 @@ function action_toggle_point_mode(){
 
 
 function deep_copy(obj){
-    var new_obj = {};
+    var new_object = {};
     if(obj instanceof Array){
-        new_obj = [];
+        new_object = [];
     }
     if(obj == null){
         return null;
     }
     for(el in obj){
         if(typeof(obj[el]) == "object"){
-            new_obj[el] = deep_copy(obj[el]);
+            new_object[el] = deep_copy(obj[el]);
         } else {
-            new_obj[el] = obj[el];
+            new_object[el] = obj[el];
         }
     }
-    return new_obj;
+    return new_object;
 }
 
 function action_animation_play(){
@@ -377,17 +378,17 @@ function copy_last_frame_into_new(){
         deep_copy(frames[frames.length-2]);
 }
 
-function new_obj(){
+function new_object(){
     frames[current_frame]
         .objects.push(default_object());
-    currentObject = frames[current_frame].objects.length - 1;
+    current_object = frames[current_frame].objects.length - 1;
     click_mode = ADD_MOVE_POINTS;
     draw();
 }
 
 function action_break_path(){
     var pts = frames[current_frame]
-        .objects[currentObject].points;
+        .objects[current_object].points;
 
     pts.push("break");
     add_after++;
