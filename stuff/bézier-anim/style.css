@@ -17,12 +17,13 @@ canvas{
 h1{
     text-align:center;
 }
-h1,h2,h3{
+h1,h2,h3,h4{
     font-weight:300;
 }
-h3{
+h3,h4{
     margin: 5px 0;
 }
+
 .rendering-info{
     position:absolute;
     color:#fff;
@@ -132,7 +133,7 @@ switch
 }
 switch{
     display:block;
-    margin:10px 0;
+    margin:0 10px 0 0;
 }
 switchoption{
     margin:5px 0;
@@ -148,12 +149,31 @@ input{
     font-size: 14px;
     padding: 4px;
     color: #555;
-    margin: 10px 0;
+    margin: 3px 10px 0 0;
+    max-width:90%;
 }
 half-width{
     display:inline-block;
     width:49%;
 }
-input{
-    max-width:90%;
+label{
+    font-size:13px;
+}
+
+tab{
+    display:none;
+}
+
+tab.active{
+    display:block;
+}
+
+.hide{
+    position:absolute;
+    left:-3700px;
+}
+
+.path-object-mode .show-if-path-object,
+.image-object-mode .show-if-image-object{
+    position:static;
 }

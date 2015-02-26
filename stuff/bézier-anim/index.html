@@ -18,42 +18,46 @@
             <tabs>
                 <tab>
                     <h3>Frame</h3>
-                    <action name="frame_copy">Copy</action>
+                    <half-width>
+                        <action data-name="frame_copy">Copy</action>
+                    </half-width>
+                    <half-width>
+                        <action data-name="frame_paste">Paste</action>
+                    </half-width>
                     <br>
-                    <action name="frame_paste">Paste</action>
+                    <half-width>
+                        <action data-name="frame_clear">Clear</action>
+                    </half-width>
+                    <half-width>
+                        <action data-name="frame_delete">Delete</action>                                   </half-width>
+                    <h3>Add Objects</h3>
+                    <action data-name="object_path_new">New path object</action>
                     <br>
-                    <br>
-                    <action name="frame_clear">Clear</action>
-                    <br>
-                    <br>
-                    <label>Delete</label>
-                    <br>
-                    <action name="frame_delete">Delete</action>
-
+                    <action data-name="object_image_new">New image object</action>
                 </tab>
                 <tab>
                     <h3>Animation</h3>
                     <label>Width</label>
                     <br>
-                    <input name="animation_width">
+                    <input data-name="animation_width">
                     <br>
                     <label>Height</label>
                     <br>
-                    <input name="animation_height">
+                    <input data-name="animation_height">
                     <br>
                     <br>
                     <label>Data</label>
                     <br>
-                    <action name="animation_clear">Clear</action>
+                    <action data-name="animation_clear">Clear</action>
                     <br>
-                    <action name="animation_save">Save</action>
-                    <br>              
-                    <action name="animation_restore">Restore</action>
+                    <action data-name="animation_save">Save</action>
+                    <br>
+                    <action data-name="animation_restore">Restore</action>
                     <br>
                     <br>
                     <label>Export</label>
                     <br>
-                    <action name="animation_to_gif">Get gif</action>
+                    <action data-name="animation_to_gif">Get gif</action>
                     <br>
 
                 </tab>
@@ -68,7 +72,7 @@
                 </canvas>
                 <div class="actions">
                     <div class="left-actions">
-                        <action name="animation_play">Play</action>
+                        <action data-name="animation_play">Play</action>
                     </div>
 
                     <span class="frames-info">
@@ -77,8 +81,8 @@
                     </span>
 
                     <div class="frame-selector">
-                        <action name="frame_prev"><</action>
-                        <action name="frame_next">></action>
+                        <action data-name="frame_prev"><</action>
+                        <action data-name="frame_next">></action>
                     </div>
                     <div class="clear"></div>
                 </div>
@@ -86,18 +90,23 @@
         </div>
         <div class="side-panel right inline-block">
             <tabtitles>
-                <tabtitle class="text-center">
+                <tabtitle data-name="main-path-tab" 
+                          class="text-center hide show-if-path-object">
                     DRAWING
                 </tabtitle>
-                <tabtitle class="text-center">
+                <tabtitle class="text-center hide show-if-path-object">
                     OBJECT
+                </tabtitle>
+                <tabtitle data-name="main-image-tab" 
+                          class="text-center hide show-if-image-object">
+                    IMAGE
                 </tabtitle>
             </tabtitles>
             <tabs>
-                <tab>
-                    <h3>Drawing Properties</h3>
+                <tab class="hide show-if-path-object">
+                    <h3>Path Drawing</h3>
                     <label>Global mode</label>
-                    <switch name="global-mode">
+                    <switch data-name="global-mode">
                         <switchoption data-value="add-move-points">
                             Draw
                         </switchoption><switchoption data-value="move-objects">
@@ -109,7 +118,7 @@
                     </switch>
 
                     <label>New points mode</label>
-                    <switch name="new-points-mode">
+                    <switch data-name="new-points-mode">
                         <switchoption data-value="smooth">
                             Smooth
                         </switchoption><switchoption data-value="not-smooth">
@@ -117,13 +126,12 @@
                         </switchoption>
                     </switch>
                     <br>
-                    <action name="object_break_path">Break path</action>
-                    <action name="object_new">New object</action>
-                    <action name="path_invert_direction">Invert path part direction</action>
+                    <action data-name="object_break_path">Break path</action>
+                    <action data-name="path_invert_direction">Invert path part direction</action>
                 </tab>
-                <tab>
-                    <h3>Object</h3>
-                    <switch name="object-fill">
+                <tab class="hide show-if-path-object">
+                    <h3>Path Object</h3>
+                    <switch data-name="object-fill">
                         <switchoption data-value="fill">
                             Fill
                         </switchoption><switchoption data-value="no-fill">
@@ -132,33 +140,37 @@
                     </switch>
                     <label>Color</label>
                     <br>
-                    <input name="object_color" type="color" value="#000000">
+                    <input data-name="object_color" type="color">
                     <br>
                     <half-width>
                         <label>Opacity</label>
                         <br>
-                        <input name="object_opacity" value="1">
+                        <input data-name="object_opacity">
                     </half-width>
                     <half-width>
                         <label>Line width</label>
                         <br>
-                        <input name="object_line_width" value="1">
+                        <input data-name="object_line_width">
                     </half-width>
                     <br>
                     <label>Actions</label>
                     <br>
-                    <action name="object_bring_up">Bring up</action>
-                    <action name="object_bring_down">Bring down</action>
+                    <action data-name="object_bring_up">Bring up</action>
+                    <action data-name="object_bring_down">Bring down</action>
                     <br>
-                    <action name="object_copy">Copy</action>
-                    <action name="object_paste">Paste</action>
+                    <action data-name="object_copy">Copy</action>
+                    <action data-name="object_paste">Paste</action>
                     <br>
-                    
+
                     <br>
-                    
+
                     <label>Delete</label>
                     <br>
-                    <action name="object_delete">Delete</action>
+                    <action data-name="object_delete">Delete</action>
+                </tab>
+                <tab class="hide show-if-image-object">
+                    <h3>Image Settings</h3>
+                    <input data-name="image_url">
                 </tab>
             </tabs>
         </div>

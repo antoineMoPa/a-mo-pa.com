@@ -5,32 +5,100 @@ function QSA(selector){
     return document.querySelectorAll(selector);
 }
 
+
+var formlists = -1;
+
+/**
+
+   May be deleted soom
+   
+   uses html like this:
+   
+   <list data-name="images">
+   <element>
+       <h4>Image {{id}}<h4>
+       <label>url</label>
+       <br>
+       <input data-id="{{id}}" data-name="image_url">
+   </element>
+   <br>
+   </list>
+   
+   and js like that:
+   
+   initFormList("images",
+             animations[current_animation].images,
+             update_images);
+
+   
+*/
+
+function initFormLists(){
+    var html_lists = QSA("list");
+    formlists = {};
+    for(var el in html_lists){
+        var html_list = html_lists[el]
+        if(html_list.attributes == undefined){
+            continue;
+        }
+        formlists[html_list.getAttribute("data-name")] = {
+            node: html_list,
+            template: html_list.innerHTML,
+        };
+    }
+}
+
+function initFormList(name, data, callback){
+    if(formlists == -1){
+        initFormLists();
+    }
+    var html = "";
+    var list = formlists[name];
+    for(var i = 0; i < data.length; i++){
+        var reg = RegExp("\{\{id\}\}","gi");
+        var tmpl = list.template.replace(reg,i);
+        html += tmpl;
+    }
+    list.node.innerHTML = html;
+
+    for(var i = 0; i < data.length; i++){
+        var inputs = data[i];
+        for(var index in inputs){
+            var sel = "input[data-name='"+index+"'][data-id='"+i+"']";
+            html_input = QSA(sel)[0];
+            enableInput(html_input, inputs, index, callback);
+        }
+    }
+}
+
 function initInputs(inputs,callback){
     var callback = callback || function(){};
     for(input in inputs){
-        var html_input = QSA("input[name="+input+"]")[0];
+        var html_input = QSA("input[data-name="+input+"]")[0];
         if(html_input.attributes == undefined){
             continue;
         }
-        enableInput(html_input, input);
-    }
-
-    function enableInput(html_input, input){
-        html_input.value = inputs[input];
-
-        /* don't change frame on arrow down! */
-        html_input.onkeydown = function(e){
-            e.stopPropagation();
-        }
-
-        html_input.onkeyup =
-            html_input.onchange = function(){
-                inputs[input] = this.value;
-                callback();
-                draw();
-            }
+        enableInput(html_input, inputs, input, callback);
     }
 }
+
+function enableInput(html_input, data_array, index, callback){
+    html_input.value = data_array[index];
+    
+    /* don't change frame on arrow down! */
+    html_input.onkeydown = function(e){
+        e.stopPropagation();
+    }
+
+    html_input.onkeyup =
+        html_input.onchange = function(){
+            oldvalue = this.value;
+            data_array[index] = this.value;
+            callback(html_input, data_array, index, oldvalue);
+            draw();
+        }
+}
+
 
 function initSwitches(switches, callback){
     var callback = callback || function(){};
@@ -38,7 +106,7 @@ function initSwitches(switches, callback){
     for(var sw in switches){
         var curr_switch = sw;
         var swit = QSA(
-                "switch[name="+sw+"]"
+                "switch[data-name="+sw+"]"
             )[0];
 
         var options = swit.children;
@@ -78,31 +146,31 @@ function initSwitches(switches, callback){
 /**
    Takes an array, assings keyboard shortcuts
    and binds button clicks
-   
+
    action buttons should be like that:
-   
-   <action name="do_thing">Do something</action>
-   
+
+   <action data-name="do_thing">Do something</action>
+
    array should look like that:
-   
+
    [
    ["do_thing",<an uppercase letter>,<a callback>]
    ]
-   
+
    ex:
-   
+
    [
    ["animation_play","P",action_animation_play],
    ["animation_clear","",action_animation_clear], // no shortcut for this one
    ["","s",action_animation_save],  // no button for this one
    ]
-   
+
 */
 function initActions(actions){
     for(var act = 0; act < actions.length; act++){
         if(actions[act][0] != ""){
             var btn = QSA(
-                "action[name="+actions[act][0]+"]"
+                "action[data-name="+actions[act][0]+"]"
             )[0];
             btn.onclick = actions[act][2];
         }
@@ -124,11 +192,11 @@ function initActions(actions){
     }
 }
 
-/** 
-    damn simple tab ui 
-    
+/**
+    damn simple tab ui
+
     activates dom like that:
-    
+
     <tabtitles>
       <tabtitle class="text-center">
         DRAWING
@@ -144,23 +212,24 @@ function initActions(actions){
       <tab>
         Some content
       </tab>
-    </tabs>        
-    
+    </tabs>
 */
+
 function initTabs(){
     var alltitles = QSA("tabtitles");
     for(var i = 0; i < alltitles.length; i++){
         var tabtitles = alltitles[i].children;
         switchTo(tabtitles[0], 0);
         for(var j = 0; j < tabtitles.length; j++){
-            addClickToTab(tabtitles[j], j);
+            enableTab(tabtitles[j], j);
         }
     }
 
-    function addClickToTab(i,index){
-        i.onclick = function(){
-            switchTo(i,index);
-        }
+    function enableTab(i,index){
+        i.switch_to_this = 
+            i.onclick = function(){
+                switchTo(i,index);
+            }
     }
     function switchTo(title,index){
         var tabs = title
@@ -172,9 +241,9 @@ function initTabs(){
 
         for(var i = 0; i < tabtitles.length; i++){
             tabtitles[i].classList.remove("active");
-            tabs[i].style.display = "none";
+            tabs[i].classList.remove("active");
         }
         title.classList.add("active");
-        tabs[index].style.display = "block";
+        tabs[index].classList.add("active");
     }
 }

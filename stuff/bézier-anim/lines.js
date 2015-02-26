@@ -18,10 +18,10 @@
   Goals:
 
   - No external libraries for UI
-    or things that are easy to code.    
+    or things that are easy to code.
   - No direct copy paste from stackoverflow
     without understanding and rewriting.
-  - Limit the width of code lines so they fit in 
+  - Limit the width of code lines so they fit in
     half a emacs window on my thinkpad laptop
 */
 
@@ -36,10 +36,6 @@ var current_frame;
 var selected_point;
 var current_object;
 
-var animations = [default_animation()];
-
-set_animation_globals();
-
 var editing = true;
 var dragging = -1;
 var add_after = 0;
@@ -47,19 +43,52 @@ var add_after = 0;
 var ADD_MOVE_POINTS = 0;
 var DEL_POINTS = 1;
 var MOVE_OBJECTS = 3;
+var IMAGE_MODE = 4;
 var click_mode = ADD_MOVE_POINTS;
 var POINT_POINT = 0;
 var POINT_GUIDE = 1;
 var POINT_NOT_SMOOTH = 2;
 var TYPE_PATH = 0;
 var TYPE_IMAGE = 1;
+var images_waiting = 0;
+var image_cache = {};
+
+var animations = [default_animation()];
+set_animation_globals();
 
 initEditor();
 initTabs();
 
-initInputs(animations[current_animation].inputs, updateAnimationInputs);
+switch_ui_to_path_mode();
 
-function updateAnimationInputs(){
+function cache_image(url,disableCrossOrigin){
+    if(image_cache[url] == undefined){
+        image_cache[url] = new Image();
+        // I am mad that this does not work with some images
+        //image_cache[url].crossOrigin = 'use-credentials';
+        image_cache[url].src = url;
+        image_cache[url].onload = draw;
+    }
+}
+
+/**
+   Cache all images found in animation
+*/
+function fetch_images(){
+    var frames = animations[current_animation].frames;
+    for(var i = 0; i < frames.length; i++){
+        var f = frames[i];
+        for(var j = 0; j < f.objects.length; j++){
+            if(f.objects[j].type == TYPE_IMAGE){
+                cache_image(f.objects[j].inputs.image_url);
+            }
+        }
+    }
+}
+
+initInputs(animations[current_animation].inputs, update_animation_inputs);
+
+function update_animation_inputs(){
     updateCanvasSize();
 }
 
@@ -76,21 +105,30 @@ function updateCanvasSize(){
 updateCanvasSize();
 draw();
 
-var object_inputs = default_object_inputs();
+var object_inputs = animations[current_animation]
+    .inputs;
 
-initInputs(object_inputs, updateObjectInputs);
+initInputs(object_inputs, update_object_inputs);
 
-function updateObjectInputs(){
-    frames[current_frame]
-        .objects[current_object]
-        .inputs = deep_copy(object_inputs);
+function update_object_inputs(){
+    var object = frames[current_frame]
+        .objects[current_object];
+
+    if(object.type == TYPE_IMAGE){
+        update_image_inputs(object);
+    }
 
     draw();
 }
 
-function updateObjectOptions(){
-    updateObjectInputs();
-    updateObjectSwitches();
+function update_image_inputs(object){
+    var url = object.inputs.image_url;
+    cache_image(url);
+}
+
+function update_object_options(){
+    update_object_inputs();
+    update_object_switches();
 }
 
 var actions = [
@@ -107,7 +145,8 @@ var actions = [
     ["object_bring_up","",action_object_bring_up],
     ["object_bring_down","",action_object_bring_down],
     ["object_break_path","B",action_break_path],
-    ["object_new","N",new_object],
+    ["object_path_new","",new_path_object],
+    ["object_image_new","",new_image_object],
     ["object_copy","",action_object_copy],
     ["object_paste","",action_object_paste],
     ["","D",action_toggle_point_mode],
@@ -135,19 +174,17 @@ function updateSwitches(){
         break;
     case 'move-objects':
         click_mode = MOVE_OBJECTS;
-        break
+            break
+    default:
+        break;
     }
 }
 
-object_switches = default_object_switches();
+var object_switches = animations[current_animation].switches;
 
-initSwitches(object_switches, updateObjectSwitches);
+initSwitches(object_switches, update_object_switches);
 
-function updateObjectSwitches(){
-    frames[current_frame]
-        .objects[current_object]
-        .switches = deep_copy(object_switches);
-
+function update_object_switches(){
     draw();
 }
 
@@ -157,13 +194,13 @@ function action_animation_to_gif(){
     to_export.delay = 100;
     editing = false;
     to_export.data = [];
-    
+
     for(var i = 0; i < frames.length; i++){
         draw();
         current_frame = i;
         to_export.data
             .push(can.toDataURL());
-    }    
+    }
 
     editing = true;
     window.localStorage.to_gif_export = JSON.stringify(to_export);
@@ -179,14 +216,15 @@ function action_animation_save(){
 function action_animation_restore(){
     animations =
         JSON.parse(window.localStorage.saved_animations);
-        
+
     set_animation_globals();
     update_object_ui();
+    fetch_images();
     draw();
     validate_and_write_frame();
 }
 
-var object_clipboard = default_object();
+var object_clipboard = default_path_object();
 
 function action_object_copy(){
     object_clipboard = deep_copy(
@@ -195,12 +233,13 @@ function action_object_copy(){
 }
 
 function action_object_paste(){
-    var new_objectect = deep_copy(object_clipboard);
-    move_points(new_objectect.points,14,14);
+    var new_object = deep_copy(object_clipboard);
+    move_points(new_object.points,14,14);
     frames[current_frame]
         .objects
-        .push(new_objectect);
-
+        .push(new_object);
+    click_mode = MOVE_OBJECTS;
+    update_object_ui();
     draw();
 }
 
@@ -241,9 +280,9 @@ function action_object_delete(){
     objs.splice(current_object,1);
     current_object = 0;
     if(objs.length == 0){
-        objs.push(default_object());
+        objs.push(default_path_object());
     }
-    updateObjectOptions();
+    update_object_options();
     draw();
 }
 
@@ -342,7 +381,7 @@ function action_animation_play(){
         for(var i = 0; i < frames.length-1; i++){
             setTimeout(function(){
                 current_frame++;
-                
+
                 draw();
                 validate_and_write_frame();
                 if(current_frame == frames.length-1){
@@ -378,11 +417,44 @@ function copy_last_frame_into_new(){
         deep_copy(frames[frames.length-2]);
 }
 
-function new_object(){
+function new_path_object(){
     frames[current_frame]
-        .objects.push(default_object());
+        .objects.push(default_path_object());
     current_object = frames[current_frame].objects.length - 1;
+    switch_ui_to_path_mode();
+}
+
+function new_image_object(){
+    frames[current_frame]
+        .objects.push(default_image_object());
+    current_object = frames[current_frame].objects.length - 1;
+    switch_ui_to_image_mode();
+}
+
+function switch_body_mode_class(new_class){
+    if(window.mode_classes == undefined){
+        window.mode_classes = [];
+    }
+    for(var i = 0; i < mode_classes.length; i++){
+        document.body.classList.remove(mode_classes[i]);
+    }
+    mode_classes.push(new_class);
+    document.body.classList.add(new_class);
+}
+
+function switch_ui_to_image_mode(){
+    switch_body_mode_class("image-object-mode");
+    QSA("tabtitle[data-name='main-image-tab']")[0].switch_to_this();
+    click_mode = IMAGE_MODE;
+    update_object_ui();
+    draw();
+}
+
+function switch_ui_to_path_mode(){
+    switch_body_mode_class("path-object-mode");
+    QSA("tabtitle[data-name='main-path-tab']")[0].switch_to_this();
     click_mode = ADD_MOVE_POINTS;
+    update_object_ui();
     draw();
 }
 
@@ -400,11 +472,23 @@ function default_animation(){
     return {
         name: "",
         frames: [empty_frame()],
-        images: [],
+        images: [default_image_inputs()],
         current_frame: 0,
         current_object: 0,
         selected_point: 0,
         inputs: default_animation_inputs(),
+    }
+}
+
+function default_image(){
+    return {
+        inputs: default_image_inputs(),
+    }
+}
+
+function default_image_inputs(){
+    return {
+        "image_url": ""
     }
 }
 
@@ -420,28 +504,48 @@ function set_animation_globals(){
     current_frame = animations[current_animation].current_frame;
     selected_point = animations[current_animation].selected_point;
     current_object = animations[current_animation].current_object;
-    
+
 }
 
-function default_object(){
+function default_path_object(){
     return {
         name:"Object",
         points:[],
         type: TYPE_PATH,
-        switches: default_object_switches(),
-        inputs: default_object_inputs()
+        switches: default_path_object_switches(),
+        inputs: default_path_object_inputs()
     }
 }
 
-function default_object_inputs(){
+function default_image_object(){
+    return {
+        name:"Object",
+        points:[[10,10],[50,50]],
+        type: TYPE_IMAGE,
+        switches: default_image_object_switches(),
+        inputs: default_image_object_inputs(),
+    }
+}
+
+function default_image_object_inputs(){
+    return {
+        "image_url": ""
+    };
+}
+
+function default_image_object_switches(){
+    return {};
+}
+
+function default_path_object_inputs(){
     return {
         'object_color': '#000000',
         'object_opacity': 1,
         'object_line_width': 1
-    }
+    };
 }
 
-function default_object_switches(){
+function default_path_object_switches(){
     return {
         'object-fill': "no-fill"
     };
@@ -453,7 +557,7 @@ function newFrame(){
 
 function empty_frame(){
     return {
-        objects: [default_object()]
+        objects: [default_path_object()]
     };
 }
 
@@ -461,12 +565,12 @@ function update_object_ui(){
     var switches = frames[current_frame]
         .objects[current_object].switches;
 
-    initSwitches(switches);
+    initSwitches(switches, update_object_switches);
 
     var inputs = frames[current_frame]
         .objects[current_object].inputs;
 
-    initInputs(inputs);
+    initInputs(inputs, update_object_inputs);
 }
 
 function path_invert_direction(){
@@ -518,7 +622,7 @@ function initEditor(){
         y = e.clientY - can.offsetTop + window.scrollY;
         return [x,y];
     }
-    
+
     var mouse_down = false;
     can.onmousedown = function(e){
         var pos = getPos(e);
@@ -573,10 +677,28 @@ function initEditor(){
 
 
     function down(x,y){
+        var previous_object_id = current_object;
+        var selected = clicked_point(x,y,14);
+
+        if(selected != -1){
+            var object = frames[current_frame]
+                .objects[current_object];
+            var previous_object = frames[current_frame]
+                .objects[previous_object_id];
+
+            if(object.type != previous_object.type){
+                switch(object.type){
+                case TYPE_IMAGE:
+                    switch_ui_to_image_mode();
+                    break;
+                default:
+                    switch_ui_to_path_mode();
+                    break;
+                }
+            }
+        }
         switch(click_mode){
         case DEL_POINTS:
-            var selected = clicked_point(x,y,6);
-
             if(selected != -1){
                 points = frames[current_frame]
                     .objects[current_object].points;
@@ -585,9 +707,8 @@ function initEditor(){
                 draw();
             }
             break;
-        
+
         case MOVE_OBJECTS:
-            var selected = clicked_point(x,y,10);
             if(selected != -1){
                 obj_move.initialX = x;
                 obj_move.initialY = y;
@@ -598,19 +719,20 @@ function initEditor(){
                 );
             }
             break;
+        case IMAGE_MODE:
         case ADD_MOVE_POINTS:
-            // Verify if a point was clicked
-            var selected = clicked_point(x,y,15);
             if(selected != -1){
                 dragging = selected;
                 update_object_ui();
                 draw();
                 break;
             }
-            
+            if(click_mode == IMAGE_MODE){
+                break;
+            }
             var points = frames[current_frame]
                 .objects[current_object].points;
-            
+
             if(points.length == 0){
                 add_after = 0;
             }
@@ -646,7 +768,7 @@ function initEditor(){
             selected_point = points.length-1;
             add_after = points.length
             update_object_ui();
-            draw();            
+            draw();
             break;
         default:
             break;
@@ -666,7 +788,7 @@ function initEditor(){
                 if(!point_viewable(obj,i)){
                     continue;
                 }
-                
+
                 if(d < treshold && d < closest_distance){
                     current_object = parseInt(obj);
                     closest_distance = d;
@@ -715,125 +837,196 @@ function distance(x1,y1,x2,y2){
 
 function draw(){
     ctx.fillStyle = "#fff";
+    ctx.globalAlpha = 1;
     ctx.fillRect(0,0,w,h);
 
     var frame = frames[current_frame];
+
+    var images = animations[current_animation].images;
+    for(var i = 0; i < images.length; i++){
+        var img = image_cache[images[i].image_url];
+        if(img != undefined){
+            ctx.drawImage(img,0,0,50,50);
+        }
+    }
+
     for(var obj = 0; obj < frame.objects.length; obj++){
-        var points = frame.objects[obj].points;
+        draw_object(obj,frame)
+    }
+}
 
-        var switches = frame.objects[obj].switches;
-        var inputs = frame.objects[obj].inputs;
+function draw_object(obj,frame){
+    var points = frame.objects[obj].points;
+    var type = frame.objects[obj].type;
+    var switches = frame.objects[obj].switches;
+    var inputs = frame.objects[obj].inputs;
 
-        ctx.fillStyle = inputs['object_color'];
-        ctx.strokeStyle = inputs['object_color'];
-        ctx.globalAlpha = inputs['object_opacity'];
-        ctx.lineWidth = inputs['object_line_width'];
-        ctx.beginPath();
-        if(points.length > 0){
-            ctx.moveTo(points[0][0],points[0][1]);
-        }
-        var fill = true;
-        if(switches['object-fill'] == "no-fill"){
-            fill = false;
-        }
+    ctx.globalAlpha = 1;
+
+    if( type == TYPE_PATH ){
+        draw_path(obj,frame);
+    } else if ( type == TYPE_IMAGE ){
+        draw_image(obj,frame);
+    }
+
+    if( editing ){
+        draw_editing_stuff(obj,frame);
+    }
+}
 
 
-        for(var i = 1; i < points.length; i++){
-            if(points[i] == "break"){
-                if(points[i+1] != undefined){
-                    ctx.moveTo(
-                        points[i+1][0],
-                        points[i+1][1]
-                    );
-                }
-                continue;
-            }
+function draw_image(obj,frame){
+    var points = frame.objects[obj].points;
+    var type = frame.objects[obj].type;
+    var switches = frame.objects[obj].switches;
+    var inputs = frame.objects[obj].inputs;
 
-            var p = points[i];
-            var lp = points[i-1];
-            var np = points[i+1];
+    var image = image_cache[inputs.image_url];
 
-            if( i < points.length -1 &&
-                p[2] == POINT_GUIDE ){
-                // lastpoint
-                // calculate resolution
-                var res = distance(p[0],p[1],lp[0],lp[1])
-                    + distance(p[0],p[1],np[0],np[1]);
-                res /= 20;
-                
-                if(!fill){
-                    ctx.moveTo(lp[0],lp[1]);
-                }
-                for(var j = 0; j <= res; j++){
-                    var k = j/res;
-                    var m = (1-k) * lp[0] + (k) * p[0];
-                    var n = (1-k) * lp[1] + (k) * p[1];
-                    var q = (1-k) * p[0] + (k) * np[0];
-                    var r = (1-k) * p[1] + (k) * np[1];
-                    var s = (1-k) * m + (k) * q;
-                    var t = (1-k) * n + (k) * r;
-                    ctx.lineTo(s,t);
-                }
-                if(np[2] != POINT_GUIDE){
-                    ctx.lineTo(np[0],np[1]);
-                }
-            }
-            if(p[2] == POINT_NOT_SMOOTH){
-                ctx.lineTo(p[0],p[1]);
-            }
-        }
-        if(points.length > 1){
-            if(fill){
-                ctx.fill();
-            } else {
-                ctx.stroke();
-            }
+    if(image != undefined){
+        var ratio = image.height / image.width;
+        var x = points[0][0];
+        var y = points[0][1];
+        var a = points[1][0];
+        var b = points[1][1];
+
+        var d = distance(x,y,a,b);
+
+        var angle = 0;
+
+        // #geometry
+        if(x < a){
+            angle = Math.atan((b-y)/(x-a));
+        } else {
+            angle = Math.PI - Math.atan(-(b-y)/(x-a));
         }
 
-        ctx.globalAlpha = 1;
+        ctx.save();
+        ctx.translate(x,y);
+        ctx.rotate(-angle);
+        ctx.drawImage(image,0,0,d,d*ratio);
+        ctx.restore();
+    }
+}
 
-        if(editing){
-            for(var i = 0; i < points.length; i++){
-                ctx.setLineDash([5,5]);
-                if( i > 0
-                    && point_viewable(obj,i-1)
-                    && point_viewable(obj,i)
-                  ){
-                    ctx.beginPath();
-                    if( points[i-1][2] == POINT_GUIDE ){
-                        ctx.moveTo(points[i-1][0],
-                                   points[i-1][1]);
-                        ctx.lineTo(points[i][0],
-                                   points[i][1]);
-                    }
-                    if( points.length > i+1
-                        && point_viewable(obj,i+1)
-                        && points[i+1][2] == POINT_GUIDE){
-                        ctx.moveTo(points[i][0],
-                                   points[i][1]);
-                        ctx.lineTo(points[i+1][0],
-                                   points[i+1][1]);
-                    }
-                    ctx.stroke();
-                    ctx.closePath();
-                }
-                ctx.setLineDash([5,0]);
-                var size = 3;
-                if( obj == current_object &&
-                    dragging != -1 &&
-                    dragging == i ){
-                    ctx.fillStyle = "rgba(255,0,0,0.9)";
-                } else if ( obj == current_object){
-                    ctx.fillStyle = "rgba(255,100,0,0.9)";
-                } else {
-                    ctx.fillStyle = "rgba(0,0,0,0.9)";
-                }
-                if(!point_viewable(obj,i)){
-                    continue;
-                }
+function draw_path(obj,frame){
+    var points = frame.objects[obj].points;
+    var type = frame.objects[obj].type;
+    var switches = frame.objects[obj].switches;
+    var inputs = frame.objects[obj].inputs;
 
-                ctx.fillRect(points[i][0]-size, points[i][1]-size, 2*size,2*size);
+
+    ctx.fillStyle = inputs['object_color'];
+    ctx.strokeStyle = inputs['object_color'];
+    ctx.globalAlpha = inputs['object_opacity'];
+    ctx.lineWidth = inputs['object_line_width'];
+    ctx.beginPath();
+    if(points.length > 0){
+        ctx.moveTo(points[0][0],points[0][1]);
+    }
+
+    var fill = true;
+    if(switches['object-fill'] == "no-fill"){
+        fill = false;
+    }
+
+    for(var i = 1; i < points.length; i++){
+        if(points[i] == "break"){
+            if(points[i+1] != undefined){
+                ctx.moveTo(
+                    points[i+1][0],
+                    points[i+1][1]
+                );
+            }
+            continue;
+        }
+
+        var p = points[i];
+        var lp = points[i-1];
+        var np = points[i+1];
+
+        if( i < points.length -1 &&
+            p[2] == POINT_GUIDE ){
+            // lastpoint
+            // calculate resolution
+            var res = distance(p[0],p[1],lp[0],lp[1])
+                + distance(p[0],p[1],np[0],np[1]);
+            res /= 20;
+
+            if(!fill){
+                ctx.moveTo(lp[0],lp[1]);
+            }
+            for(var j = 0; j <= res; j++){
+                var k = j/res;
+                var m = (1-k) * lp[0] + (k) * p[0];
+                var n = (1-k) * lp[1] + (k) * p[1];
+                var q = (1-k) * p[0] + (k) * np[0];
+                var r = (1-k) * p[1] + (k) * np[1];
+                var s = (1-k) * m + (k) * q;
+                var t = (1-k) * n + (k) * r;
+                ctx.lineTo(s,t);
+            }
+            if(np[2] != POINT_GUIDE){
+                ctx.lineTo(np[0],np[1]);
             }
         }
+        if(p[2] == POINT_NOT_SMOOTH){
+            ctx.lineTo(p[0],p[1]);
+        }
+    }
+    if(points.length > 1){
+        if(fill){
+            ctx.fill();
+        } else {
+            ctx.stroke();
+        }
+    }
+}
+
+
+function draw_editing_stuff(obj,frame){
+    var points = frame.objects[obj].points;
+
+    for(var i = 0; i < points.length; i++){
+        ctx.setLineDash([5,5]);
+        ctx.strokeStyle = "#aaa";
+        if( i > 0
+            && point_viewable(obj,i-1)
+            && point_viewable(obj,i)
+          ){
+            ctx.beginPath();
+            if( points[i-1][2] == POINT_GUIDE ){
+                ctx.moveTo(points[i-1][0],
+                           points[i-1][1]);
+                ctx.lineTo(points[i][0],
+                           points[i][1]);
+            }
+            if( points.length > i+1
+                && point_viewable(obj,i+1)
+                && points[i+1][2] == POINT_GUIDE){
+                ctx.moveTo(points[i][0],
+                           points[i][1]);
+                ctx.lineTo(points[i+1][0],
+                           points[i+1][1]);
+            }
+            ctx.stroke();
+            ctx.closePath();
+        }
+        ctx.setLineDash([5,0]);
+        var size = 3;
+        if( obj == current_object &&
+            dragging != -1 &&
+            dragging == i ){
+            ctx.fillStyle = "rgba(255,0,0,0.9)";
+        } else if ( obj == current_object){
+            ctx.fillStyle = "rgba(255,100,0,0.9)";
+        } else {
+            ctx.fillStyle = "rgba(0,0,0,0.9)";
+        }
+        if(!point_viewable(obj,i)){
+            continue;
+        }
+
+        ctx.fillRect(points[i][0]-size, points[i][1]-size, 2*size,2*size);
     }
 }
