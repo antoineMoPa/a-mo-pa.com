@@ -747,7 +747,7 @@ function initEditor(){
                     draw_delayed();
                 } else if (rotating != -1){
                     var angle = 3/360 * 2 * Math.PI;
-
+                    
                     new_points = rotate_points(
                         obj_rotate.initialPoints, 
                         angle, 100, 100
@@ -1052,28 +1052,38 @@ function draw_image(obj,frame){
 
     if(image != undefined){
         var ratio = image.height / image.width;
-        var x = points[0][0];
-        var y = points[0][1];
-        var a = points[1][0];
-        var b = points[1][1];
 
-        var d = distance(x,y,a,b);
-
-        var angle = 0;
-
-        // #geometry
-        if(x < a){
-            angle = Math.atan((b-y)/(x-a));
-        } else {
-            angle = Math.PI - Math.atan(-(b-y)/(x-a));
-        }
+        var info = points_angle_info(
+            points[0][0],
+            points[0][1],
+            points[1][0],
+            points[1][1]
+        );
+        
+        var angle = info[0];
+        var d = info[1];
 
         ctx.save();
-        ctx.translate(x,y);
+        ctx.translate(points[0][0],points[0][1]);
         ctx.rotate(-angle);
         ctx.drawImage(image,0,0,d,d*ratio);
         ctx.restore();
     }
+}
+
+/* returns [angle,distance] */
+function points_angle_info(x,y,a,b,d){
+    var d = distance(x,y,a,b);    
+    var angle = 0;
+    
+    // #geometry
+    if(x < a){
+        angle = Math.atan((b-y)/(x-a));
+    } else {
+        angle = Math.PI - Math.atan(-(b-y)/(x-a));
+    }
+    
+    return [angle,d];
 }
 
 function draw_path(obj,frame){
