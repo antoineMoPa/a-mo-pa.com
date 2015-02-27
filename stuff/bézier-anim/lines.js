@@ -149,6 +149,7 @@ var actions = [
     ["object_image_new","",new_image_object],
     ["object_copy","",action_object_copy],
     ["object_paste","",action_object_paste],
+    ["point_convert_to_smooth","",action_point_convert_to_smooth],
     ["","D",action_toggle_point_mode],
     ["path_invert_direction","",path_invert_direction],
     ["frame_next",39,action_next_frame], // Right
@@ -188,6 +189,34 @@ function update_object_switches(){
     draw();
 }
 
+function action_point_convert_to_smooth(){
+    var points = frames[current_frame]
+        .objects[current_object].points;
+
+    /*
+      Requires a not smooth point with 2 not-smooth points around it
+     */
+
+    if( selected_point < 1 || selected_point >= points.length - 1 ){
+        pop_error("Requires 2 not-smooth points before and after!");
+        return;
+    }
+    /* todo: manage more cases */
+    if( points[selected_point-1][2] == POINT_NOT_SMOOTH
+        || points[selected_point][2] == POINT_NOT_SMOOTH
+        || points[selected_point+1][2] == POINT_NOT_SMOOTH ){
+
+        points[selected_point-1][2] = POINT_POINT;
+        points[selected_point][2] = POINT_GUIDE;
+        points[selected_point+1][2] = POINT_POINT;
+    } else {
+        pop_error("Can't convert to smooth!");
+        return;
+    }
+
+    draw();
+}
+
 function action_animation_to_gif(){
     var to_export = {};
 
@@ -206,6 +235,10 @@ function action_animation_to_gif(){
     window.localStorage.to_gif_export = JSON.stringify(to_export);
     draw();
     window.open("gif-export.html");
+}
+
+function pop_error(message){
+    console.log(message);
 }
 
 function action_animation_save(){
@@ -501,10 +534,9 @@ function default_animation_inputs(){
 
 function set_animation_globals(){
     frames = animations[current_animation].frames;
-    current_frame = animations[current_animation].current_frame;
-    selected_point = animations[current_animation].selected_point;
-    current_object = animations[current_animation].current_object;
-
+    current_frame = parseInt(animations[current_animation].current_frame);
+    selected_point = parseInt(animations[current_animation].selected_point);
+    current_object = parseInt(animations[current_animation].current_object);
 }
 
 function default_path_object(){
@@ -796,7 +828,7 @@ function initEditor(){
                 }
             }
         }
-        selected_point = selected;
+        selected_point = parseInt(selected);
         return selected;
     }
 
@@ -969,11 +1001,11 @@ function draw_path(obj,frame){
             if(np[2] != POINT_GUIDE){
                 ctx.lineTo(np[0],np[1]);
             }
-        }
-        if(p[2] == POINT_NOT_SMOOTH){
+        } else {
             ctx.lineTo(p[0],p[1]);
         }
     }
+
     if(points.length > 1){
         if(fill){
             ctx.fill();
@@ -981,6 +1013,7 @@ function draw_path(obj,frame){
             ctx.stroke();
         }
     }
+    ctx.globalAlpha = 1;
 }
 
 
@@ -990,28 +1023,28 @@ function draw_editing_stuff(obj,frame){
     for(var i = 0; i < points.length; i++){
         ctx.setLineDash([5,5]);
         ctx.strokeStyle = "#aaa";
-        if( i > 0
-            && point_viewable(obj,i-1)
-            && point_viewable(obj,i)
-          ){
+
+        if( points[i][2] == POINT_GUIDE
+          && point_viewable(obj,i) ){
             ctx.beginPath();
-            if( points[i-1][2] == POINT_GUIDE ){
+            if( i > 0 ){
                 ctx.moveTo(points[i-1][0],
                            points[i-1][1]);
                 ctx.lineTo(points[i][0],
                            points[i][1]);
+
             }
-            if( points.length > i+1
-                && point_viewable(obj,i+1)
-                && points[i+1][2] == POINT_GUIDE){
+            if( i < points.length - 1 ){
                 ctx.moveTo(points[i][0],
                            points[i][1]);
                 ctx.lineTo(points[i+1][0],
                            points[i+1][1]);
+
             }
             ctx.stroke();
             ctx.closePath();
         }
+
         ctx.setLineDash([5,0]);
         var size = 3;
         if( obj == current_object &&
