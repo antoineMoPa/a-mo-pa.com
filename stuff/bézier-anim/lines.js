@@ -687,19 +687,19 @@ function initEditor(){
         e.preventDefault();
         down(e);
     };
-    
+
     can.oncontextmenu = function(e){
         e.preventDefault();
     };
-        
+
     can.onmousewheel = function(e){
         e.preventDefault();
     };
-    
+
     can.onwheel = function(e){
         e.preventDefault()
     };
-    
+
     can.onclick = function(e){
         e.preventDefault();
     };
@@ -722,7 +722,7 @@ function initEditor(){
         var pos = getPos(e);
         x = pos[0];
         y = pos[1];
-        
+
         switch(click_mode){
         case MOVE_OBJECTS:
             if(mouse_down && selected_point != -1){
@@ -747,19 +747,19 @@ function initEditor(){
                     draw_delayed();
                 } else if (rotating != -1){
                     var angle = 3/360 * 2 * Math.PI;
-                    
+
                     new_points = rotate_points(
-                        obj_rotate.initialPoints, 
+                        obj_rotate.initialPoints,
                         angle, 100, 100
                     );
-                    
+
                     frames[current_frame]
                         .objects[current_object]
-                        .points = new_points;                   
-                    
+                        .points = new_points;
+
                     draw_delayed();
-                    
-                }                
+
+                }
             }
             break;
         }
@@ -786,16 +786,16 @@ function initEditor(){
         mouse_down = true;
         x = pos[0];
         y = pos[1];
-        
+
         var previous_object_id = current_object;
-        var selected = clicked_point(x,y,14);               
-        
+        var selected = clicked_point(x,y,14);
+
         if(selected != -1){
             var object = frames[current_frame]
                 .objects[current_object];
             var previous_object = frames[current_frame]
                 .objects[previous_object_id];
-            
+
             if(object.type != previous_object.type){
                 switch(object.type){
                 case TYPE_IMAGE:
@@ -807,7 +807,7 @@ function initEditor(){
                 }
             }
         }
-        
+
         switch(e.button){
         case 0:
             switch(click_mode){
@@ -815,7 +815,7 @@ function initEditor(){
                 if(selected != -1){
                     points = frames[current_frame]
                         .objects[current_object].points;
-                    
+
                     if( selected > 0
                         && points[selected-1][2] == POINT_GUIDE){
                         points[selected-1][2] = POINT_POINT;
@@ -852,7 +852,7 @@ function initEditor(){
                 }
                 var points = frames[current_frame]
                     .objects[current_object].points;
-                
+
                 if(points.length == 0){
                     add_after = 0;
                 }
@@ -893,7 +893,7 @@ function initEditor(){
             default:
                 break;
             }
-            
+
             break;
         case 2:
             /* Object rotation */
@@ -1021,20 +1021,15 @@ function draw_object(obj,frame){
 function rotate_points(points, angle, x, y){
     var new_points = deep_copy(points);
     for(var i = 0; i < new_points.length; i++){
-        var a = (new_points[i][0] - x);
-        var b = (new_points[i][1] - y);         
-        var h = Math.sqrt(Math.pow(a,2)+Math.pow(b,2));
-        var theta = Math.atan(b/a);
-        
-        if ( a < 0 && b < 0 ){
-            theta = Math.PI + theta;
-        } else if ( a < 0 ){
-            theta = Math.PI + theta;
-        }
+        var a = new_points[i][0];
+        var b = new_points[i][1];
+        var info = points_angle_info(x,y,a,b);
+        var theta = info[0];
+        var h = info[1];
 
         a = h * Math.cos(theta + angle);
-        b = h * Math.sin(theta + angle);
-        
+        b = -h * Math.sin(theta + angle);
+
         new_points[i][0] = (a + x);
         new_points[i][1] = (b + y);
     }
@@ -1059,7 +1054,7 @@ function draw_image(obj,frame){
             points[1][0],
             points[1][1]
         );
-        
+
         var angle = info[0];
         var d = info[1];
 
@@ -1073,16 +1068,16 @@ function draw_image(obj,frame){
 
 /* returns [angle,distance] */
 function points_angle_info(x,y,a,b,d){
-    var d = distance(x,y,a,b);    
+    var d = distance(x,y,a,b);
     var angle = 0;
-    
+
     // #geometry
     if(x < a){
         angle = Math.atan((b-y)/(x-a));
     } else {
         angle = Math.PI - Math.atan(-(b-y)/(x-a));
     }
-    
+
     return [angle,d];
 }
 
