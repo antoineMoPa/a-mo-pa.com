@@ -687,17 +687,25 @@ function initEditor(){
         e.preventDefault();
         down(e);
     };
-
+    
     can.oncontextmenu = function(e){
         e.preventDefault();
     };
-    
-    /* Firefox redirects clicks to some page */
+        
     can.onmousewheel = function(e){
         e.preventDefault();
     };
     
+    can.onwheel = function(e){
+        e.preventDefault()
+    };
+    
+    can.onclick = function(e){
+        e.preventDefault();
+    };
+
     can.onmouseup = function(e){
+        e.preventDefault();
         var pos = getPos(e);
         mouse_down = false;
         up(pos[0],pos[1]);
@@ -759,7 +767,6 @@ function initEditor(){
 
     /* Mouse click handling  */
     function down(e){
-        e.preventDefault();
         var pos = getPos(e);
         mouse_down = true;
         x = pos[0];
@@ -769,103 +776,111 @@ function initEditor(){
         var selected = clicked_point(x,y,14);               
         
         if(selected != -1){
-            if(e.button == 0){
-                var object = frames[current_frame]
-                    .objects[current_object];
-                var previous_object = frames[current_frame]
-                    .objects[previous_object_id];
-                
-                if(object.type != previous_object.type){
-                    switch(object.type){
-                    case TYPE_IMAGE:
-                        switch_ui_to_image_mode();
-                        break;
-                    default:
-                        switch_ui_to_path_mode();
-                        break;
-                    }
+            var object = frames[current_frame]
+                .objects[current_object];
+            var previous_object = frames[current_frame]
+                .objects[previous_object_id];
+            
+            if(object.type != previous_object.type){
+                switch(object.type){
+                case TYPE_IMAGE:
+                    switch_ui_to_image_mode();
+                    break;
+                default:
+                    switch_ui_to_path_mode();
+                    break;
                 }
             }
         }
-        switch(click_mode){
-        case DEL_POINTS:
-            if(selected != -1){
-                points = frames[current_frame]
+        
+        switch(e.button){
+        case 0:
+            switch(click_mode){
+            case DEL_POINTS: /* Todo: separate this  */
+                if(selected != -1){
+                    points = frames[current_frame]
+                        .objects[current_object].points;
+                    
+                    if( selected > 0
+                        && points[selected-1][2] == POINT_GUIDE){
+                        points[selected-1][2] = POINT_POINT;
+                    }
+                    if( selected < points.length - 1
+                        && points[selected+1][2] == POINT_GUIDE ){
+                        points[selected+1][2] = POINT_POINT;
+                    }
+                    points.splice(selected,1);
+                    draw();
+                }
+                break;
+            case MOVE_OBJECTS:
+                if(selected != -1){
+                    obj_move.initialX = x;
+                    obj_move.initialY = y;
+                    obj_move.initialPoints = deep_copy(
+                        frames[current_frame]
+                            .objects[current_object]
+                            .points
+                    );
+                }
+                break;
+            case IMAGE_MODE:
+            case ADD_MOVE_POINTS:
+                if(selected != -1){
+                    dragging = selected;
+                    update_object_ui();
+                    draw();
+                    break;
+                }
+                if(click_mode == IMAGE_MODE){
+                    break;
+                }
+                var points = frames[current_frame]
                     .objects[current_object].points;
-
-                if( selected > 0
-                    && points[selected-1][2] == POINT_GUIDE){
-                    points[selected-1][2] = POINT_POINT;
+                
+                if(points.length == 0){
+                    add_after = 0;
                 }
-                if( selected < points.length - 1
-                    && points[selected+1][2] == POINT_GUIDE ){
-                    points[selected+1][2] = POINT_POINT;
+                if(points.length > 2){
+                    point_type = points[points.length-1][2];
                 }
-                points.splice(selected,1);
-                draw();
-            }
-            break;
-        case MOVE_OBJECTS:
-            if(selected != -1){
-                obj_move.initialX = x;
-                obj_move.initialY = y;
-                obj_move.initialPoints = deep_copy(
-                    frames[current_frame]
-                        .objects[current_object]
-                        .points
-                );
-            }
-            break;
-        case IMAGE_MODE:
-        case ADD_MOVE_POINTS:
-            if(selected != -1){
-                dragging = selected;
+                if( switches['new-points-mode'] == 'not-smooth'){
+                    points.splice(add_after+1,
+                                  0,
+                                  [x,y,POINT_NOT_SMOOTH]
+                                 );
+                } else {
+                    // smooth
+                    var point_type = POINT_GUIDE;
+                    if( points.length > 0
+                        && points[
+                            points.length-1
+                        ][2] == POINT_GUIDE ){
+                        point_type = POINT_POINT;
+                    }
+                    if(points[points.length-1] == "break"){
+                        point_type = POINT_POINT;
+                    }
+                    if(points.length == 0){
+                        point_type = POINT_POINT;
+                    }
+                    // add point
+                    points.splice(add_after,
+                                  0,
+                                  [x,y,point_type]
+                                 );
+                }
+                selected_point = points.length-1;
+                add_after = points.length
                 update_object_ui();
                 draw();
                 break;
-            }
-            if(click_mode == IMAGE_MODE){
+            default:
                 break;
             }
-            var points = frames[current_frame]
-                .objects[current_object].points;
-
-            if(points.length == 0){
-                add_after = 0;
-            }
-            if(points.length > 2){
-                point_type = points[points.length-1][2];
-            }
-            if( switches['new-points-mode'] == 'not-smooth'){
-                points.splice(add_after+1,
-                              0,
-                              [x,y,POINT_NOT_SMOOTH]
-                             );
-            } else {
-                // smooth
-                var point_type = POINT_GUIDE;
-                if( points.length > 0
-                    && points[
-                        points.length-1
-                    ][2] == POINT_GUIDE ){
-                    point_type = POINT_POINT;
-                }
-                if(points[points.length-1] == "break"){
-                    point_type = POINT_POINT;
-                }
-                if(points.length == 0){
-                    point_type = POINT_POINT;
-                }
-                // add point
-                points.splice(add_after,
-                              0,
-                              [x,y,point_type]
-                             );
-            }
-            selected_point = points.length-1;
-            add_after = points.length
-            update_object_ui();
-            draw();
+            
+            break;
+        case 1:
             break;
         default:
             break;
