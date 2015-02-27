@@ -35,9 +35,11 @@ var frames;
 var current_frame;
 var selected_point;
 var current_object;
+var lastDraw = 0;
 
 var editing = true;
 var dragging = -1;
+var rotating = -1;
 var add_after = 0;
 
 var ADD_MOVE_POINTS = 0;
@@ -192,9 +194,9 @@ function update_object_switches(){
 function action_point_convert_to_smooth(){
     var points = frames[current_frame]
         .objects[current_object].points;
-    
+
     var currp = selected_point;
-    
+
     /*
       Requires a not smooth point with 2 not-smooth points around it
      */
@@ -207,37 +209,37 @@ function action_point_convert_to_smooth(){
     if( points[currp-1][2] != POINT_GUIDE
         && points[currp][2] == POINT_NOT_SMOOTH
         && points[currp+1][2] != POINT_GUIDE ){
-        
+
         points[currp-1][2] = POINT_POINT;
         points[currp][2] = POINT_GUIDE;
         points[currp+1][2] = POINT_POINT;
     } else if ( points[currp-1][2] == POINT_GUIDE
-                && points[currp][2] == POINT_GUIDE 
-              ){        
+                && points[currp][2] == POINT_GUIDE
+              ){
         add_guide_in_middle(currp-1,currp);
     } else if ( points[currp][2] != POINT_GUIDE
-                && points[currp+1][2] != POINT_GUIDE 
-              ){        
+                && points[currp+1][2] != POINT_GUIDE
+              ){
         add_guide_in_middle(currp,currp+1);
     } else {
         pop_error("Can't convert to smooth!");
         return;
     }
-    
-    function add_guide_in_middle(p1,p2){        
+
+    function add_guide_in_middle(p1,p2){
         var x = points[p1][0];
         var y = points[p1][1];
         var dx = points[p2][0] - points[p1][0];
         var dy = points[p2][1] - points[p1][1];
-        
+
         p1[2] = POINT_POINT;
         p2[2] = POINT_POINT;
-        
+
         var pt = [x+dx/2, y+dy/2, POINT_GUIDE];
         points.splice(p1+1,0,pt);
-        
+
     }
-    
+
     draw();
 }
 
@@ -682,10 +684,12 @@ function initEditor(){
 
     var mouse_down = false;
     can.onmousedown = function(e){
-        var pos = getPos(e);
-        mouse_down = true;
-        down(pos[0],pos[1]);
+        down(e);
     };
+
+    can.oncontextmenu = function(e){
+        e.preventDefault();
+    }
 
     can.onmouseup = function(e){
         var pos = getPos(e);
@@ -716,7 +720,7 @@ function initEditor(){
                 frames[current_frame]
                     .objects[current_object]
                     .points = new_points;
-                draw();
+                draw_delayed();
             }
             break;
         default:
@@ -725,15 +729,36 @@ function initEditor(){
                 if(dragging != -1){
                     points[dragging][0] = x;
                     points[dragging][1] = y;
-                    draw();
+                    draw_delayed();
                 }
             }
             break;
         }
     }
 
+    var timeout = -1;
+    function draw_delayed(){
+        var delay = 33;
+        var diff = Date.now() - lastDraw;
+        if(diff < delay){
+            if(timeout == -1){
+                setTimeout(draw_delayed,diff+1);
+            }
+        } else {
+            draw();
+            clearTimeout(timeout);
+            timeout = -1;
+        }
+    }
 
-    function down(x,y){
+    /* Mouse click handling  */
+    function down(e){
+        e.preventDefault();
+        var pos = getPos(e);
+        mouse_down = true;
+        x = pos[0];
+        y = pos[1];
+        console.log(e.button);
         var previous_object_id = current_object;
         var selected = clicked_point(x,y,14);
 
@@ -759,15 +784,15 @@ function initEditor(){
             if(selected != -1){
                 points = frames[current_frame]
                     .objects[current_object].points;
-                
-                if( selected > 0 
+
+                if( selected > 0
                     && points[selected-1][2] == POINT_GUIDE){
                     points[selected-1][2] = POINT_POINT;
-                }                
+                }
                 if( selected < points.length - 1
                     && points[selected+1][2] == POINT_GUIDE ){
                     points[selected+1][2] = POINT_POINT;
-                }                
+                }
                 points.splice(selected,1);
                 draw();
             }
@@ -879,7 +904,7 @@ function initEditor(){
 function point_viewable(obj,i){
     var points = frames[current_frame]
         .objects[obj].points;
-    
+
     if(switches['global-mode'] == 'delete-points'){
         return true;
     }
@@ -921,6 +946,8 @@ function draw(){
     for(var obj = 0; obj < frame.objects.length; obj++){
         draw_object(obj,frame)
     }
+
+    lastDraw = Date.now();
 }
 
 function draw_object(obj,frame){
@@ -1101,6 +1128,7 @@ function draw_editing_stuff(obj_id,frame){
         }
 
         ctx.setLineDash([5,0]);
+        ctx.lineWidth = 1;
         var size = 3;
         if( obj_id == current_object &&
             dragging != -1 &&
@@ -1113,7 +1141,7 @@ function draw_editing_stuff(obj_id,frame){
             }
         } else {
             ctx.fillStyle = "rgba(0,0,0,0.9)";
-        }        
+        }
         if(!point_viewable(obj_id,i)){
             continue;
         }
