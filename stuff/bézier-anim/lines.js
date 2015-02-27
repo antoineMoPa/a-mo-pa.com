@@ -716,12 +716,13 @@ function initEditor(){
     };
 
     var obj_move = {};
+    var obj_rotate = {};
 
     function move(e){
         var pos = getPos(e);
         x = pos[0];
         y = pos[1];
-
+        
         switch(click_mode){
         case MOVE_OBJECTS:
             if(mouse_down && selected_point != -1){
@@ -744,7 +745,21 @@ function initEditor(){
                     points[dragging][0] = x;
                     points[dragging][1] = y;
                     draw_delayed();
-                }
+                } else if (rotating != -1){
+                    var angle = 3/360 * 2 * Math.PI;
+
+                    new_points = rotate_points(
+                        obj_rotate.initialPoints, 
+                        angle, 100, 100
+                    );
+                    
+                    frames[current_frame]
+                        .objects[current_object]
+                        .points = new_points;                   
+                    
+                    draw_delayed();
+                    
+                }                
             }
             break;
         }
@@ -880,7 +895,18 @@ function initEditor(){
             }
             
             break;
-        case 1:
+        case 2:
+            /* Object rotation */
+            if(selected != -1){
+                rotating = selected;
+                obj_rotate.initialX = x;
+                obj_rotate.initialY = y;
+                obj_rotate.initialPoints = deep_copy(
+                    frames[current_frame]
+                        .objects[current_object]
+                        .points
+                );
+            }
             break;
         default:
             break;
@@ -990,6 +1016,29 @@ function draw_object(obj,frame){
     if( editing ){
         draw_editing_stuff(obj,frame);
     }
+}
+
+function rotate_points(points, angle, x, y){
+    var new_points = deep_copy(points);
+    for(var i = 0; i < new_points.length; i++){
+        var a = (new_points[i][0] - x);
+        var b = (new_points[i][1] - y);         
+        var h = Math.sqrt(Math.pow(a,2)+Math.pow(b,2));
+        var theta = Math.atan(b/a);
+        
+        if ( a < 0 && b < 0 ){
+            theta = Math.PI + theta;
+        } else if ( a < 0 ){
+            theta = Math.PI + theta;
+        }
+
+        a = h * Math.cos(theta + angle);
+        b = h * Math.sin(theta + angle);
+        
+        new_points[i][0] = (a + x);
+        new_points[i][1] = (b + y);
+    }
+    return new_points;
 }
 
 
