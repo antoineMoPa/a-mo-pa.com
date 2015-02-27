@@ -175,7 +175,7 @@ function updateSwitches(){
         break;
     case 'move-objects':
         click_mode = MOVE_OBJECTS;
-            break
+        break
     default:
         break;
     }
@@ -192,28 +192,52 @@ function update_object_switches(){
 function action_point_convert_to_smooth(){
     var points = frames[current_frame]
         .objects[current_object].points;
-
+    
+    var currp = selected_point;
+    
     /*
       Requires a not smooth point with 2 not-smooth points around it
      */
 
-    if( selected_point < 1 || selected_point >= points.length - 1 ){
+    if( currp < 1 || currp >= points.length - 1 ){
         pop_error("Requires 2 not-smooth points before and after!");
         return;
     }
-    /* todo: manage more cases */
-    if( points[selected_point-1][2] == POINT_NOT_SMOOTH
-        || points[selected_point][2] == POINT_NOT_SMOOTH
-        || points[selected_point+1][2] == POINT_NOT_SMOOTH ){
 
-        points[selected_point-1][2] = POINT_POINT;
-        points[selected_point][2] = POINT_GUIDE;
-        points[selected_point+1][2] = POINT_POINT;
+    if( points[currp-1][2] != POINT_GUIDE
+        && points[currp][2] == POINT_NOT_SMOOTH
+        && points[currp+1][2] != POINT_GUIDE ){
+        
+        points[currp-1][2] = POINT_POINT;
+        points[currp][2] = POINT_GUIDE;
+        points[currp+1][2] = POINT_POINT;
+    } else if ( points[currp-1][2] == POINT_GUIDE
+                && points[currp][2] == POINT_GUIDE 
+              ){        
+        add_guide_in_middle(currp-1,currp);
+    } else if ( points[currp][2] != POINT_GUIDE
+                && points[currp+1][2] != POINT_GUIDE 
+              ){        
+        add_guide_in_middle(currp,currp+1);
     } else {
         pop_error("Can't convert to smooth!");
         return;
     }
-
+    
+    function add_guide_in_middle(p1,p2){        
+        var x = points[p1][0];
+        var y = points[p1][1];
+        var dx = points[p2][0] - points[p1][0];
+        var dy = points[p2][1] - points[p1][1];
+        
+        p1[2] = POINT_POINT;
+        p2[2] = POINT_POINT;
+        
+        var pt = [x+dx/2, y+dy/2, POINT_GUIDE];
+        points.splice(p1+1,0,pt);
+        
+    }
+    
     draw();
 }
 
@@ -579,7 +603,8 @@ function default_path_object_inputs(){
 
 function default_path_object_switches(){
     return {
-        'object-fill': "no-fill"
+        'object-fill': "no-fill",
+        'object-close-path': "no-close"
     };
 }
 
@@ -734,12 +759,19 @@ function initEditor(){
             if(selected != -1){
                 points = frames[current_frame]
                     .objects[current_object].points;
-
-                points = points.splice(selected,1);
+                
+                if( selected > 0 
+                    && points[selected-1][2] == POINT_GUIDE){
+                    points[selected-1][2] = POINT_POINT;
+                }                
+                if( selected < points.length - 1
+                    && points[selected+1][2] == POINT_GUIDE ){
+                    points[selected+1][2] = POINT_POINT;
+                }                
+                points.splice(selected,1);
                 draw();
             }
             break;
-
         case MOVE_OBJECTS:
             if(selected != -1){
                 obj_move.initialX = x;
@@ -828,8 +860,9 @@ function initEditor(){
                 }
             }
         }
+        /* keep this global  */
         selected_point = parseInt(selected);
-        return selected;
+        return selected_point;
     }
 
     function up(x,y){
@@ -846,7 +879,10 @@ function initEditor(){
 function point_viewable(obj,i){
     var points = frames[current_frame]
         .objects[obj].points;
-
+    
+    if(switches['global-mode'] == 'delete-points'){
+        return true;
+    }
     if( obj != current_object
         && points[i][2] == POINT_GUIDE){
         return false;
@@ -958,8 +994,13 @@ function draw_path(obj,frame){
     }
 
     var fill = true;
+    var close = false;
+
     if(switches['object-fill'] == "no-fill"){
         fill = false;
+    }
+    if(switches['object-close-path'] == "close"){
+        close = true;
     }
 
     for(var i = 1; i < points.length; i++){
@@ -977,8 +1018,12 @@ function draw_path(obj,frame){
         var lp = points[i-1];
         var np = points[i+1];
 
-        if( i < points.length -1 &&
+        if( (i < points.length -1 || (i == points.length -1 && close)) &&
             p[2] == POINT_GUIDE ){
+            if( close && i == points.length - 1){
+                np = points[0];
+            }
+
             // lastpoint
             // calculate resolution
             var res = distance(p[0],p[1],lp[0],lp[1])
@@ -1005,7 +1050,9 @@ function draw_path(obj,frame){
             ctx.lineTo(p[0],p[1]);
         }
     }
-
+    if( close ){
+        ctx.lineTo(points[0][0],points[0][1]);
+    }
     if(points.length > 1){
         if(fill){
             ctx.fill();
@@ -1017,15 +1064,16 @@ function draw_path(obj,frame){
 }
 
 
-function draw_editing_stuff(obj,frame){
-    var points = frame.objects[obj].points;
+function draw_editing_stuff(obj_id,frame){
+    var obj = frame.objects[obj_id];
+    var points = obj.points;
 
     for(var i = 0; i < points.length; i++){
         ctx.setLineDash([5,5]);
         ctx.strokeStyle = "#aaa";
 
         if( points[i][2] == POINT_GUIDE
-          && point_viewable(obj,i) ){
+            && point_viewable(obj_id,i) ){
             ctx.beginPath();
             if( i > 0 ){
                 ctx.moveTo(points[i-1][0],
@@ -1040,23 +1088,30 @@ function draw_editing_stuff(obj,frame){
                 ctx.lineTo(points[i+1][0],
                            points[i+1][1]);
 
+            } else if ( i == points.length - 1
+                      && obj.switches["object-close-path"] == "close"){
+                ctx.moveTo(points[i][0],
+                           points[i][1]);
+                ctx.lineTo(points[0][0],
+                           points[0][1]);
             }
+
             ctx.stroke();
             ctx.closePath();
         }
 
         ctx.setLineDash([5,0]);
         var size = 3;
-        if( obj == current_object &&
+        if( obj_id == current_object &&
             dragging != -1 &&
             dragging == i ){
             ctx.fillStyle = "rgba(255,0,0,0.9)";
-        } else if ( obj == current_object){
+        } else if ( obj_id == current_object){
             ctx.fillStyle = "rgba(255,100,0,0.9)";
         } else {
             ctx.fillStyle = "rgba(0,0,0,0.9)";
         }
-        if(!point_viewable(obj,i)){
+        if(!point_viewable(obj_id,i)){
             continue;
         }
 
