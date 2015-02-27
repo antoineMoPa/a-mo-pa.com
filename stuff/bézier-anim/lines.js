@@ -689,8 +689,13 @@ function initEditor(){
 
     can.oncontextmenu = function(e){
         e.preventDefault();
-    }
-
+    };
+    
+    /* Firefox redirects clicks to some page */
+    can.onmousewheel = function(e){
+        e.preventDefault();
+    };
+    
     can.onmouseup = function(e){
         var pos = getPos(e);
         mouse_down = false;
