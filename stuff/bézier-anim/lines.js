@@ -684,6 +684,7 @@ function initEditor(){
 
     var mouse_down = false;
     can.onmousedown = function(e){
+        e.preventDefault();
         down(e);
     };
 
@@ -763,24 +764,26 @@ function initEditor(){
         mouse_down = true;
         x = pos[0];
         y = pos[1];
-        console.log(e.button);
+        
         var previous_object_id = current_object;
-        var selected = clicked_point(x,y,14);
-
+        var selected = clicked_point(x,y,14);               
+        
         if(selected != -1){
-            var object = frames[current_frame]
-                .objects[current_object];
-            var previous_object = frames[current_frame]
-                .objects[previous_object_id];
-
-            if(object.type != previous_object.type){
-                switch(object.type){
-                case TYPE_IMAGE:
-                    switch_ui_to_image_mode();
-                    break;
-                default:
-                    switch_ui_to_path_mode();
-                    break;
+            if(e.button == 0){
+                var object = frames[current_frame]
+                    .objects[current_object];
+                var previous_object = frames[current_frame]
+                    .objects[previous_object_id];
+                
+                if(object.type != previous_object.type){
+                    switch(object.type){
+                    case TYPE_IMAGE:
+                        switch_ui_to_image_mode();
+                        break;
+                    default:
+                        switch_ui_to_path_mode();
+                        break;
+                    }
                 }
             }
         }
