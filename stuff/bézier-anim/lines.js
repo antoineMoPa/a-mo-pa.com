@@ -1108,9 +1108,12 @@ function draw_editing_stuff(obj_id,frame){
             ctx.fillStyle = "rgba(255,0,0,0.9)";
         } else if ( obj_id == current_object){
             ctx.fillStyle = "rgba(255,100,0,0.9)";
+            if(selected_point == i){
+                ctx.fillStyle = "#3af";
+            }
         } else {
             ctx.fillStyle = "rgba(0,0,0,0.9)";
-        }
+        }        
         if(!point_viewable(obj_id,i)){
             continue;
         }
