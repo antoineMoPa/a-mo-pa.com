@@ -40,6 +40,7 @@ var lastDraw = 0;
 var editing = true;
 var dragging = -1;
 var rotating = -1;
+var grabbing = -1;
 var add_after = 0;
 
 var ADD_MOVE_POINTS = 0;
@@ -133,7 +134,9 @@ function update_object_options(){
     update_object_switches();
 }
 
-listen_key('R');
+listen_key('R');  // Rotate
+listen_key('G');  // Grab
+listen_key('D');  // Delete
 
 var actions = [
     ["animation_play","",action_animation_play],
@@ -154,7 +157,6 @@ var actions = [
     ["object_copy","",action_object_copy],
     ["object_paste","",action_object_paste],
     ["point_convert_to_smooth","",action_point_convert_to_smooth],
-    ["","D",action_toggle_point_mode],
     ["path_invert_direction","",path_invert_direction],
     ["frame_next",39,action_next_frame], // Right
     ["frame_prev",37,action_prev_frame], // Left
@@ -163,27 +165,10 @@ var actions = [
 initActions(actions);
 
 var switches = {
-    'global-mode': 'add-move-points',
     'new-points-mode': "not-smooth",
 };
 
-initSwitches(switches,updateSwitches);
-
-function updateSwitches(){
-    switch(switches['global-mode']){
-    case 'add-move-points':
-        click_mode = ADD_MOVE_POINTS;
-        break;
-    case 'delete-points':
-        click_mode = DEL_POINTS;
-        break;
-    case 'move-objects':
-        click_mode = MOVE_OBJECTS;
-        break
-    default:
-        break;
-    }
-}
+initSwitches(switches);
 
 var object_switches = animations[current_animation].switches;
 
@@ -404,18 +389,6 @@ function action_frame_paste(){
     draw();
 }
 
-function action_toggle_point_mode(){
-    if(click_mode == DEL_POINTS){
-        click_mode = ADD_MOVE_POINTS;
-        switches['global-mode'] = 'add-points';
-    } else {
-        click_mode = DEL_POINTS;
-        switches['global-mode'] = 'delete-points';
-    }
-    initSwitches(switches,updateSwitches);
-}
-
-
 function deep_copy(obj){
     var new_object = {};
     if(obj instanceof Array){
@@ -454,8 +427,8 @@ function action_animation_play(){
     }
 }
 
-var curr_frame = QSA(".actions .frame")[0]
-var num_frame = QSA(".actions .frames-num")[0]
+var curr_frame = QSA(".actions .frame")[0];
+var num_frame = QSA(".actions .frames-num")[0];
 
 function validate_and_write_frame(){
     if(current_frame < 0){
@@ -687,7 +660,7 @@ function initEditor(){
     can.onkeydown = function(){
 
     }
-    
+
     var mouse_down = false;
     can.onmousedown = function(e){
         e.preventDefault();
@@ -728,11 +701,50 @@ function initEditor(){
         var pos = getPos(e);
         x = pos[0];
         y = pos[1];
-
-        switch(click_mode){
-        case MOVE_OBJECTS:
-            if(mouse_down && selected_point != -1){
-                draw_delayed(function(){                    
+        
+        if(mouse_down){
+            var points = frames[current_frame].objects[current_object].points;
+            if(dragging != -1){
+                points[dragging][0] = x;
+                points[dragging][1] = y;
+                draw_delayed();
+            } else if (rotating != -1){
+                draw_delayed(function(){
+                    var info = points_angle_info(
+                        obj_rotate.middleX,
+                        obj_rotate.middleY,
+                        x,
+                        y
+                    );
+                    
+                    var theta = info[0];
+                    var initial_theta = obj_rotate.initial_angle_info[0];
+                    var d = info[1];
+                    
+                    var treshold = 20;
+                    
+                    if(d < treshold){
+                        theta = (d)/treshold * theta +
+                            (treshold - d)/treshold * initial_theta;
+                    }
+                    
+                    var angle = theta - initial_theta;
+                    
+                    new_points = rotate_points(
+                        obj_rotate.initialPoints,
+                        angle,
+                        obj_rotate.middleX,
+                        obj_rotate.middleY
+                    );
+                    
+                    frames[current_frame]
+                        .objects[current_object]
+                        .points = new_points;
+                    
+                });
+                
+            } else if (grabbing != -1) {
+                draw_delayed(function(){
                     var new_points = deep_copy(
                         obj_move.initialPoints
                     );
@@ -744,55 +756,9 @@ function initEditor(){
                         .points = new_points;
                 });
             }
-            break;
-        default:
-            if(mouse_down){
-                var points = frames[current_frame].objects[current_object].points;
-                if(dragging != -1){
-                    points[dragging][0] = x;
-                    points[dragging][1] = y;
-                    draw_delayed();
-                } else if (rotating != -1){                    
-                    draw_delayed(function(){
-                        var info = points_angle_info(
-                            obj_rotate.middleX,
-                            obj_rotate.middleY,
-                            x,
-                            y
-                        );
-                        
-                        var theta = info[0];
-                        var initial_theta = obj_rotate.initial_angle_info[0];
-                        var d = info[1];
-                        
-                        var treshold = 20;
-                        
-                        if(d < treshold){
-                            theta = (d)/treshold * theta +
-                                (treshold - d)/treshold * initial_theta;
-                        }
-                        
-                        var angle = theta - initial_theta;
-                        
-                        new_points = rotate_points(
-                            obj_rotate.initialPoints,
-                            angle,
-                            obj_rotate.middleX,
-                            obj_rotate.middleY
-                        );
-                        
-                        frames[current_frame]
-                            .objects[current_object]
-                            .points = new_points;
-                        
-                    });
-                    
-                }
-            }
-            break;
-        }
+        }   
     }
-    
+
     var timeout = -1;
     function draw_delayed(before){
         var before = before || function(){};
@@ -838,7 +804,7 @@ function initEditor(){
             }
         }
 
-        if(listened_keys.R == true){
+        if(listened_keys.R){
             /* Object rotation */
             if(selected != -1){
                 var points = frames[current_frame]
@@ -865,36 +831,37 @@ function initEditor(){
                     points
                 );
             }
+        } else if (listened_keys.G) {
+            /* grab whole object */
+            if(selected != -1){
+                grabbing = selected;
+                obj_move.initialX = x;
+                obj_move.initialY = y;
+                obj_move.initialPoints = deep_copy(
+                    frames[current_frame]
+                        .objects[current_object]
+                        .points
+                );
+            }
+        } else if (window.listened_keys.D) {
+            /* Delete point */
+            if(selected != -1){
+                points = frames[current_frame]
+                    .objects[current_object].points;
+                
+                if( selected > 0
+                    && points[selected-1][2] == POINT_GUIDE){
+                    points[selected-1][2] = POINT_POINT;
+                }
+                if( selected < points.length - 1
+                    && points[selected+1][2] == POINT_GUIDE ){
+                    points[selected+1][2] = POINT_POINT;
+                }
+                points.splice(selected,1);
+                draw();
+            }
         } else if (e.button == 0){
             switch(click_mode){
-            case DEL_POINTS: /* Todo: separate this  */
-                if(selected != -1){
-                    points = frames[current_frame]
-                        .objects[current_object].points;
-                    
-                    if( selected > 0
-                        && points[selected-1][2] == POINT_GUIDE){
-                        points[selected-1][2] = POINT_POINT;
-                    }
-                    if( selected < points.length - 1
-                        && points[selected+1][2] == POINT_GUIDE ){
-                        points[selected+1][2] = POINT_POINT;
-                    }
-                    points.splice(selected,1);
-                    draw();
-                }
-                break;
-            case MOVE_OBJECTS:
-                if(selected != -1){
-                    obj_move.initialX = x;
-                    obj_move.initialY = y;
-                    obj_move.initialPoints = deep_copy(
-                        frames[current_frame]
-                            .objects[current_object]
-                            .points
-                    );
-                }
-                break;
             case IMAGE_MODE:
             case ADD_MOVE_POINTS:
                 if(selected != -1){
@@ -908,7 +875,7 @@ function initEditor(){
                 }
                 var points = frames[current_frame]
                     .objects[current_object].points;
-                
+
                 if(points.length == 0){
                     add_after = 0;
                 }
@@ -980,13 +947,11 @@ function initEditor(){
 
     function up(x,y){
         var points = frames[current_frame].objects[current_object].points;
-        if(dragging != -1){
-            dragging = -1;
-            draw_delayed();
-        } else if (rotating != -1){            
-            rotating = -1;
-            draw_delayed()
-        }
+
+        dragging = -1;
+        rotating = -1;
+        grabbing = -1;
+        draw_delayed();
      }
 }
 
@@ -994,7 +959,7 @@ function point_viewable(obj,i){
     var points = frames[current_frame]
         .objects[obj].points;
 
-    if(switches['global-mode'] == 'delete-points'){
+    if( listened_keys.D == true ){
         return true;
     }
     if( obj != current_object
@@ -1014,7 +979,9 @@ function point_viewable(obj,i){
 }
 
 function distance(x1,y1,x2,y2){
-    return Math.sqrt(Math.pow(y2 - y1,2) + Math.pow(x2 - x1,2));
+    return Math.sqrt(
+        Math.pow(y2 - y1,2) + Math.pow(x2 - x1,2)
+    );
 }
 
 function draw(){
