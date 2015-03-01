@@ -6,14 +6,16 @@ function QSA(selector){
 }
 
 
+init_keyboard();
+
 var formlists = -1;
 
 /**
 
    May be deleted soom
-   
+
    uses html like this:
-   
+
    <list data-name="images">
    <element>
        <h4>Image {{id}}<h4>
@@ -23,14 +25,14 @@ var formlists = -1;
    </element>
    <br>
    </list>
-   
+
    and js like that:
-   
+
    initFormList("images",
              animations[current_animation].images,
              update_images);
 
-   
+
 */
 
 function initFormLists(){
@@ -84,7 +86,7 @@ function initInputs(inputs,callback){
 
 function enableInput(html_input, data_array, index, callback){
     html_input.value = data_array[index];
-    
+
     /* don't change frame on arrow down! */
     html_input.onkeydown = function(e){
         e.stopPropagation();
@@ -176,21 +178,55 @@ function initActions(actions){
         }
     }
 
-    initKeyboard();
-    function initKeyboard(){
-        document.onkeydown = function(e){
-            for(key in actions){
-                str = String.fromCharCode(e.keyCode);
-                /* direct numbers  */
-                if(e.keyCode == actions[key][1]){
-                    actions[key][2]();
-                } else if (str == actions[key][1]){
-                    actions[key][2]();
-                }
+    window.keyboard.callbacks.push(function(e){
+        for(key in actions){
+            str = String.fromCharCode(e.keyCode);
+            /* direct numbers  */
+            if(e.keyCode == actions[key][1]){
+                actions[key][2]();
+            } else if (str == actions[key][1]){
+                actions[key][2]();
+            }
+        }
+    });
+}
+
+function init_keyboard(){
+    window.keyboard = {};
+    keyboard.callbacks = [];
+    window.listened_keys = {};
+
+    window.listen_key = function(key){
+        if(!(key in listened_keys)){
+            listened_keys[key] = false;
+        }
+    };
+    
+    document.onkeydown = function(e){
+        str = String.fromCharCode(e.keyCode);
+        for(var callback in keyboard.callbacks){
+            keyboard.callbacks[callback](e);
+        }
+        set_current_key(e,true);
+    };
+
+    document.onkeyup = function(e){
+        set_current_key(e,false);
+    };
+
+    function set_current_key(e, value){        
+        str = String.fromCharCode(e.keyCode);
+        for(var key in listened_keys){
+            if(e.keyCode == key){
+                listened_keys[key] = value;
+            } else if (str == key){
+                listened_keys[key] = value;
             }
         }
     }
+
 }
+
 
 /**
     damn simple tab ui
@@ -226,7 +262,7 @@ function initTabs(){
     }
 
     function enableTab(i,index){
-        i.switch_to_this = 
+        i.switch_to_this =
             i.onclick = function(){
                 switchTo(i,index);
             }

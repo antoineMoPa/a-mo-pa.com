@@ -133,6 +133,8 @@ function update_object_options(){
     update_object_switches();
 }
 
+listen_key('R');
+
 var actions = [
     ["animation_play","",action_animation_play],
     ["animation_clear","",action_animation_clear],
@@ -682,6 +684,10 @@ function initEditor(){
         return [x,y];
     }
 
+    can.onkeydown = function(){
+
+    }
+    
     var mouse_down = false;
     can.onmousedown = function(e){
         e.preventDefault();
@@ -832,14 +838,40 @@ function initEditor(){
             }
         }
 
-        switch(e.button){
-        case 0:
+        if(listened_keys.R == true){
+            /* Object rotation */
+            if(selected != -1){
+                var points = frames[current_frame]
+                    .objects[current_object]
+                    .points;
+
+                rotating = selected;
+
+                var box = points_box_info(points);
+
+                obj_rotate.middleX = ( box[0] + box[1] ) / 2;
+                obj_rotate.middleY = ( box[2] + box[3] ) / 2;
+
+                obj_rotate.initial_angle_info = points_angle_info(
+                    obj_rotate.middleX,
+                    obj_rotate.middleY,
+                    x,
+                    y
+                );
+
+                obj_rotate.initialX = x;
+                obj_rotate.initialY = y;
+                obj_rotate.initialPoints = deep_copy(
+                    points
+                );
+            }
+        } else if (e.button == 0){
             switch(click_mode){
             case DEL_POINTS: /* Todo: separate this  */
                 if(selected != -1){
                     points = frames[current_frame]
                         .objects[current_object].points;
-
+                    
                     if( selected > 0
                         && points[selected-1][2] == POINT_GUIDE){
                         points[selected-1][2] = POINT_POINT;
@@ -876,7 +908,7 @@ function initEditor(){
                 }
                 var points = frames[current_frame]
                     .objects[current_object].points;
-
+                
                 if(points.length == 0){
                     add_after = 0;
                 }
@@ -917,38 +949,6 @@ function initEditor(){
             default:
                 break;
             }
-
-            break;
-        case 2:
-            /* Object rotation */
-            if(selected != -1){
-                var points = frames[current_frame]
-                    .objects[current_object]
-                    .points;
-
-                rotating = selected;
-
-                var box = points_box_info(points);
-
-                obj_rotate.middleX = ( box[0] + box[1] ) / 2;
-                obj_rotate.middleY = ( box[2] + box[3] ) / 2;
-
-                obj_rotate.initial_angle_info = points_angle_info(
-                    obj_rotate.middleX,
-                    obj_rotate.middleY,
-                    x,
-                    y
-                );
-
-                obj_rotate.initialX = x;
-                obj_rotate.initialY = y;
-                obj_rotate.initialPoints = deep_copy(
-                    points
-                );
-            }
-            break;
-        default:
-            break;
         }
     }
 
