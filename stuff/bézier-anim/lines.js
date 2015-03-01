@@ -452,6 +452,12 @@ function validate_and_write_frame(){
         current_object =
             frames[current_frame].objects.length - 1;
     }
+
+    add_after =
+        frames[current_frame]
+        .objects[current_object]
+        .points.length -1;
+    
     curr_frame.innerHTML = current_frame + 1;
     num_frame.innerHTML = frames.length;
     if( click_mode == DEL_POINTS ){
