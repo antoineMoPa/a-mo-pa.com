@@ -191,3 +191,11 @@ tab.active{
 .image-object-mode .show-if-image-object{
     position:static;
 }
+
+keyhint{
+    display:inline-block;
+    background:#3af;
+    color:#fff;
+    padding:4px;    
+    margin:5px 0;
+}
