@@ -41,6 +41,7 @@ var editing = true;
 var dragging = -1;
 var rotating = -1;
 var grabbing = -1;
+var scaling = -1;
 var add_after = 0;
 
 var ADD_MOVE_POINTS = 0;
@@ -135,6 +136,7 @@ function update_object_options(){
 
 listen_key('R');  // Rotate
 listen_key('G');  // Grab
+listen_key('S');  // Scale
 listen_key('D');  // Delete
 
 var actions = [
@@ -699,6 +701,7 @@ function initEditor(){
 
     var obj_move = {};
     var obj_rotate = {};
+    var obj_scale = {};
 
     function move(e){
         var pos = getPos(e);
@@ -746,6 +749,29 @@ function initEditor(){
                     
                 });
                 
+            } else if (scaling != -1){
+                draw_delayed(function(){
+                    var d = distance(
+                        x,
+                        y,
+                        obj_scale.middleX,
+                        obj_scale.middleY
+                    );
+                                        
+                    var factor = d / obj_scale.initial_distance;
+
+                    new_points = scale_points(
+                        obj_scale.initialPoints,
+                        factor,
+                        obj_scale.middleX,
+                        obj_scale.middleY
+                    );
+                    
+                    frames[current_frame]
+                        .objects[current_object]
+                        .points = new_points;
+                    
+                });                
             } else if (grabbing != -1) {
                 draw_delayed(function(){
                     var new_points = deep_copy(
@@ -836,11 +862,38 @@ function initEditor(){
             }
         } else if (listened_keys.G) {
             /* grab whole object */
+            var points = frames[current_frame]
+                .objects[current_object]
+                .points;
+
+
             if(selected != -1){
                 grabbing = selected;
                 obj_move.initialX = x;
                 obj_move.initialY = y;
                 obj_move.initialPoints = deep_copy(
+                    points
+                );
+            }
+        } else if (listened_keys.S) {
+            /* scale whole object */
+            if(selected != -1){
+                scaling = selected;
+                var points = frames[current_frame]
+                    .objects[current_object]
+                    .points;
+
+                var box = points_box_info(points);
+                obj_scale.middleX = ( box[0] + box[1] ) / 2;
+                obj_scale.middleY = ( box[2] + box[3] ) / 2;
+                obj_scale.initial_distance = distance(
+                    x,
+                    y,
+                    obj_scale.middleX,
+                    obj_scale.middleY
+                );
+
+                obj_scale.initialPoints = deep_copy(
                     frames[current_frame]
                         .objects[current_object]
                         .points
@@ -954,6 +1007,7 @@ function initEditor(){
         dragging = -1;
         rotating = -1;
         grabbing = -1;
+        scaling = -1;
         draw_delayed();
      }
 }
@@ -1042,6 +1096,20 @@ function rotate_points(points, angle, x, y){
 
         new_points[i][0] = (a + x);
         new_points[i][1] = (b + y);
+    }
+    return new_points;
+}
+
+function scale_points(points, factor, x, y){
+    var new_points = deep_copy(points);
+    for(var i = 0; i < new_points.length; i++){
+        var a = new_points[i][0];
+        var b = new_points[i][1];
+        var dx = a - x;
+        var dy = b - y;
+        
+        new_points[i][0] = (x + factor * dx);
+        new_points[i][1] = (y + factor * dy);
     }
     return new_points;
 }
