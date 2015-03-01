@@ -14,11 +14,26 @@ body{
 canvas{
     box-shadow:0 0 10px rgba(0,0,0,0.04);
 }
-h1{
-    text-align:center;
-}
+
 h1,h2,h3,h4{
     font-weight:300;
+}
+
+h1{
+    text-align:center;
+    text-transform:uppercase;
+    color:#fff;
+    font-size:10px;
+    letter-spacing:10px;
+    line-height:70px;
+    transform:scaleY(6);
+    text-shadow:
+    1px 0 0 #333,
+    2px 0 0 #333,
+    3px 0 0 #333,
+    4px 0 0 #333,
+    5px 0 0 #333,
+    6px 0 0 #333;
 }
 h3,h4{
     margin: 5px 0;
