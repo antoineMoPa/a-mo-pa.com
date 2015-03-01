@@ -457,7 +457,7 @@ function validate_and_write_frame(){
         frames[current_frame]
         .objects[current_object]
         .points.length -1;
-    
+
     curr_frame.innerHTML = current_frame + 1;
     num_frame.innerHTML = frames.length;
     if( click_mode == DEL_POINTS ){
@@ -734,7 +734,7 @@ function initEditor(){
         var pos = getPos(e);
         x = pos[0];
         y = pos[1];
-        
+
         if(mouse_down){
             var points = frames[current_frame]
                 .objects[current_object]
@@ -751,35 +751,35 @@ function initEditor(){
                         x,
                         y
                     );
-                    
+
                     var theta = info[0];
                     var initial_theta = obj_rotate
                         .initial_angle_info[0];
                     var d = info[1];
-                    
+
                     var treshold = 20;
-                    
+
                     if(d < treshold){
                         theta = (d)/treshold * theta +
                             (treshold - d) /
                             treshold * initial_theta;
                     }
-                    
+
                     var angle = theta - initial_theta;
-                    
+
                     new_points = rotate_points(
                         obj_rotate.initialPoints,
                         angle,
                         obj_rotate.middleX,
                         obj_rotate.middleY
                     );
-                    
+
                     frames[current_frame]
                         .objects[current_object]
                         .points = new_points;
-                    
+
                 });
-                
+
             } else if (scaling != -1){
                 draw_delayed(function(){
                     var d = distance(
@@ -788,7 +788,7 @@ function initEditor(){
                         obj_scale.middleX,
                         obj_scale.middleY
                     );
-                                        
+
                     var factor = d /
                         obj_scale.initial_distance;
 
@@ -798,12 +798,12 @@ function initEditor(){
                         obj_scale.middleX,
                         obj_scale.middleY
                     );
-                    
+
                     frames[current_frame]
                         .objects[current_object]
                         .points = new_points;
-                    
-                });                
+
+                });
             } else if (grabbing != -1) {
                 draw_delayed(function(){
                     var new_points = deep_copy(
@@ -817,7 +817,7 @@ function initEditor(){
                         .points = new_points;
                 });
             }
-        }   
+        }
     }
 
     var timeout = -1;
@@ -837,6 +837,21 @@ function initEditor(){
         }
     }
 
+    function clean_current_path_object(){
+        var points = frames[current_frame]
+            .objects[current_object]
+            .points;
+
+        /* Remove breaks at end of objects */
+
+        if ( points[points.length-1] == "break" ){
+            points.splice(points.length-1,1);
+        }
+        if ( points[0] == "break" ){
+            points.splice(0,1);
+        }
+    }
+
     /* Mouse click handling  */
     function down(e){
         var pos = getPos(e);
@@ -852,6 +867,10 @@ function initEditor(){
                 .objects[current_object];
             var previous_object = frames[current_frame]
                 .objects[previous_object_id];
+
+            if(object.type == TYPE_PATH ){
+                clean_current_path_object();
+            }
 
             if(object.type != previous_object.type){
                 switch(object.type){
@@ -937,15 +956,23 @@ function initEditor(){
             if(selected != -1){
                 points = frames[current_frame]
                     .objects[current_object].points;
-                
+
+                var has_prev = selected > 1;
+                var has_next = selected < points.length - 1;
+
                 if( selected > 0
                     && points[selected-1][2] == POINT_GUIDE){
                     points[selected-1][2] = POINT_POINT;
                 }
-                if( selected < points.length - 1
+                if( has_next
                     && points[selected+1][2] ==
                     POINT_GUIDE ){
-                    points[selected+1][2] = POINT_POINT;
+                    points[selected+1][2] = POINT_NOT_SMOOTH;
+                }
+                if( has_prev
+                    && points[selected-1][2] ==
+                    POINT_GUIDE ){
+                    points[selected-1][2] = POINT_NOT_SMOOTH;
                 }
                 points.splice(selected,1);
                 draw();
@@ -1031,9 +1058,38 @@ function initEditor(){
                 }
             }
         }
+
+        /* for debugging paths */
+        if(selected != -1){
+            console.log(
+                get_point_type_str(
+                    frames[current_frame]
+                        .objects[current_object]
+                        .points[parseInt(selected)][2]
+                )
+            );
+        }
+
         /* keep this global  */
         selected_point = parseInt(selected);
         return selected_point;
+    }
+
+    function get_point_type_str(type){
+        switch(type){
+        case POINT_POINT:
+            return "smooth point";
+            break;
+        case POINT_GUIDE:
+            return "guide point"
+            break;
+        case POINT_NOT_SMOOTH:
+            return "not smooth point";
+            break;
+        default:
+            return "unknown"
+            break;
+        }
     }
 
     function up(x,y){
@@ -1143,7 +1199,7 @@ function scale_points(points, factor, x, y){
         var b = new_points[i][1];
         var dx = a - x;
         var dy = b - y;
-        
+
         new_points[i][0] = (x + factor * dx);
         new_points[i][1] = (y + factor * dy);
     }
