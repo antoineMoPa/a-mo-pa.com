@@ -746,11 +746,31 @@ function initEditor(){
                     points[dragging][1] = y;
                     draw_delayed();
                 } else if (rotating != -1){
-                    var angle = 3/360 * 2 * Math.PI;
+                    var info = points_angle_info(
+                        obj_rotate.middleX,
+                        obj_rotate.middleY,
+                        x,
+                        y
+                    );
 
+                    var theta = info[0];
+                    var initial_theta = obj_rotate.initial_angle_info[0];
+                    var d = info[1];
+
+                    var treshold = 20;
+                    
+                    if(d < treshold){
+                        theta = (d)/treshold * theta +
+                            (treshold - d)/treshold * initial_theta;
+                    }
+                    
+                    var angle = theta - initial_theta;
+                    
                     new_points = rotate_points(
                         obj_rotate.initialPoints,
-                        angle, 100, 100
+                        angle,
+                        obj_rotate.middleX,
+                        obj_rotate.middleY
                     );
 
                     frames[current_frame]
@@ -898,13 +918,28 @@ function initEditor(){
         case 2:
             /* Object rotation */
             if(selected != -1){
+                var points = frames[current_frame]
+                    .objects[current_object]
+                    .points;
+
                 rotating = selected;
+
+                var box = points_box_info(points);
+
+                obj_rotate.middleX = ( box[0] + box[1] ) / 2;
+                obj_rotate.middleY = ( box[2] + box[3] ) / 2;
+
+                obj_rotate.initial_angle_info = points_angle_info(
+                    obj_rotate.middleX,
+                    obj_rotate.middleY,
+                    x,
+                    y
+                );
+
                 obj_rotate.initialX = x;
                 obj_rotate.initialY = y;
                 obj_rotate.initialPoints = deep_copy(
-                    frames[current_frame]
-                        .objects[current_object]
-                        .points
+                    points
                 );
             }
             break;
@@ -1027,8 +1062,8 @@ function rotate_points(points, angle, x, y){
         var theta = info[0];
         var h = info[1];
 
-        a = h * Math.cos(theta + angle);
-        b = -h * Math.sin(theta + angle);
+        a = h * Math.cos(-angle - theta);
+        b = h * Math.sin(-angle - theta);
 
         new_points[i][0] = (a + x);
         new_points[i][1] = (b + y);
@@ -1066,8 +1101,37 @@ function draw_image(obj,frame){
     }
 }
 
+function points_box_info(points){
+    var minx = 0;
+    var maxx = 0;
+    var miny = 0;
+    var maxy = 0;
+
+    for(var i = 0; i < points.length; i++){
+        if(points[i][0] < points[minx][0]){
+            minx = i;
+        }
+        if(points[i][0] > points[maxx][0]){
+            maxx = i;
+        }
+        if(points[i][1] < points[miny][1]){
+            miny = i;
+        }
+        if(points[i][1] > points[maxy][1]){
+            maxy = i;
+        }
+    }
+
+    return [
+        points[minx][0],
+        points[maxx][0],
+        points[miny][1],
+        points[maxy][1]
+    ];
+}
+
 /* returns [angle,distance] */
-function points_angle_info(x,y,a,b,d){
+function points_angle_info(x,y,a,b){
     var d = distance(x,y,a,b);
     var angle = 0;
 
