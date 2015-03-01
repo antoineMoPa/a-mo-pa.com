@@ -57,11 +57,10 @@ var images_waiting = 0;
 var image_cache = {};
 
 var animations = [default_animation()];
-set_animation_globals();
 
+set_animation_globals();
 initEditor();
 initTabs();
-
 switch_ui_to_path_mode();
 
 function cache_image(url,disableCrossOrigin){
@@ -361,7 +360,6 @@ function action_prev_frame(){
     update_object_ui();
 };
 
-
 var current_frame_clipboard = empty_frame();
 
 function action_animation_clear(){
@@ -429,6 +427,7 @@ function action_animation_play(){
 
 var curr_frame = QSA(".actions .frame")[0];
 var num_frame = QSA(".actions .frames-num")[0];
+validate_and_write_frame();
 
 function validate_and_write_frame(){
     if(current_frame < 0){
@@ -503,6 +502,10 @@ function action_break_path(){
 }
 
 function default_animation(){
+    return JSON.parse(DEFAULT_ANIMATION)[0];
+}
+
+function empty_animation(){
     return {
         name: "",
         frames: [empty_frame()],
