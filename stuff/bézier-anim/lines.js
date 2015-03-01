@@ -726,16 +726,17 @@ function initEditor(){
         switch(click_mode){
         case MOVE_OBJECTS:
             if(mouse_down && selected_point != -1){
-                var new_points = deep_copy(
-                    obj_move.initialPoints
-                );
-                var dx = x - obj_move.initialX;
-                var dy = y - obj_move.initialY;
-                move_points(new_points,dx,dy);
-                frames[current_frame]
-                    .objects[current_object]
-                    .points = new_points;
-                draw_delayed();
+                draw_delayed(function(){                    
+                    var new_points = deep_copy(
+                        obj_move.initialPoints
+                    );
+                    var dx = x - obj_move.initialX;
+                    var dy = y - obj_move.initialY;
+                    move_points(new_points,dx,dy);
+                    frames[current_frame]
+                        .objects[current_object]
+                        .points = new_points;
+                });
             }
             break;
         default:
@@ -745,50 +746,53 @@ function initEditor(){
                     points[dragging][0] = x;
                     points[dragging][1] = y;
                     draw_delayed();
-                } else if (rotating != -1){
-                    var info = points_angle_info(
-                        obj_rotate.middleX,
-                        obj_rotate.middleY,
-                        x,
-                        y
-                    );
-
-                    var theta = info[0];
-                    var initial_theta = obj_rotate.initial_angle_info[0];
-                    var d = info[1];
-
-                    var treshold = 20;
+                } else if (rotating != -1){                    
+                    draw_delayed(function(){
+                        var info = points_angle_info(
+                            obj_rotate.middleX,
+                            obj_rotate.middleY,
+                            x,
+                            y
+                        );
+                        
+                        var theta = info[0];
+                        var initial_theta = obj_rotate.initial_angle_info[0];
+                        var d = info[1];
+                        
+                        var treshold = 20;
+                        
+                        if(d < treshold){
+                            theta = (d)/treshold * theta +
+                                (treshold - d)/treshold * initial_theta;
+                        }
+                        
+                        var angle = theta - initial_theta;
+                        
+                        new_points = rotate_points(
+                            obj_rotate.initialPoints,
+                            angle,
+                            obj_rotate.middleX,
+                            obj_rotate.middleY
+                        );
+                        
+                        frames[current_frame]
+                            .objects[current_object]
+                            .points = new_points;
+                        
+                    });
                     
-                    if(d < treshold){
-                        theta = (d)/treshold * theta +
-                            (treshold - d)/treshold * initial_theta;
-                    }
-                    
-                    var angle = theta - initial_theta;
-                    
-                    new_points = rotate_points(
-                        obj_rotate.initialPoints,
-                        angle,
-                        obj_rotate.middleX,
-                        obj_rotate.middleY
-                    );
-
-                    frames[current_frame]
-                        .objects[current_object]
-                        .points = new_points;
-
-                    draw_delayed();
-
                 }
             }
             break;
         }
     }
-
+    
     var timeout = -1;
-    function draw_delayed(){
-        var delay = 33;
+    function draw_delayed(before){
+        var before = before || function(){};
+        var delay = 10;
         var diff = Date.now() - lastDraw;
+        before();
         if(diff < delay){
             if(timeout == -1){
                 setTimeout(draw_delayed,diff+1);
@@ -977,10 +981,11 @@ function initEditor(){
     function up(x,y){
         var points = frames[current_frame].objects[current_object].points;
         if(dragging != -1){
-            points[dragging][0] = x;
-            points[dragging][1] = y;
             dragging = -1;
-            draw();
+            draw_delayed();
+        } else if (rotating != -1){            
+            rotating = -1;
+            draw_delayed()
         }
      }
 }
