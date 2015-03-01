@@ -89,7 +89,10 @@ function fetch_images(){
     }
 }
 
-initInputs(animations[current_animation].inputs, update_animation_inputs);
+initInputs(
+    animations[current_animation].inputs,
+    update_animation_inputs
+);
 
 function update_animation_inputs(){
     updateCanvasSize();
@@ -186,11 +189,15 @@ function action_point_convert_to_smooth(){
     var currp = selected_point;
 
     /*
-      Requires a not smooth point with 2 not-smooth points around it
+      Requires a not smooth point with 2
+      not-smooth points around it
      */
 
     if( currp < 1 || currp >= points.length - 1 ){
-        pop_error("Requires 2 not-smooth points before and after!");
+        pop_error(
+            "Requires 2 not-smooth "+
+                "points before and after!"
+        );
         return;
     }
 
@@ -246,7 +253,8 @@ function action_animation_to_gif(){
     }
 
     editing = true;
-    window.localStorage.to_gif_export = JSON.stringify(to_export);
+    window.localStorage.to_gif_export =
+        JSON.stringify(to_export);
     draw();
     window.open("gif-export.html");
 }
@@ -439,8 +447,10 @@ function validate_and_write_frame(){
         current_frame = frames.length - 1;
         copy_last_frame_into_new();
     }
-    if( current_object >= frames[current_frame].objects.length ){
-        current_object = frames[current_frame].objects.length - 1;
+    if( current_object >=
+        frames[current_frame].objects.length ){
+        current_object =
+            frames[current_frame].objects.length - 1;
     }
     curr_frame.innerHTML = current_frame + 1;
     num_frame.innerHTML = frames.length;
@@ -458,14 +468,16 @@ function copy_last_frame_into_new(){
 function new_path_object(){
     frames[current_frame]
         .objects.push(default_path_object());
-    current_object = frames[current_frame].objects.length - 1;
+    current_object =
+        frames[current_frame].objects.length - 1;
     switch_ui_to_path_mode();
 }
 
 function new_image_object(){
     frames[current_frame]
         .objects.push(default_image_object());
-    current_object = frames[current_frame].objects.length - 1;
+    current_object =
+        frames[current_frame].objects.length - 1;
     switch_ui_to_image_mode();
 }
 
@@ -482,7 +494,8 @@ function switch_body_mode_class(new_class){
 
 function switch_ui_to_image_mode(){
     switch_body_mode_class("image-object-mode");
-    QSA("tabtitle[data-name='main-image-tab']")[0].switch_to_this();
+    QSA("tabtitle[data-name='main-image-tab']")[0]
+        .switch_to_this();
     click_mode = IMAGE_MODE;
     update_object_ui();
     draw();
@@ -490,7 +503,8 @@ function switch_ui_to_image_mode(){
 
 function switch_ui_to_path_mode(){
     switch_body_mode_class("path-object-mode");
-    QSA("tabtitle[data-name='main-path-tab']")[0].switch_to_this();
+    QSA("tabtitle[data-name='main-path-tab']")[0]
+        .switch_to_this();
     click_mode = ADD_MOVE_POINTS;
     update_object_ui();
     draw();
@@ -543,9 +557,12 @@ function default_animation_inputs(){
 
 function set_animation_globals(){
     frames = animations[current_animation].frames;
-    current_frame = parseInt(animations[current_animation].current_frame);
-    selected_point = parseInt(animations[current_animation].selected_point);
-    current_object = parseInt(animations[current_animation].current_object);
+    current_frame = parseInt(animations[current_animation]
+                             .current_frame);
+    selected_point = parseInt(animations[current_animation]
+                              .selected_point);
+    current_object = parseInt(animations[current_animation]
+                              .current_object);
 }
 
 function default_path_object(){
@@ -625,7 +642,8 @@ function path_invert_direction(){
     if(points[add_after-1] != undefined){
         for(var i = add_after-1; i > 0; i--){
             start = i;
-            if(points[i] == "break" || points[i] == undefined){
+            if( points[i] == "break" ||
+                points[i] == undefined ){
                 start++;
                 break;
             }
@@ -712,7 +730,9 @@ function initEditor(){
         y = pos[1];
         
         if(mouse_down){
-            var points = frames[current_frame].objects[current_object].points;
+            var points = frames[current_frame]
+                .objects[current_object]
+                .points;
             if(dragging != -1){
                 points[dragging][0] = x;
                 points[dragging][1] = y;
@@ -727,14 +747,16 @@ function initEditor(){
                     );
                     
                     var theta = info[0];
-                    var initial_theta = obj_rotate.initial_angle_info[0];
+                    var initial_theta = obj_rotate
+                        .initial_angle_info[0];
                     var d = info[1];
                     
                     var treshold = 20;
                     
                     if(d < treshold){
                         theta = (d)/treshold * theta +
-                            (treshold - d)/treshold * initial_theta;
+                            (treshold - d) /
+                            treshold * initial_theta;
                     }
                     
                     var angle = theta - initial_theta;
@@ -761,7 +783,8 @@ function initEditor(){
                         obj_scale.middleY
                     );
                                         
-                    var factor = d / obj_scale.initial_distance;
+                    var factor = d /
+                        obj_scale.initial_distance;
 
                     new_points = scale_points(
                         obj_scale.initialPoints,
@@ -850,12 +873,13 @@ function initEditor(){
                 obj_rotate.middleX = ( box[0] + box[1] ) / 2;
                 obj_rotate.middleY = ( box[2] + box[3] ) / 2;
 
-                obj_rotate.initial_angle_info = points_angle_info(
-                    obj_rotate.middleX,
-                    obj_rotate.middleY,
-                    x,
-                    y
-                );
+                obj_rotate.initial_angle_info =
+                    points_angle_info(
+                        obj_rotate.middleX,
+                        obj_rotate.middleY,
+                        x,
+                        y
+                    );
 
                 obj_rotate.initialX = x;
                 obj_rotate.initialY = y;
@@ -913,7 +937,8 @@ function initEditor(){
                     points[selected-1][2] = POINT_POINT;
                 }
                 if( selected < points.length - 1
-                    && points[selected+1][2] == POINT_GUIDE ){
+                    && points[selected+1][2] ==
+                    POINT_GUIDE ){
                     points[selected+1][2] = POINT_POINT;
                 }
                 points.splice(selected,1);
@@ -941,7 +966,8 @@ function initEditor(){
                 if(points.length > 2){
                     point_type = points[points.length-1][2];
                 }
-                if( switches['new-points-mode'] == 'not-smooth'){
+                if( switches['new-points-mode'] ==
+                    'not-smooth' ){
                     points.splice(add_after+1,
                                   0,
                                   [x,y,POINT_NOT_SMOOTH]
@@ -1005,7 +1031,8 @@ function initEditor(){
     }
 
     function up(x,y){
-        var points = frames[current_frame].objects[current_object].points;
+        var points = frames[current_frame]
+            .objects[current_object].points;
 
         dragging = -1;
         rotating = -1;
@@ -1232,7 +1259,8 @@ function draw_path(obj,frame){
         var lp = points[i-1];
         var np = points[i+1];
 
-        if( (i < points.length -1 || (i == points.length -1 && close)) &&
+        if( (i < points.length -1 ||
+             (i == points.length -1 && close) ) &&
             p[2] == POINT_GUIDE ){
             if( close && i == points.length - 1){
                 np = points[0];
@@ -1303,7 +1331,8 @@ function draw_editing_stuff(obj_id,frame){
                            points[i+1][1]);
 
             } else if ( i == points.length - 1
-                      && obj.switches["object-close-path"] == "close"){
+                        && obj.switches["object-close-path"]
+                        == "close" ){
                 ctx.moveTo(points[i][0],
                            points[i][1]);
                 ctx.lineTo(points[0][0],
@@ -1333,6 +1362,11 @@ function draw_editing_stuff(obj_id,frame){
             continue;
         }
 
-        ctx.fillRect(points[i][0]-size, points[i][1]-size, 2*size,2*size);
+        ctx.fillRect(
+            points[i][0]-size,
+            points[i][1]-size,
+            2*size,
+            2*size
+        );
     }
 }
