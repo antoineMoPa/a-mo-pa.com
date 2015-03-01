@@ -432,16 +432,19 @@ var num_frame = QSA(".actions .frames-num")[0];
 validate_and_write_frame();
 
 function validate_and_write_frame(){
-    if(current_frame < 0){
+    if( current_frame < 0 ){
         current_frame = 0;
-    } else if (current_frame >= frames.length){
+    } else if ( current_frame >= frames.length ){
         newFrame();
         current_frame = frames.length - 1;
         copy_last_frame_into_new();
     }
+    if( current_object >= frames[current_frame].objects.length ){
+        current_object = frames[current_frame].objects.length - 1;
+    }
     curr_frame.innerHTML = current_frame + 1;
     num_frame.innerHTML = frames.length;
-    if(click_mode == DEL_POINTS){
+    if( click_mode == DEL_POINTS ){
         click_mode = ADD_MOVE_POINTS;
     }
     draw();
