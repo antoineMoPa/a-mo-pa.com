@@ -44,18 +44,12 @@ var grabbing = -1;
 var scaling = -1;
 var add_after = 0;
 
-var ADD_MOVE_POINTS = 0;
-var DEL_POINTS = 1;
-var MOVE_OBJECTS = 3;
-var IMAGE_MODE = 4;
-var click_mode = ADD_MOVE_POINTS;
 var POINT_POINT = 0;
 var POINT_GUIDE = 1;
 var POINT_NOT_SMOOTH = 2;
 var TYPE_PATH = 0;
 var TYPE_IMAGE = 1;
 var images_waiting = 0;
-var image_cache = {};
 
 var animations = [default_animation()];
 
@@ -63,31 +57,6 @@ set_animation_globals();
 initEditor();
 initTabs();
 switch_ui_to_path_mode();
-
-function cache_image(url,disableCrossOrigin){
-    if(image_cache[url] == undefined){
-        image_cache[url] = new Image();
-        // I am mad that this does not work with some images
-        //image_cache[url].crossOrigin = 'use-credentials';
-        image_cache[url].src = url;
-        image_cache[url].onload = draw;
-    }
-}
-
-/**
-   Cache all images found in animation
-*/
-function fetch_images(){
-    var frames = animations[current_animation].frames;
-    for(var i = 0; i < frames.length; i++){
-        var f = frames[i];
-        for(var j = 0; j < f.objects.length; j++){
-            if(f.objects[j].type == TYPE_IMAGE){
-                cache_image(f.objects[j].inputs.image_url);
-            }
-        }
-    }
-}
 
 initInputs(
     animations[current_animation].inputs,
@@ -129,7 +98,7 @@ function update_object_inputs(){
 
 function update_image_inputs(object){
     var url = object.inputs.image_url;
-    cache_image(url);
+    store_image(url);
 }
 
 function update_object_options(){
@@ -272,6 +241,8 @@ function action_animation_restore(){
     animations =
         JSON.parse(window.localStorage.saved_animations);
 
+    current_animation = 0;
+
     set_animation_globals();
     update_object_ui();
     fetch_images();
@@ -293,7 +264,6 @@ function action_object_paste(){
     frames[current_frame]
         .objects
         .push(new_object);
-    click_mode = MOVE_OBJECTS;
     update_object_ui();
     draw();
 }
@@ -379,7 +349,6 @@ function action_animation_clear(){
     current_object = 0;
     validate_and_write_frame();
     draw();
-    click_mode = ADD_MOVE_POINTS;
 }
 
 function action_frame_copy(){
@@ -460,9 +429,6 @@ function validate_and_write_frame(){
 
     curr_frame.innerHTML = current_frame + 1;
     num_frame.innerHTML = frames.length;
-    if( click_mode == DEL_POINTS ){
-        click_mode = ADD_MOVE_POINTS;
-    }
     draw();
 }
 
@@ -502,7 +468,6 @@ function switch_ui_to_image_mode(){
     switch_body_mode_class("image-object-mode");
     QSA("tabtitle[data-name='main-image-tab']")[0]
         .switch_to_this();
-    click_mode = IMAGE_MODE;
     update_object_ui();
     draw();
 }
@@ -511,7 +476,6 @@ function switch_ui_to_path_mode(){
     switch_body_mode_class("path-object-mode");
     QSA("tabtitle[data-name='main-path-tab']")[0]
         .switch_to_this();
-    click_mode = ADD_MOVE_POINTS;
     update_object_ui();
     draw();
 }
@@ -522,7 +486,6 @@ function action_break_path(){
 
     pts.push("break");
     add_after++;
-    click_mode = ADD_MOVE_POINTS;
     update_object_ui();
 }
 
@@ -542,18 +505,6 @@ function empty_animation(){
     }
 }
 
-function default_image(){
-    return {
-        inputs: default_image_inputs(),
-    }
-}
-
-function default_image_inputs(){
-    return {
-        "image_url": ""
-    }
-}
-
 function default_animation_inputs(){
     return {
         'animation_width':'500',
@@ -563,6 +514,10 @@ function default_animation_inputs(){
 
 function set_animation_globals(){
     frames = animations[current_animation].frames;
+
+    image_store = animations[current_animation]
+        .image_store;
+
     current_frame = parseInt(animations[current_animation]
                              .current_frame);
     selected_point = parseInt(animations[current_animation]
@@ -593,7 +548,8 @@ function default_image_object(){
 
 function default_image_object_inputs(){
     return {
-        "image_url": ""
+        "image_file": null,
+        "image_file_id": null
     };
 }
 
@@ -978,65 +934,61 @@ function initEditor(){
                 draw();
             }
         } else if (e.button == 0){
-            switch(click_mode){
-            case IMAGE_MODE:
-            case ADD_MOVE_POINTS:
-                if(selected != -1){
-                    dragging = selected;
-                    update_object_ui();
-                    draw();
-                    break;
-                }
-                if(click_mode == IMAGE_MODE){
-                    break;
-                }
-                var points = frames[current_frame]
-                    .objects[current_object].points;
-
-                if(points.length == 0){
-                    add_after = 0;
-                }
-                if(points.length > 2){
-                    point_type = points[points.length-1][2];
-                }
-                if( switches['new-points-mode'] ==
-                    'not-smooth' ){
-                    points.splice(add_after+1,
-                                  0,
-                                  [x,y,POINT_NOT_SMOOTH]
-                                 );
-                } else {
-                    // smooth
-                    var point_type = POINT_GUIDE;
-                    if( points.length > 0
-                        && points[
-                            points.length-1
-                        ][2] == POINT_GUIDE ){
-                        point_type = POINT_POINT;
-                    }
-                    if(points[points.length-1] == "break"){
-                        point_type = POINT_POINT;
-                    }
-                    if(points.length == 0){
-                        point_type = POINT_POINT;
-                    }
-                    // add point
-                    points.splice(add_after,
-                                  0,
-                                  [x,y,point_type]
-                                 );
-                }
-                selected_point = points.length-1;
-                add_after = points.length
+            if(selected != -1){
+                dragging = selected;
                 update_object_ui();
                 draw();
-                break;
-            default:
-                break;
+                return;
             }
+            var object = frames[current_frame]
+                .objects[current_object];
+            
+            if(object.type == TYPE_IMAGE){
+                return;
+            }
+            
+            var points = object.points;
+            
+            if(points.length == 0){
+                add_after = 0;
+            }
+            if(points.length > 2){
+                point_type = points[points.length-1][2];
+            }
+            if( switches['new-points-mode'] ==
+                'not-smooth' ){
+                points.splice(add_after+1,
+                              0,
+                              [x,y,POINT_NOT_SMOOTH]
+                             );
+            } else {
+                // smooth
+                var point_type = POINT_GUIDE;
+                if( points.length > 0
+                    && points[
+                        points.length-1
+                    ][2] == POINT_GUIDE ){
+                    point_type = POINT_POINT;
+                }
+                if(points[points.length-1] == "break"){
+                    point_type = POINT_POINT;
+                }
+                if(points.length == 0){
+                    point_type = POINT_POINT;
+                }
+                // add point
+                points.splice(add_after,
+                              0,
+                              [x,y,point_type]
+                             );
+            }
+            selected_point = points.length-1;
+            add_after = points.length
+            update_object_ui();
+            draw();
         }
     }
-
+    
     function clicked_point(x,y,treshold){
         var selected = -1;
         var closest = -1;
@@ -1057,17 +1009,6 @@ function initEditor(){
                     selected = i;
                 }
             }
-        }
-
-        /* for debugging paths */
-        if(selected != -1){
-            console.log(
-                get_point_type_str(
-                    frames[current_frame]
-                        .objects[current_object]
-                        .points[parseInt(selected)][2]
-                )
-            );
         }
 
         /* keep this global  */
@@ -1118,9 +1059,6 @@ function point_viewable(obj,i){
     if( points[i][2] != POINT_GUIDE){
         return true;
     }
-    if( click_mode != ADD_MOVE_POINTS){
-        return false;
-    }
     if( Math.abs(i - selected_point) < 3){
         return true;
     }
@@ -1142,7 +1080,7 @@ function draw(){
 
     var images = animations[current_animation].images;
     for(var i = 0; i < images.length; i++){
-        var img = image_cache[images[i].image_url];
+        var img = image_store[images[i].image_url];
         if(img != undefined){
             ctx.drawImage(img,0,0,50,50);
         }
@@ -1213,7 +1151,7 @@ function draw_image(obj,frame){
     var switches = frame.objects[obj].switches;
     var inputs = frame.objects[obj].inputs;
 
-    var image = image_cache[inputs.image_url];
+    var image = image_cache[inputs.image_file_id];
 
     if(image != undefined){
         var ratio = image.height / image.width;

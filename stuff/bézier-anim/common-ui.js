@@ -85,22 +85,78 @@ function initInputs(inputs,callback){
 }
 
 function enableInput(html_input, data_array, index, callback){
-    html_input.value = data_array[index];
+    var type = html_input.type;
 
-    /* don't change frame on arrow down! */
-    html_input.onkeydown = function(e){
-        e.stopPropagation();
-    }
-
-    html_input.onkeyup =
-        html_input.onchange = function(){
-            oldvalue = this.value;
-            data_array[index] = this.value;
-            callback(html_input, data_array, index, oldvalue);
-            draw();
+    if( type == "file"
+        && html_input.className.indexOf("image") != -1 ){
+        html_input.onchange = function(e){
+            var file = e.target.files[0];
+            var id = file.name + file.lastModified;
+            var reader = new FileReader();
+            data_array[index+"_id"] = id;
+            reader.onload = function(e){
+                store_image(id,e.target.result);
+            };
+            reader.readAsDataURL(file);
+            callback(
+                html_input,
+                data_array,
+                index
+            );
         }
+    } else {
+        html_input.value = data_array[index];
+
+        /* don't change frame on arrow down! */
+        html_input.onkeydown = function(e){
+            e.stopPropagation();
+        }
+
+        html_input.onkeyup =
+            html_input.onchange = function(){
+                oldvalue = this.value;
+                data_array[index] = this.value;
+                callback(
+                    html_input,
+                    data_array,
+                    index,
+                    oldvalue
+                );
+                draw();
+            }
+    }
 }
 
+/* Store image in animation */
+function store_image(id,data){
+    if(image_store[id] == undefined){
+        image_store[id] = {};
+        image_store[id].data = data;
+        cache_image(id, data);
+    }
+}
+
+/* create dom image element usable by canvas
+   for this session */
+var image_cache = [];
+function cache_image(id,data){
+    if( image_cache[id] == undefined && data != undefined ){
+        var image = new Image();
+        image.src = data;
+        image.onload = draw;
+        image_cache[id] = image;
+    }
+}
+
+/* cache all images in image store */
+function fetch_images(){
+    for(image in image_store){
+        cache_image(
+            image,
+            image_store[image].data
+        );
+    }
+}
 
 function initSwitches(switches, callback){
     var callback = callback || function(){};
@@ -201,7 +257,7 @@ function init_keyboard(){
             listened_keys[key] = false;
         }
     };
-    
+
     document.onkeydown = function(e){
         str = String.fromCharCode(e.keyCode);
         for(var callback in keyboard.callbacks){
@@ -214,7 +270,7 @@ function init_keyboard(){
         set_current_key(e,false);
     };
 
-    function set_current_key(e, value){        
+    function set_current_key(e, value){
         str = String.fromCharCode(e.keyCode);
         for(var key in listened_keys){
             if(e.keyCode == key){
