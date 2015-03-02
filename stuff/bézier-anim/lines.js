@@ -274,14 +274,14 @@ function bwmpc(){
     }
     
     function action_animation_save(){
-        window.localStorage.saved_g.animations =
+        window.localStorage.saved_animations =
             JSON.stringify(deep_copy(g.animations));
     }
     
     function action_animation_restore(){
         g.animations =
             JSON.parse(
-                window.localStorage.saved_g.animations
+                window.localStorage.saved_animations
             );
         
         g.current_animation = 0;
@@ -525,24 +525,28 @@ function bwmpc(){
     }
     
     function action_break_path(){
-        var points = g.frames[g.current_frame]
-            .objects[g.current_object].points;
+        var object = g.frames[g.current_frame]
+            .objects[g.current_object];
 
-        if(points[points.length-1] != "break"){
-            points.push("break");
+        if(object.type == TYPE_PATH){
+            var points = object.points;
+            
+            if(points[points.length-1] != "break"){
+                points.push("break");
+            }
+            
+            var last = points[points.length-2];
+            points.push([
+                last[0]+10,
+                last[1]+10,
+                POINT_NOT_SMOOTH
+            ]);
+            
+            g.selected_point = points.length - 1;
+            add_after = g.selected_point;
+            draw();
+            update_object_ui();
         }
-        
-        var last = points[points.length-2];
-        points.push([
-            last[0]+10,
-            last[1]+10,
-            POINT_NOT_SMOOTH
-        ]);
-
-        g.selected_point = points.length - 1;
-        add_after = g.selected_point;
-        draw();
-        update_object_ui();
     }
     
     function default_animation(){
@@ -1219,21 +1223,5 @@ function bwmpc(){
             points[miny][1],
             points[maxy][1]
         ];
-    }
-    
-    /* returns [angle,distance] */
-    function points_angle_info(x,y,a,b){
-        var d = distance(x,y,a,b);
-        var angle = 0;
-        
-        // #geometry
-        if(x < a){
-            angle = Math.atan((b-y)/(x-a));
-        } else {
-            angle = Math.PI - Math.atan(-(b-y)/(x-a));
-        }
-        
-        return [angle,d];
-    }
-    
+    }    
 }

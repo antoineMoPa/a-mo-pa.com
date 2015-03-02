@@ -23,7 +23,6 @@ FRAMES:
 copy/paste/clear/delete
 
 RENDER:
-change animation dimension
 change tabs
 play animation
 change animation width/height
