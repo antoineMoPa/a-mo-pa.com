@@ -11,11 +11,13 @@ breaking objects
 inverting path part direction
 copy/paste object
 delete object
+copy object to all following frames
 
 IMAGES:
 add image
 rotate image
 scale image
+copy object to all following frames
 
 FRAMES:
 copy/paste/clear/delete

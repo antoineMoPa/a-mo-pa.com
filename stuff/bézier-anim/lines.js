@@ -66,7 +66,7 @@ function update_animation_inputs(){
     updateCanvasSize();
 }
 
-function updateCanvasSize(){
+function updateCanvasSize(){    
     w = animations[current_animation]
         .inputs['animation_width'];
     h = animations[current_animation]
@@ -80,6 +80,8 @@ updateCanvasSize();
 draw();
 
 var object_inputs = animations[current_animation]
+    .frames[current_frame]
+    .objects[current_object]
     .inputs;
 
 initInputs(object_inputs, update_object_inputs);
@@ -124,10 +126,11 @@ var actions = [
     ["object_bring_up","",action_object_bring_up],
     ["object_bring_down","",action_object_bring_down],
     ["object_break_path","B",action_break_path],
-    ["object_path_new","",new_path_object],
+    ["object_path_new","N",new_path_object],
     ["object_image_new","",new_image_object],
     ["object_copy","",action_object_copy],
     ["object_paste","",action_object_paste],
+    ["object_copy_to_following_frames","",action_object_copy_to_following_frames],
     ["point_convert_to_smooth","",action_point_convert_to_smooth],
     ["path_invert_direction","",path_invert_direction],
     ["frame_next",39,action_next_frame], // Right
@@ -148,6 +151,25 @@ initSwitches(object_switches, update_object_switches);
 
 function update_object_switches(){
     draw();
+}
+
+function action_object_copy_to_following_frames(){
+    var object = deep_copy(
+        frames[current_frame]
+            .objects[current_object]
+    );
+    
+    for(var i = current_frame+1; i < frames.length; i++){
+        var pos = current_object;
+        if(pos > frames[i].objects.length){
+            pos = frames[i].objects.length - 1;
+        }
+        frames[i].objects.splice(
+            pos,
+            0,
+            object
+        )
+    }
 }
 
 function action_point_convert_to_smooth(){
@@ -629,7 +651,7 @@ function path_invert_direction(){
     for(var i = start; i < end; i++){
         copy.push(points[i].slice(0));
     }
-    
+
     copy = copy.reverse();
     for(var i = start; i < end; i++){
         points[i] = copy[i-start];
@@ -993,7 +1015,7 @@ function initEditor(){
             if(object.type == TYPE_PATH ){
                 clean_current_path_object();
             }
-            
+
             update_object_ui();
             draw();
         }

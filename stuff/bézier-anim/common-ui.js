@@ -67,24 +67,34 @@ function initFormList(name, data, callback){
         var inputs = data[i];
         for(var index in inputs){
             var sel = "input[data-name='"+index+"'][data-id='"+i+"']";
-            html_input = QSA(sel)[0];
-            enableInput(html_input, inputs, index, callback);
+            var html_input = QSA(sel)[0];
+            enableInput(
+                html_input,
+                inputs,
+                index,
+                callback
+            );
         }
     }
 }
 
-function initInputs(inputs,callback){
+function initInputs(inputs, callback){
     var callback = callback || function(){};
     for(input in inputs){
-        var html_input = QSA("input[data-name="+input+"]")[0];
-        if(html_input.attributes == undefined){
-            continue;
-        }
-        enableInput(html_input, inputs, input, callback);
+        var html_input = QSA(
+            "input[data-name="+input+"]"
+        )[0];
+        enableInput(
+            html_input,
+            inputs,
+            input,
+            callback
+        );
     }
 }
 
 function enableInput(html_input, data_array, index, callback){
+    var callback = callback || {};
     var type = html_input.type;
 
     if( type == "file"
@@ -106,7 +116,6 @@ function enableInput(html_input, data_array, index, callback){
         }
     } else {
         html_input.value = data_array[index];
-
         /* don't change frame on arrow down! */
         html_input.onkeydown = function(e){
             e.stopPropagation();
@@ -116,13 +125,13 @@ function enableInput(html_input, data_array, index, callback){
             html_input.onchange = function(){
                 oldvalue = this.value;
                 data_array[index] = this.value;
+
                 callback(
                     html_input,
                     data_array,
                     index,
                     oldvalue
                 );
-                draw();
             }
     }
 }
@@ -227,10 +236,14 @@ function initSwitches(switches, callback){
 function initActions(actions){
     for(var act = 0; act < actions.length; act++){
         if(actions[act][0] != ""){
-            var btn = QSA(
+            var btns = QSA(
                 "action[data-name="+actions[act][0]+"]"
-            )[0];
-            btn.onclick = actions[act][2];
+            );
+            
+            for(var i = 0; i < btns.length; i++){
+                btn = btns[i];
+                btn.onclick = actions[act][2];
+            }
         }
     }
 
