@@ -104,7 +104,7 @@ function bwmpc_init_draw(g){
         }
         
         for(var i = 1; i < points.length; i++){
-            if(points[i] == "break"){
+            if( points[i][2] == POINT_BREAK ){
                 if(points[i+1] != undefined){
                     ctx.moveTo(
                         points[i+1][0],

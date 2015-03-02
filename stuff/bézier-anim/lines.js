@@ -25,10 +25,15 @@
     half a emacs window on my thinkpad laptop
 */
 
+/* Point types */
 
 var POINT_POINT = 0;
 var POINT_GUIDE = 1;
 var POINT_NOT_SMOOTH = 2;
+var POINT_BREAK = 3;
+var POINT_RIG_REF = 4;
+
+/* Object types */
 var TYPE_PATH = 0;
 var TYPE_IMAGE = 1;
 
@@ -531,8 +536,8 @@ function bwmpc(){
         if(object.type == TYPE_PATH){
             var points = object.points;
             
-            if(points[points.length-1] != "break"){
-                points.push("break");
+            if(points[points.length-1][2] != POINT_BREAK){
+                points.push([0,0,POINT_BREAK]);
             }
             
             var last = points[points.length-2];
@@ -667,8 +672,8 @@ function bwmpc(){
         if(points[g.selected_point-1] != undefined){
             for(var i = g.selected_point-1; i >= 0; i--){
                 start = i;
-                if( points[i] == "break" ||
-                    points[i] == undefined ){
+                if( points[i] == undefined ||
+                    points[i][2] == POINT_BREAK){
                     start++;
                     break;
                 }
@@ -678,7 +683,7 @@ function bwmpc(){
             var num = points.length;
             for(var i = g.selected_point+1;i < num; i++){
                 end = i;
-                if(points[i] == "break"){
+                if(points[i][2] == POINT_BREAK){
                     end--;
                     break;
                 }
@@ -869,10 +874,10 @@ function bwmpc(){
             
             /* Remove breaks at end of objects */
             
-            if ( points[points.length-1] == "break" ){
+            if ( points[points.length-1][2] == POINT_BREAK ){
                 points.splice(points.length-1,1);
             }
-            if ( points[0] == "break" ){
+            if ( points[0][2] == POINT_BREAK ){
                 points.splice(0,1);
             }
         }
@@ -1049,7 +1054,8 @@ function bwmpc(){
                         ][2] == POINT_GUIDE ){
                         point_type = POINT_POINT;
                     }
-                    if(points[points.length-1] == "break"){
+                    if( points[points.length-1][2] ==
+                        POINT_BREAK ){
                         point_type = POINT_POINT;
                     }
                     if(points.length == 0){

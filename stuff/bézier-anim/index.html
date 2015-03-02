@@ -101,6 +101,10 @@
                           class="text-center hide show-if-image-object">
                     IMAGE
                 </tabtitle>
+                <tabtitle data-name="point-tab" 
+                          class="text-center">
+                    POINT
+                </tabtitle>
             </tabtitles>
             <tabs>
                 <tab class="hide show-if-path-object">
@@ -116,8 +120,6 @@
                     <br>
                     <action data-name="object_break_path">Break path</action>
                     <action data-name="path_invert_direction">Invert path part direction</action>
-                    <h4>Point</h4>
-                    <action data-name="point_convert_to_smooth">Convert to smooth</action>
                     
                     <br><br>
                     <h4>Shortcuts</h4>
@@ -196,6 +198,14 @@
                     <action data-name="object_paste">Paste</action>
                     <br>
                     <action data-name="object_copy_to_following_frames">Copy to all following frames</action>
+                    <br>
+                </tab>
+                <tab>
+                    <h3>Point</h3>
+                    <action
+                         class="show-if-path-object"
+                         data-name="point_convert_to_smooth">
+                        Convert to smooth</action>
                     <br>
                 </tab>
             </tabs>
