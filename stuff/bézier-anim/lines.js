@@ -488,7 +488,7 @@ function action_break_path(){
         .objects[current_object].points;
 
     pts.push("break");
-    selected++;
+    selected_point++;
     update_object_ui();
 }
 
@@ -601,11 +601,11 @@ function path_invert_direction(){
     var points = frames[current_frame]
         .objects[current_object].points;
 
-    var start = add_after;
-    var end = add_after;
+    var start = selected_point;
+    var end = selected_point;
 
-    if(points[add_after-1] != undefined){
-        for(var i = add_after-1; i > 0; i--){
+    if(points[selected_point-1] != undefined){
+        for(var i = selected_point-1; i >= 0; i--){
             start = i;
             if( points[i] == "break" ||
                 points[i] == undefined ){
@@ -614,8 +614,9 @@ function path_invert_direction(){
             }
         }
     }
-    if(points[add_after+1] != undefined){
-        for(var i = add_after+1; i < points.length; i++){
+    if(points[selected_point+1] != undefined){
+        var num = points.length;
+        for(var i = selected_point+1;i < num; i++){
             end = i;
             if(points[i] == "break"){
                 end--;
@@ -623,10 +624,12 @@ function path_invert_direction(){
             }
         }
     }
+
     var copy = [];
     for(var i = start; i < end; i++){
         copy.push(points[i].slice(0));
     }
+    
     copy = copy.reverse();
     for(var i = start; i < end; i++){
         points[i] = copy[i-start];
@@ -828,10 +831,6 @@ function initEditor(){
             var previous_object = frames[current_frame]
                 .objects[previous_object_id];
 
-            if(object.type == TYPE_PATH ){
-                clean_current_path_object();
-            }
-
             if(object.type != previous_object.type){
                 switch(object.type){
                 case TYPE_IMAGE:
@@ -990,6 +989,11 @@ function initEditor(){
                 add_after++;
             }
             selected_point = points.length-1;
+
+            if(object.type == TYPE_PATH ){
+                clean_current_path_object();
+            }
+            
             update_object_ui();
             draw();
         }

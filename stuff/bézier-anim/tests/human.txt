@@ -1,0 +1,29 @@
+Features to tests before a release
+==================================
+
+PATHS:
+add path object
+add points
+move point
+delete points
+grab/rotate/scale object
+breaking objects
+inverting path part direction
+copy/paste object
+delete object
+
+IMAGES:
+add image
+rotate image
+scale image
+
+FRAMES:
+copy/paste/clear/delete
+
+RENDER:
+change animation dimension
+change tabs
+play animation
+gif export
+save animation with images
+restore animation with images
