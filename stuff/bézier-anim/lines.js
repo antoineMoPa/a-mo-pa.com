@@ -1007,6 +1007,7 @@ function bwmpc(){
                             POINT_NOT_SMOOTH;
                     }
                     points.splice(selected,1);
+                    update_object_ui();
                     draw();
                 }
             } else if (e.button == 0){

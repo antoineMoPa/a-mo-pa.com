@@ -62,13 +62,17 @@ function bwmpc_init_draw(g){
                 points[1][1]
             );
             
-            var angle = info[0];
+            var angle = info[0] + 1/2*Math.PI;
             var d = info[1];
+            var x = points[0][0];
+            var y = points[0][1];
+            
             
             ctx.save();
-            ctx.translate(points[0][0],points[0][1]);
+            ctx.translate(x,y);
             ctx.rotate(-angle);
-            ctx.drawImage(image,0,0,d,d*ratio);
+            ctx.translate(-d/(2*ratio),0);
+            ctx.drawImage(image,0,0,d/ratio,d);
             ctx.restore();
         }
     }
