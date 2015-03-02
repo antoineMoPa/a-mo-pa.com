@@ -525,11 +525,23 @@ function bwmpc(){
     }
     
     function action_break_path(){
-        var pts = g.frames[g.current_frame]
+        var points = g.frames[g.current_frame]
             .objects[g.current_object].points;
+
+        if(points[points.length-1] != "break"){
+            points.push("break");
+        }
         
-        pts.push("break");
-        g.selected_point++;
+        var last = points[points.length-2];
+        points.push([
+            last[0]+10,
+            last[1]+10,
+            POINT_NOT_SMOOTH
+        ]);
+
+        g.selected_point = points.length - 1;
+        add_after = g.selected_point;
+        draw();
         update_object_ui();
     }
     
@@ -1061,7 +1073,8 @@ function bwmpc(){
             var closest = -1;
             var closest_distance = treshold;
             
-            for(var obj in g.frames[g.current_frame].objects){
+            for( var obj in
+                 g.frames[g.current_frame].objects ){
                 var points = g.frames[g.current_frame]
                     .objects[obj].points;
                 for(var i in points){
