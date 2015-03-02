@@ -36,13 +36,12 @@ var current_frame;
 var selected_point;
 var current_object;
 var lastDraw = 0;
-
+var add_after = 0;
 var editing = true;
 var dragging = -1;
 var rotating = -1;
 var grabbing = -1;
 var scaling = -1;
-var add_after = 0;
 
 var POINT_POINT = 0;
 var POINT_GUIDE = 1;
@@ -162,28 +161,33 @@ function action_point_convert_to_smooth(){
       not-smooth points around it
      */
 
-    if( currp < 1 || currp >= points.length - 1 ){
+    if(points.length < 2){
         pop_error(
-            "Requires 2 not-smooth "+
-                "points before and after!"
+            "requires at least 2 points"
         );
-        return;
     }
 
-    if( points[currp-1][2] != POINT_GUIDE
-        && points[currp][2] == POINT_NOT_SMOOTH
-        && points[currp+1][2] != POINT_GUIDE ){
+    if(!(currp < 1 || currp >= points.length - 1)){
+        if( points[currp-1][2] != POINT_GUIDE
+            && points[currp][2] == POINT_NOT_SMOOTH
+            && points[currp+1][2] != POINT_GUIDE ){
 
-        points[currp-1][2] = POINT_POINT;
-        points[currp][2] = POINT_GUIDE;
-        points[currp+1][2] = POINT_POINT;
-    } else if ( points[currp-1][2] == POINT_GUIDE
-                && points[currp][2] == POINT_GUIDE
-              ){
+            points[currp-1][2] = POINT_POINT;
+            points[currp][2] = POINT_GUIDE;
+            points[currp+1][2] = POINT_POINT;
+
+            draw();
+            return;
+        }
+    }
+
+    if ( points[currp-1] != undefined
+         && points[currp-1][2] != POINT_GUIDE
+         && points[currp][2] != POINT_GUIDE ){
         add_guide_in_middle(currp-1,currp);
-    } else if ( points[currp][2] != POINT_GUIDE
-                && points[currp+1][2] != POINT_GUIDE
-              ){
+    } else if ( points[currp+1] != undefined
+                && points[currp][2] != POINT_GUIDE
+                && points[currp+1][2] != POINT_GUIDE ){
         add_guide_in_middle(currp,currp+1);
     } else {
         pop_error("Can't convert to smooth!");
@@ -201,7 +205,6 @@ function action_point_convert_to_smooth(){
 
         var pt = [x+dx/2, y+dy/2, POINT_GUIDE];
         points.splice(p1+1,0,pt);
-
     }
 
     draw();
@@ -485,7 +488,7 @@ function action_break_path(){
         .objects[current_object].points;
 
     pts.push("break");
-    add_after++;
+    selected++;
     update_object_ui();
 }
 
@@ -779,14 +782,15 @@ function initEditor(){
     var timeout = -1;
     function draw_delayed(before){
         var before = before || function(){};
-        var delay = 10;
+        var delay = 5;
         var diff = Date.now() - lastDraw;
-        before();
+
         if(diff < delay){
             if(timeout == -1){
                 setTimeout(draw_delayed,diff+1);
             }
         } else {
+            before();
             draw();
             clearTimeout(timeout);
             timeout = -1;
@@ -942,25 +946,27 @@ function initEditor(){
             }
             var object = frames[current_frame]
                 .objects[current_object];
-            
+
             if(object.type == TYPE_IMAGE){
                 return;
             }
-            
+
             var points = object.points;
-            
+
             if(points.length == 0){
                 add_after = 0;
             }
             if(points.length > 2){
                 point_type = points[points.length-1][2];
             }
-            if( switches['new-points-mode'] ==
+            if( add_after != points.length -1
+                || switches['new-points-mode'] ==
                 'not-smooth' ){
                 points.splice(add_after+1,
                               0,
                               [x,y,POINT_NOT_SMOOTH]
                              );
+                add_after++;
             } else {
                 // smooth
                 var point_type = POINT_GUIDE;
@@ -981,18 +987,19 @@ function initEditor(){
                               0,
                               [x,y,point_type]
                              );
+                add_after++;
             }
             selected_point = points.length-1;
-            add_after = points.length
             update_object_ui();
             draw();
         }
     }
-    
+
     function clicked_point(x,y,treshold){
         var selected = -1;
         var closest = -1;
         var closest_distance = treshold;
+
         for(var obj in frames[current_frame].objects){
             var points = frames[current_frame]
                 .objects[obj].points;
@@ -1011,8 +1018,19 @@ function initEditor(){
             }
         }
 
+        if(selected != -1){
+            console.log(get_point_type_str(
+                frames[current_frame]
+                    .objects[current_object]
+                    .points[selected][2]
+            ));
+        }
+
         /* keep this global  */
         selected_point = parseInt(selected);
+        if(selected_point != -1){
+            add_after = selected_point;
+        }
         return selected_point;
     }
 
