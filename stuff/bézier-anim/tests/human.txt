@@ -26,6 +26,7 @@ RENDER:
 change animation dimension
 change tabs
 play animation
+change animation width/height
 gif export
 save animation with images
 restore animation with images
