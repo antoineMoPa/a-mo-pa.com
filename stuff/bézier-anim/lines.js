@@ -44,7 +44,7 @@ bwmpc();
 */
 function bwmpc(){
     var g = {};
-
+    window.g = g;
     /* Make some functions accessible from g */
     g.point_viewable = point_viewable;
     
@@ -58,12 +58,14 @@ function bwmpc(){
     g.frames;
     g.current_frame;
     
-    g.selected_point;
+    g.selected_rig_point = -1;
+    g.selected_point = -1;
     g.current_object;
     var lastDraw = 0;
     var add_after = 0;
     g.editing = true;
     g.dragging = -1;
+    g.dragging_rig_point = -1;
     g.rotating = -1;
     g.grabbing = -1;
     g.scaling = -1;
@@ -151,6 +153,7 @@ function bwmpc(){
         ["object_paste","",action_object_paste],
         ["object_copy_to_following_frames","",action_object_copy_to_following_frames],
         ["point_convert_to_smooth","",action_point_convert_to_smooth],
+        ["add_new_rig_point","",action_add_new_rig_point],
         ["path_invert_direction","",path_invert_direction],
         ["frame_next",39,action_next_frame], // Right
         ["frame_prev",37,action_prev_frame], // Left
@@ -191,6 +194,12 @@ function bwmpc(){
                 object
             )
         }
+    }
+
+    function action_add_new_rig_point(){
+        var rig = g.frames[g.current_frame].rig
+        rig.push([g.w/2,g.h/2]);
+        draw();
     }
     
     function action_point_convert_to_smooth(){
@@ -646,7 +655,8 @@ function bwmpc(){
     
     function empty_frame(){
         return {
-            objects: [default_path_object()]
+            objects: [default_path_object()],
+            rig: []
         };
     }
     
@@ -768,7 +778,16 @@ function bwmpc(){
                 var points = g.frames[g.current_frame]
                     .objects[g.current_object]
                     .points;
-                if(g.dragging != -1){
+
+                if(g.dragging_rig_point != -1){
+                    var rig_pt = g
+                        .frames[g.current_frame]
+                        .rig[g.dragging_rig_point];
+                    
+                    rig_pt[0] = x;
+                    rig_pt[1] = y;
+                    draw_delayed();
+                } else if(g.dragging != -1){
                     points[g.dragging][0] = x;
                     points[g.dragging][1] = y;
                     draw_delayed();
@@ -891,11 +910,17 @@ function bwmpc(){
             
             var previous_object_id = g.current_object;
             var selected = clicked_point(x,y,14);
-            
-            if(selected != -1){
+
+            if(g.selected_rig_point != -1){
+                g.dragging_rig_point = g.selected_rig_point;
+                return;
+            }
+
+            if (selected != -1){
                 var object = g.frames[g.current_frame]
                     .objects[g.current_object];
-                var previous_object = g.frames[g.current_frame]
+                var previous_object = g
+                    .frames[g.current_frame]
                     .objects[previous_object_id];
                 
                 if(object.type != previous_object.type){
@@ -1068,6 +1093,7 @@ function bwmpc(){
                                  );
                     add_after++;
                 }
+
                 g.selected_point = points.length-1;
                 
                 if(object.type == TYPE_PATH ){
@@ -1081,13 +1107,23 @@ function bwmpc(){
         
         function clicked_point(x,y,treshold){
             var selected = -1;
-            var closest = -1;
             var closest_distance = treshold;
+
+            var rig = g.frames[g.current_frame].rig;
             
+            for( var i in rig ){
+                var d = distance(rig[i][0],rig[i][1],x,y);
+                if( d < treshold
+                    && d < closest_distance ){
+                    closest_distance = d;
+                    g.selected_rig_point = parseInt(i);
+                }
+            }
+
             for( var obj in
                  g.frames[g.current_frame].objects ){
                 var points = g.frames[g.current_frame]
-                    .objects[obj].points;
+                    .objects[obj].points;                
                 for(var i in points){
                     var point = points[i];
                     var d = distance(point[0],point[1],x,y);
@@ -1115,6 +1151,7 @@ function bwmpc(){
             /* keep this global  */
             g.selected_point = parseInt(selected);
             if(g.selected_point != -1){
+                g.selected_rig_point = -1;
                 add_after = g.selected_point;
             }
             return g.selected_point;
@@ -1138,12 +1175,10 @@ function bwmpc(){
         }
         
         function up(x,y){
-            var points = g.frames[g.current_frame]
-                .objects[g.current_object].points;
-            
             g.dragging = -1;
             g.rotating = -1;
             g.grabbing = -1;
+            g.dragging_rig_point = -1;
             g.scaling = -1;
             draw_delayed();
         }

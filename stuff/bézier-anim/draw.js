@@ -21,10 +21,28 @@ function bwmpc_init_draw(g){
              obj++ ){
             draw_object(obj,frame)
         }
+
+        if( g.editing ){
+            draw_rig();
+        }
         
         lastDraw = Date.now();
     }
-
+    
+    function draw_rig(){
+        var rig = g.frames[g.current_frame].rig;
+        var size = 3;
+        for(var i = 0; i < rig.length; i++){
+            ctx.fillStyle = "#3AF";
+            ctx.fillRect(
+                rig[i][0]-size,
+                rig[i][1]-size,
+                2*size,
+                2*size
+            );
+        }
+    }
+    
     function draw_object(obj,frame){
         var points = frame.objects[obj].points;
         var type = frame.objects[obj].type;
