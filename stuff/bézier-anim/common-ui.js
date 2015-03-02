@@ -105,14 +105,9 @@ function enableInput(html_input, data_array, index, callback){
             var reader = new FileReader();
             data_array[index+"_id"] = id;
             reader.onload = function(e){
-                store_image(id,e.target.result);
+                store_image(id,e.target.result,callback);
             };
             reader.readAsDataURL(file);
-            callback(
-                html_input,
-                data_array,
-                index
-            );
         }
     } else {
         html_input.value = data_array[index];
@@ -137,32 +132,35 @@ function enableInput(html_input, data_array, index, callback){
 }
 
 /* Store image in animation */
-function store_image(id,data){
+function store_image(id,data,callback){
+    var callback = callback || function(){};
     if(image_store[id] == undefined){
         image_store[id] = {};
         image_store[id].data = data;
-        cache_image(id, data);
+        cache_image(id, data, callback);
     }
 }
 
 /* create dom image element usable by canvas
    for this session */
 var image_cache = [];
-function cache_image(id,data){
+function cache_image(id,data,callback){
+    var callback = callback || function(){};
     if( image_cache[id] == undefined && data != undefined ){
         var image = new Image();
         image.src = data;
-        image.onload = draw;
         image_cache[id] = image;
+        image.onload = callback;
     }
 }
 
 /* cache all images in image store */
-function fetch_images(){
+function fetch_images(callback){
     for(image in image_store){
         cache_image(
             image,
-            image_store[image].data
+            image_store[image].data,
+            callback
         );
     }
 }
@@ -205,7 +203,6 @@ function initSwitches(switches, callback){
             options[option].classList.add("active");
             switches[curr_switch] = value;
             callback();
-            draw();
         }
     }
 }
