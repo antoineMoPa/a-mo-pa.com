@@ -113,7 +113,7 @@ listen_key('S');  // Scale
 listen_key('D');  // Delete
 
 var actions = [
-    ["animation_play","",action_animation_play],
+    ["animation_play","P",action_animation_play],
     ["animation_clear","",action_animation_clear],
     ["animation_save","",action_animation_save],
     ["animation_restore","",action_animation_restore],
