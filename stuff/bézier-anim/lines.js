@@ -69,11 +69,14 @@ function bwmpc(){
     g.grabbing = -1;
     g.scaling = -1;
 
+    g.mouse_x = g.w/2;
+    g.mouse_y = g.h/2;
+    
     g.animations = [default_animation()];
 
     bwmpc_init_draw(g);
 
-    set_animation_globals();
+    update_animation_globals();
     initEditor();
     initTabs();
     switch_ui_to_path_mode();
@@ -346,7 +349,7 @@ function bwmpc(){
 
         g.current_animation = 0;
 
-        set_animation_globals();
+        update_animation_globals();
         update_object_ui();
         fetch_images(draw);
         draw();
@@ -447,11 +450,8 @@ function bwmpc(){
     var current_frame_clipboard = empty_frame();
 
     function action_animation_clear(){
-        g.frames = [];
-        g.frames.push(empty_frame());
-        g.current_frame = 0;
-        g.current_object = 0;
-        validate_and_write_frame();
+        g.animations[g.current_animation] = empty_animation();
+        update_animation_globals();
         draw();
     }
 
@@ -508,11 +508,12 @@ function bwmpc(){
         }
     }
 
-    var curr_frame = QSA(".actions .frame")[0];
-    var num_frame = QSA(".actions .frames-num")[0];
     validate_and_write_frame();
 
     function validate_and_write_frame(){
+        var curr_frame = QSA(".actions .frame")[0];
+        var num_frame = QSA(".actions .frames-num")[0];
+
         if( g.current_frame < 0 ){
             g.current_frame = 0;
         } else if ( g.current_frame >= g.frames.length ){
@@ -611,7 +612,6 @@ function bwmpc(){
         return {
             name: "",
             frames: [empty_frame()],
-            images: [default_image_inputs()],
             current_frame: 0,
             current_object: 0,
             selected_point: 0,
@@ -626,7 +626,7 @@ function bwmpc(){
         };
     }
 
-    function set_animation_globals(){
+    function update_animation_globals(){
         g.frames = g.animations[g.current_animation].frames;
 
         image_store = g.animations[g.current_animation]
@@ -641,6 +641,8 @@ function bwmpc(){
         g.current_object =
             parseInt(g.animations[g.current_animation]
                      .current_object);
+        validate_and_write_frame();
+        draw();
     }
 
     function default_path_object(){
@@ -864,7 +866,8 @@ function bwmpc(){
             var pos = getPos(e);
             x = pos[0];
             y = pos[1];
-
+            g.mouse_x = x;
+            g.mouse_y = y;
             if(mouse_down){
                 var points = g.frames[g.current_frame]
                     .objects[g.current_object]
@@ -879,6 +882,10 @@ function bwmpc(){
                     rig_pt[1] = y;
                     draw_delayed();
                 } else if(g.dragging != -1){
+                    if(points[g.dragging] == undefined){
+                        g.dragging = -1;
+                        return;
+                    }
                     points[g.dragging][0] = x;
                     points[g.dragging][1] = y;
                     draw_delayed();
