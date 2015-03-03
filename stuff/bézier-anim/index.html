@@ -202,14 +202,40 @@
                 </tab>
                 <tab>
                     <h3>Point</h3>
+                    <half-width>
+                    <action
+                         data-name="point_select_prev">
+                        Select previous</action>
+                    </half-width>
+                    <half-width>
+                    <action
+                         data-name="point_select_next">
+                        Select next</action>
+                    </half-width>
+                    <br>
                     <action
                          class="show-if-path-object"
                          data-name="point_convert_to_smooth">
                         Convert to smooth</action>
                     <br>
+                    <br>
+                    <label>Copy position of rig point</label>
+                    <br>
+                    <action
+                         data-name="point_switch_to_rigged">
+                        Switch to a rigged point
+                    </action>
+                    <br>
+                    <input data-name="point_copy_rig_id">
+                    <br>
+                    <br>
+                    <h4>Rig Points</h4>
+                    <p>Rig points can be used to control the
+                    position of other points.</p>
                     <action
                          data-name="add_new_rig_point">
                         Add new rig point</action>
+                    <br>
                     
                 </tab>
             </tabs>

@@ -349,3 +349,30 @@ function initTabs(){
         tabs[index].classList.add("active");
     }
 }
+
+function temp_input(name,visibility,value, change){
+    html_input = QSA("input[data-name='"+name+"']")[0];
+
+    html_input.original_display
+        = html_input.original_display ||
+        html_input.style.display;
+
+    if(html_input.original_display == ""){
+        html_input.original_display = "block";
+    }
+    
+    if(visibility == "hide"){
+        html_input.style.display = "none";
+        html_input.onkeyup =
+            html_input.onchange = null;
+    } else if (visibility == "show"){
+        html_input.style.display = html_input
+            .original_display;
+        html_input.value = value;
+        html_input.onkeyup =
+            html_input.onchange = function(){
+                change(html_input);
+            };
+
+    }
+}
