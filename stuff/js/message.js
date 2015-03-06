@@ -10,7 +10,7 @@ var message = window.location.hash.slice(1);
 can.style.height = "100%";
 can.style.width = "100%";
 
-ctx.fillStyle = "rgba(100,100,100,1)";
+ctx.fillStyle = "rgba(0,0,0,1)";
 ctx.fillRect(0,0,w,h);
 
 var int = setInterval(update,33);
@@ -30,7 +30,7 @@ var g = 0.3;
 var b = 0.7;
 
 function update(){
-    ctx.fillStyle = "rgba(100,100,100,0.01)";
+    ctx.fillStyle = "rgba(0,0,0,0.01)";
     ctx.fillRect(0,0,w,h);
     
     ctx.save();
