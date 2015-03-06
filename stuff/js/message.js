@@ -7,6 +7,8 @@ h = can.height = 800;
 
 var message = window.location.hash.slice(1);
 
+document.title = message;
+
 can.style.height = "100%";
 can.style.width = "100%";
 
