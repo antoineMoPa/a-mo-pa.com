@@ -20,7 +20,7 @@ var arr = [];
 for(var i = 0; i < w; i++){
     arr[i] = [];
     for(var j = 0; j < h; j++){
-        arr[i][j] = i/w+0.348;
+        arr[i][j] = Math.pow(Math.sin(i/20),2)*(i)/w+Math.sin(j/20)*(j)/h;
     }
 }
 
@@ -38,7 +38,7 @@ var exp = 2.3;
 function iterate(){
     for(var i = 0; i < w; i++){
         for(var j = 0; j < h; j++){
-            arr[i][j] = (10*((i/w + j/h + Math.pow(arr[i][j],1.1))*1) % 10)/10;
+            arr[i][j] = arr[i][j] + 0.2*Math.pow(i/w+j/h,2);
         }
     }
 }
@@ -51,14 +51,11 @@ function draw_frac(){
             var red = 0;
             var green = 0;
             var num = Math.floor((arr[i][j] * Math.pow(10,exp)) % (Math.pow(10,exp)));
-            if(num == 4){
-                red = 254;
-            }
-            if(num == 7){
-                green = 254;
-            }
+
+            red = Math.floor(num/Math.pow(10,exp)*254);
+
             data.data[index+0] = red;
-            data.data[index+1] = green;
+            data.data[index+1] = 0;
             data.data[index+2] = 0;
             data.data[index+3] = 254;
         }
