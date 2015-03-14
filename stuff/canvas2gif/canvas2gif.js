@@ -11,7 +11,7 @@ function init(){
     var textarea = QSA("textarea[name='code']")[0];
     var button = QSA("button[name='go']")[0];
     
-    textarea.value = localStorage.canvas2gifcode;
+    textarea.value = localStorage.canvas2gifcode || "ctx.fillRect(5,5,10,10);";
     
     adjust();
     window.onresize = adjust;
