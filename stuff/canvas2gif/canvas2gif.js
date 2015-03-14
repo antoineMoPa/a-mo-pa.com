@@ -11,7 +11,33 @@ function init(){
     var textarea = QSA("textarea[name='code']")[0];
     var button = QSA("button[name='go']")[0];
     
-    textarea.value = localStorage.canvas2gifcode || "ctx.fillRect(5,5,10,10);";
+    textarea.value = localStorage.canvas2gifcode || 
+        ['// tutorial',
+         '',
+         'window.delay = 100;',
+         '',
+         '// fill everything',
+         'ctx.fillStyle = "#000";',
+         'ctx.fillRect(0,0,300,300);',
+         '',
+         '// draw square',
+         'ctx.fillStyle = "#fff";',
+         'ctx.fillRect(5,5,10,10);',
+         '',
+         '// this goes to the gif',
+         'addFrame();',
+         '',
+         'ctx.fillStyle = "#000";',
+         'ctx.fillRect(0,0,300,300)',
+         '',
+         '',
+         'ctx.fillStyle = "#fff";',
+         'ctx.fillRect(10,10,10,10);',
+         'addFrame();',
+         '',
+         '// this renders the gif',
+         '// if it does not work, reload and try again!',
+         'render();'].join("\n");
     
     adjust();
     window.onresize = adjust;
