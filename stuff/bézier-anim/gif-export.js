@@ -6,7 +6,7 @@ var button = document
 var gif = new GIF({
     workers: 2,
     quality: 10,
-    workerScript: "lib/gifjs/gif.worker.js"
+    workerScript: "../lib/gifjs/gif.worker.js"
 });
 
 var imported = window.localStorage.to_gif_export;
