@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <style>
+            /* disable interpolation hack */
+            canvas {
+                image-rendering: optimizeSpeed;
+                image-rendering: -moz-crisp-edges;
+                image-rendering: -o-crisp-edges;
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: optimize-contrast;
+                -ms-interpolation-mode: nearest-neighbor;
+	            margin-bottom:20px;
+                margin-top:10px;
+                max-width:98%;
+                border:3px solid #000;
+                margin-left:10px;
+            }
+            body{
+                margin:0;
+                text-align:center;
+                background:rgba(100,100,100,1);
+	            padding-bottom:20px;
+                background:#fff;
+                font-family:sans-serif;
+            }
+            .rendering-info{
+                position:absolute;
+                color:#fff;
+                font-family:monospace,Sans-Serif,Helvetica,Arial;
+                font-weight:bolder;
+                font-size:20px;
+                padding-left:20px;
+            }
+            tip{
+                color:#fff;
+                font-family:sans-serif;
+            }
+            a{
+                color:#3af;
+            }
+            col-half{
+                width:49%;
+                display:inline-block;
+                vertical-align:top;
+            }
+            textarea{
+                width:100%;
+                border:none;
+                border-radius:0;
+                background:#eee;
+                margin:10px 0;
+                min-height:300px;
+                resize:vertical;
+            }
+            text-right{
+                text-align:right;
+                display:block;
+            }
+            text-left{
+                text-align:left;
+                display:block;
+            }
+            button{
+                border-radius:0;
+                border:none;
+                padding:10px 30px;
+                background:#3af;
+                color:#fff;
+            }
+            h1,h2{
+                font-family:sans-serif;
+                font-weight:300;
+            }
+            h2{
+                text-align:left;
+                margin-left:10px;
+            }
+            .content{
+                margin:10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>CANVAS 2 GIF</h1>
+        <col-half>
+            <h2>Code&nbsp;:</h2>
+            <textarea name="code" id="editor"></textarea>
+            <text-right>
+                <button name="go">Go! (Shift+Enter)</button>
+            </text-right>
+        </col-half>
+        <col-half>
+            <h2>Canvas&nbsp;:</h2>
+            <canvas name="potato" width="300" height="300">
+            </canvas>
+            <h2>Image&nbsp;:</h2>
+            <image-container>
+                <img id="result-img">
+            </image-container>
+        </col-half>
+        <div class="content">
+            <text-left>
+                <p>Works with: <a href="http://jnordberg.github.io/gif.js/">gifjs</a></p>
+                <p>You may need to reload the page when rendering more than once. The code you will stay (thanks to localStorage)</p>
+                <p>Call addFrame() to record a frame. It will take window.can and put it in the gif renderer.</p>
+                <p>Call render() when your animation is over.
+                <p>Change window.delay to have a different delay!</p>
+            </p>
+            </text-left>
+        </div>
+        <script src="../lib/gifjs/gif.js"></script>
+        <script src="canvas2gif.js"></script>
+
+        <!-- Piwik -->
+        <script type="text/javascript">
+            var _paq = _paq || [];
+            _paq.push(['trackPageView']);
+            _paq.push(['enableLinkTracking']);
+            (function() {
+            var u="//tracking.appidea.org/";
+            _paq.push(['setTrackerUrl', u+'piwik.php']);
+            _paq.push(['setSiteId', 1]);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+            })();
+        </script>
+        <noscript><p><img src="//tracking.appidea.org/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
+        <!-- End Piwik Code -->
+    </body>
+</html>
