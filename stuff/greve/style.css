@@ -1,0 +1,42 @@
+body{
+    font-family:sans-serif;
+    max-width:100%;
+    overflow-x:hidden;
+}
+h1{
+    text-align:center;
+    font-weight:300;
+    font-size:80px;
+    margin-bottom:-40px;
+}
+h2{
+    text-align:center;
+    font-weight:300;
+    font-size:37px;
+    text-transform:uppercase;
+    margin-bottom:90px;
+}
+buttons{
+    width:400px;
+    display:block;
+    text-align:center;
+    margin:auto;
+}
+
+button{
+    padding:20px 40px;
+    margin:10px;
+    border-radius:0;
+    border:none;
+    background:#3af;
+    color:#fff;
+    cursor:pointer;
+}
+
+.red{
+    background:#f33;
+}
+
+.green{
+    background:#3b3;
+}
