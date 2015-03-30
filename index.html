@@ -1,77 +1,75 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Programmeur | Antoine Morin-Paulhus</title>
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
-    <link rel='stylesheet' media='all' href='assets/css/style.css'>
-    <link rel='stylesheet' media='all' href='assets/css/normalize.css'>
-    <meta charset='utf-8'>
-    <script src="assets/js/q.js"></script>
-    <script src="assets/js/a-mo-pa.js"></script>
-    <script src="assets/js/renderer.js"></script>
-</head>
-<body>
-<div class='top-links'>
-    <span>Links :</span> 
-    <a href="txts/">Some text files</a> 
-    <span>|</span>
-    <a href="https://github.com/antoineMoPa">
-        Me on Github
-    </a>
-    <span>|</span>
-    <a href="experiments/">
-        Some web art experiments
-    </a>
-    <span>|</span>
-    <a href="stuff/sound.html">
-        JS sound playground
-    </a>
-    <span>|</span>
-    <a href="triangular/">
-        JS cellular automation playground
-    </a>
-</div>
+    <head>
+        <meta charset="utf-8">
+        <title>Antoine Morin-Paulhus | programmeur</title>
+        <style>
+            body{
+                font-family:sans-serif;
+                background:#efefef;
+            }
+            content{
+                display:inline-block;
+                width:90%;
+                margin-left:30px;
+                margin-top:30px;
+                border-left: 4px solid #000;
+                padding-left:30px;
+                transform:scaleX(-1);
+            }
+            @media all (min-width:768px){
+                content{
+                    transition:all 0.3s;
+                }
+            }
+            content:hover{
+                transform:none;
+            }
+            h1,h2,h3,h4{
+                font-weight:300;
+            }
+            a,a:active{
+                color:#25c;
+                transition:all 0.3s;
+            }
+            a:hover{
+                margin-left:10px;
+            }
+            a:hover:before{
+                content:"♞ ";
+            }
+        </style>
+    </head>
+    <body>
+        <content>
+            <h1>Bonjour !</h1>
 
-<div class="text-center title-canvas-container">
-    <h1 class="title-canvas-container-title">Fun with Javascript</h1>
-    <canvas title='click!' data-date='october-01-2014' class='title-canvas fullwidth-canvas circles-canvas'></canvas>
-</div>
+            <h2>Projets :</h2>
+            <a href="http://galileo.graphycs.cegepsherbrooke.qc.ca/app/fr/lamps">Banque de données spectrales</a>
+            
+            <h2>Javascript :</h2>
+            <p>( Généralement PAS testés sur tablettes/téléphones parce que je vis technologiquement sous une roche )</p>
+            <p>( Certains risquent de fonctionner quand même, malheureusement )</p>
+            <a href="stuff/bézier-anim/">Application d'animation avec canvas</a><br>
+            <a href="stuff/canvas2gif/">Canvas2Gif : obtenir un gif à partir de code JS</a><br>
+            <a href="stuff/dumbfrac/">image semi-aléatoire formée mathématiquement</a><br>
+            <a href="stuff/mandelbrot.html">ensembles de Julia et de Mandelbrot</a><br>
+            <a href="stuff/points.html">cliquez dans l'écran !</a><br>
+            <a href="stuff/sound.html">Faire du son en Javascript</a><br>
+            <a href="stuff/old_home.html">Ancienne page d'accueil avec beaucoup d'«art» Javascript</a><br>
+            <a href="experiments/html/waves.content.html">Physique: simulateur de surface oscillante</a><br>
+            <a href="triangular/">Automate Cellulaire</a><br>
+            <a href="about:blank" title="lol">/dev/null</a>
+            
+            <h2>Réseaux Sociaux :</h2>
+            <a href="https://github.com/antoineMoPa">GitHub: @antoineMoPa</a><br>
 
+            <h2>Philosophie :</h2>
+            <p>«Dans la vie, il faut regarder par la fenêtre»</p>
+                                
+            <h2>Système d'exploitation :</h2>
+            <p><a href="https://www.debian.org/">Debian</a> (Linux)</p>
 
-<p class='text-center'>Welcome to my JavaScript art "showroom"!</p>
-<p class='text-center'>Be my 4th follower on tumblr: <a href='http://debileraterando.tumblr.com/'>Deliberate Randomness</a></p>
-<p class='text-center'>Follow-me on twitter: <a href='https://twitter.com/AntoineMoPa'>@antoineMoPa</a></p>
-
-<canvas class='fullwidth-canvas a-mo-pa-canvas'></canvas>
-<canvas class='fullwidth-canvas a-mo-pa-canvas-2'></canvas>
-<div class="text-center">
-  <canvas class='canvas-with-whitespace fullwidth-canvas spirals-canvas'></canvas>
-</div>
-<div class="text-center">
-    <canvas class='canvas-with-whitespace fullwidth-canvas frequencies-canvas'></canvas>
-</div>
-
-<div class="text-center">
-  <canvas class='fullwidth-canvas renderer-canvas'></canvas>
-</div>
-
-
-
-<script>$.ready();</script>
-<!-- Piwik -->
-<script type="text/javascript">
-  var _paq = _paq || [];
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-    var u="//tracking.appidea.org/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', 1]);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-<noscript><p><img src="//tracking.appidea.org/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
-<!-- End Piwik Code -->
-</body>
+        </content>
+    </body>
 </html>

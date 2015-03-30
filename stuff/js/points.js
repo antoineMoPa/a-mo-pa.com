@@ -122,7 +122,7 @@ ctx.fillRect(0,0,w,h);
 
 function draw(){
     //ctx.clearRect(0,0,w,h);
-    ctx.fillStyle = "rgba(255,255,255,0.1)";
+    ctx.fillStyle = "rgba(255,255,255,1)";
     ctx.fillRect(0,0,w,h);
     draw_editing_stuff();
 }
