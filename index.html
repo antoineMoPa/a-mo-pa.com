@@ -15,14 +15,14 @@
                 margin-top:30px;
                 border-left: 4px solid #000;
                 padding-left:30px;
-                transform:scaleX(-1);
             }
-            @media all (min-width:768px){
+            @media all and (min-width:768px){
                 content{
-                    transition:all 0.3s;
+                    transition:all 0.2s;
+                    transform:scaleX(-1);
                 }
             }
-            content:hover{
+            body:hover content{
                 transform:none;
             }
             h1,h2,h3,h4{
