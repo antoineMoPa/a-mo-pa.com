@@ -44,6 +44,12 @@ Start server:
 darkice -c darkice.cfg
 [/terminal]
 
+
+Audio setup with pavucontrol
+--------------
+
+With pavucontrol, I had to go enable and raise the volume of ALSA Capture and turn off Internal audio. You'll have to look for those settings. In french, it was respectively: "Enregistrement" (Recording) and "Configuration" (Same as french)
+
 ON RASPBERRY PI:
 ---------------
 
