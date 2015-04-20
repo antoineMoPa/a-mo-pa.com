@@ -1,0 +1,54 @@
+How to take sound output from debian to a raspberry pi
+======================================================
+
+So I wanted to plug my raspberry pi to a sound system and stream music from my laptop to it.
+
+My laptop is on the same network as my PI and this method requires you to know the laptop's subnetwork IP.
+
+
+ON DEBIAN:
+----------
+
+[terminal]
+apt-get install icecast2 darkice pavucontrol
+[/terminal]
+
+Create a file named darkice.cfg with this content
+[code]
+[general]
+duration        = 0      # duration in s, 0 forever
+bufferSecs      = 1      # buffer, in seconds
+reconnect       = yes    # reconnect if disconnected
+
+[input]
+device          = default # or `pulse' for Pulseaudio
+sampleRate      = 44100   # sample rate 11025, 22050 or 44100
+bitsPerSample   = 16      # bits
+channel         = 2       # 2 = stereo
+
+[icecast2-0]
+bitrateMode     = vbr       # variable bit rate (`cbr' constant, `abr' average)
+quality         = 1.0       # 1.0 is best quality
+format          = vorbis       # format. Choose `vorbis' for OGG Vorbis
+bitrate         = 256       # bitrate
+server          = localhost # or IP
+port            = 8000      # port for IceCast2 access
+password        = hackme    # source password to the IceCast2 server
+mountPoint      = stream.ogg  # mount point on the IceCast2 server .mp3 or .ogg
+name            = stream
+[/code]
+
+Start server:
+
+[terminal]
+darkice -c darkice.cfg
+[/terminal]
+
+ON RASPBERRY PI:
+---------------
+
+[terminal]
+sudo apt-get install mplayer
+# Update to whatever your ip is
+mplayer 192.168.0.50:8000/stream.ogg
+[/terminal]
