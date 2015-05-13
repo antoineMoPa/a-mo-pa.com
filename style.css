@@ -37,8 +37,9 @@ a:not(".block"):hover:before{
 
 .block img{
     width:200px;
-    height:200px;
-    padding:20px;
+    height:auto;
+    margin:30px;
+    max-width:100%;
     filter: brightness(1);
     transition:all 0.3s;
 }
@@ -66,6 +67,7 @@ blockinfo{
 blockinfo{
     color:#fff;
     padding:20px;
+    padding-left:0;
 }
 .block:hover{
     background:#555;
@@ -80,4 +82,21 @@ blockinfo h3{
 
 blockinfo p{
     font-weight:300;
+}
+
+@media all and (max-width:758px){
+    blockimg{
+        background:#444;
+    }
+    blockimg,
+    blockinfo{
+        width:100%;
+        display:block;
+    }
+    blockinfo{
+        padding-left:20px;
+    }
+    blockimg{
+        text-align:center;
+    }
 }
