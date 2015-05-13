@@ -11,6 +11,7 @@ links = [];
 can.onmousedown = down;
 
 function down(e){
+    e.preventDefault();
     var x = e.clientX;
     var y = e.clientY;
 
