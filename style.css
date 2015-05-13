@@ -1,0 +1,83 @@
+body{
+    font-family:'Open Sans', sans-serif;
+    background:#efefef;
+    padding:20px;
+    font-size:20px;
+}
+content{
+    display:inline-block;
+    width:100%;
+}
+h1,h2,h3,h4{
+    font-weight:300;
+}
+a,
+a:active{
+    color:#25c;
+    transition:all 0.3s;
+    text-decoration:none;
+}
+a:hover{
+    margin-left:10px;
+}
+a:not(".block"):hover:before{
+    content:"♞ ";
+}
+
+.block{
+    display:block;
+    width:100%;
+    background:#333;
+    margin:20px 0;
+    box-shadow:0 0 3px rgba(0,0,0,0.3);
+    padding:3px;
+    transition:all 0.3s;
+    cursor:pointer;
+}
+
+.block img{
+    width:200px;
+    height:200px;
+    padding:20px;
+    filter: brightness(1);
+    transition:all 0.3s;
+}
+.block:hover img{
+    filter: brightness(0.9);
+}
+
+
+blockimg{
+    width:20%;
+}
+blockinfo{
+    width:80%;
+}
+
+blockimg,
+blockinfo{
+    display:inline-block;
+    vertical-align:top;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+blockinfo{
+    color:#fff;
+    padding:20px;
+}
+.block:hover{
+    background:#555;
+}
+
+blockinfo h3{
+    font-weight:500;
+    font-size:50px;
+    line-height:60px;
+    margin:0;
+}
+
+blockinfo p{
+    font-weight:300;
+}

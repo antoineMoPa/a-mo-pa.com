@@ -3,62 +3,172 @@
     <head>
         <meta charset="utf-8">
         <title>Antoine Morin-Paulhus | programmeur</title>
-        <style>
-            body{
-                font-family:sans-serif;
-                background:#efefef;
-            }
-            content{
-                display:inline-block;
-                width:90%;
-                margin-left:30px;
-                margin-top:30px;
-            }
-            h1,h2,h3,h4{
-                font-weight:300;
-            }
-            a,a:active{
-                color:#25c;
-                transition:all 0.3s;
-            }
-            a:hover{
-                margin-left:10px;
-            }
-            a:hover:before{
-                content:"♞ ";
-            }
-        </style>
+        <link rel="stylesheet" media="all" href="style.css">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
     </head>
     <body>
+        <!--
+            WHY THE HELL ARE YOU LOOKING AT MY SOURCE CODE
+            
+            ᕦ(ò_óˇ)ᕤ 
+            
+            Just kidding
+            
+             ʕʘ̅͜ʘ̅ʔ
+            
+          -->
         <content>
-            <h1>Bonjour !</h1>
+            <h1>Hello ! | Bonjour ! | Olá ! | Hola !</h1>
 
-            <h2>Projets :</h2>
-            <a href="http://galileo.graphycs.cegepsherbrooke.qc.ca/app/fr/lamps">Banque de données spectrales</a>
+            <h2>Projects :| Proyetos :| Pojetos :| Projets :</h2>
             
-            <h2>Javascript :</h2>
-            <p>( Généralement PAS testés sur tablettes/téléphones parce que je vis technologiquement sous une roche )</p>
-            <p>( Certains risquent de fonctionner quand même, malheureusement )</p>
-            <a href="stuff/bézier-anim/">Application d'animation avec canvas</a><br>
-            <a href="stuff/canvas2gif/">Canvas2Gif : obtenir un gif à partir de code JS</a><br>
-            <a href="stuff/dumbfrac/">image semi-aléatoire formée mathématiquement</a><br>
-            <a href="stuff/mandelbrot.html">ensembles de Julia et de Mandelbrot</a><br>
-            <a href="stuff/points.html">cliquez dans l'écran !</a><br>
-            <a href="stuff/sound.html">Faire du son en Javascript</a><br>
-            <a href="stuff/old_home.html">Ancienne page d'accueil avec beaucoup d'«art» Javascript</a><br>
-            <a href="experiments/html/waves.content.html">Physique: simulateur de surface oscillante</a><br>
-            <a href="triangular/">Automate Cellulaire</a><br>
-            <a href="about:blank" title="lol">/dev/null</a>
+            <a class="block" href="http://lspdd.com">
+                <blockimg>
+                    <img src="thumbs/lspdd.png">
+                </blockimg><blockinfo>
+                    <h3>
+                        Lamp Spectral Power<br>Distribution Database
+                    </h3>
+                    <p>
+                        Rails web project with light pollution research group at Cégep de Sherbrooke.
+                    </p>
+                </blockinfo>
+            </a>
+            <a class="block" href="stuff/mandelbrot.html">
+                <blockimg>
+                    <img src="thumbs/mandelbrot.png">
+                </blockimg><blockinfo>
+                    <h3>
+                        Mandelbrot & Julia sets
+                    </h3>
+                    <p>
+                        Mandelbrot and Julia sets in your browser (Javascript). [Maths are sometimes beautiful]
+                    </p>
+                </blockinfo>
+            </a>
+            <a class="block" href="stuff/dumbfrac/">
+                <blockimg>
+                    <img src="thumbs/dumbfrac.gif">
+                </blockimg><blockinfo>
+                    <h3>
+                        Dumbfrac
+                    </h3>
+                    <p>
+                        Javascript experiment: I tried to see if I could generate interesting images using overly complicated meaningless math.
+                    </p>
+                </blockinfo>
+            </a>
+            <a class="block" href="stuff/points.html">
+                <blockimg>
+                    <img src="thumbs/lines.png">
+                </blockimg><blockinfo>
+                    <h3>
+                        Chaotic Lines and Points
+                    </h3>
+                    <p>
+                        Javascript experiment - Click on the screen to make points appear.
+                    </p>
+                </blockinfo>
+            </a>
+            <a class="block" href="experiments/html/waves.content.html">
+                <blockimg>
+                    <img src="thumbs/waves.gif">
+                </blockimg><blockinfo>
+                    <h3>
+                        Wave simulation
+                    </h3>
+                    <p>
+                        Javascript experiment: I always wanted to try this. Every pixel represents a water container and shares water with nearby pixels. The water exchanges at a certain velocity. Water waves pattern happen auto-magically.
+                    </p>
+                </blockinfo>
+            </a>
+            <a class="block" href="triangular/">
+                <blockimg>
+                    <img src="thumbs/triangular.png">
+                </blockimg><blockinfo>
+                    <h3>
+                        Triangular: cellular automata experiments
+                    </h3>
+                    <p>
+                        2013 project that made me fail my physics class because I could not stop observing the patterns. (Don't worry, I finally passed this class at 89% in 2014)
+                    </p>
+                </blockinfo>
+            </a>
+            <a class="block" href="stuff/old_home.html">
+                <blockimg>
+                    <img src="thumbs/js-fun-page.gif">
+                </blockimg><blockinfo>
+                    <h3>
+                        Fun with Javascript page
+                    </h3>
+                    <p>
+                        This used to be my home page. It was not really mobile friendly so it is now a separate page. Many Javascript canvas animations.
+                    </p>
+                </blockinfo>
+            </a>
+            <a class="block" href="stuff/old_home.html">
+                <blockimg>
+                    <img src="thumbs/js-sound.png">
+                </blockimg><blockinfo>
+                    <h3>
+                        Javascript Sound Playground
+                    </h3>
+                    <p>
+                        All you need to quickly start programming sound / simple music with examples.<br>
+                        Reproduce your physics class experiments! 
+                    </p>
+                </blockinfo>
+            </a>
+            <a class="block" href="stuff/bézier-anim/">
+                <blockimg>
+                    <img src="thumbs/animator.gif">
+                </blockimg><blockinfo>
+                    <h3>
+                        Simple Canvas Animations
+                    </h3>
+                    <p>
+                        Create simple animations in your browser! (With gif export)
+                    </p>
+                    <p>
+                        I called this "Black & White Motion Picture Co."
+                    </p>
+                </blockinfo>
+            </a>
+            <a class="block" href="stuff/canvas2gif/">
+                <blockimg>
+                    <img src="thumbs/canvas-2-gif.gif">
+                </blockimg><blockinfo>
+                    <h3>
+                        JS Canvas to Gif
+                    </h3>
+                    <p>
+                        Write html5 canvas code and get a gif.
+                    </p>
+                    <p>
+                        Read instructions at the bottom.
+                    </p>
+                </blockinfo>
+            </a>
             
-            <h2>Réseaux Sociaux :</h2>
+            <h2>Réseaux Sociaux : | Social Networks : | Redes sociais : | The interwebs:</h2>
             <a href="https://github.com/antoineMoPa">GitHub: @antoineMoPa</a><br>
-
+            <a href="https://twitter.com/antoinemopa">Twitter: @antoineMoPa</a><br>
+            
             <h2>Philosophie :</h2>
             <p>«Dans la vie, il faut regarder par la fenêtre»</p>
-                                
-            <h2>Système d'exploitation :</h2>
+            
+            <h2>Computer stuff - I use / code with :</h2>
             <p><a href="https://www.debian.org/">Debian</a> (Linux)</p>
-
+            <p><a href="https://www.python.org/">Python</a></p>
+            <p><a href="http://www.gnu.org/software/emacs/">Emacs</a></p>
+            <p><a href="https://www.ruby-lang.org/en/">Ruby</a> (sometimes)</p>
+            <p><a onclick="alert('This is Javascript')">Javascript</a> (everyday)</p>
+            
+            <h2>Other</h2>
+            <p><a href="txts">Text files about coding & stuff</a></p>
+            <p><a href="experiments">Small Javascript experiments</a></p>
         </content>
+        
+        <script src="main.js"></script>
     </body>
 </html>
