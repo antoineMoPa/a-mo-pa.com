@@ -1,0 +1,16 @@
+/**
+   PARTICLES SPECIFICATION
+   
+   0: x
+   1: y
+   2: vx
+   3: vy
+   4: (auto) absolute speed
+   5: (auto) absolute angle
+   6: fx
+   7: fy
+   8: ax
+   9: ay
+   10: mass
+   11: temperature (future) 
+*/
