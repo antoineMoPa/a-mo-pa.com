@@ -44,8 +44,8 @@ function anim(){
 
 function calc(){
     var kcs = kcursorspeed = 0.1;
-    var pointerX = lastmousemove.clientX || 0;
-    var pointerY = lastmousemove.clientY || 0;
+    var pointerX = lastmousemove.pageX || 0;
+    var pointerY = lastmousemove.pageY || 0;
     for(var i = 0; i < particles.length;i++){
 	// set speed according to pointer
 	particles[i][2] = kcs * (pointerX - particles[i][0]);
@@ -61,12 +61,22 @@ function calc(){
 	;
 	// find final angle
 	// angle = atan(vy/vx)
-	particles[i][5] =
-	    Math.atan(
-		particles[i][3] /
-		    particles[i][2]
-	    )
-	;
+	if(particles[i][2] >= 0){
+	    particles[i][5] =
+		Math.atan(
+		    (particles[i][3]) /
+			(particles[i][2])
+		)
+	    ;
+	} else {
+	    particles[i][5] =
+		Math.PI + Math.atan(
+		    (particles[i][3]) /
+			(particles[i][2])
+		)
+	    ;
+
+	}
     }
 }
 
@@ -83,13 +93,25 @@ function draw(){
 	ctx.translate(px,py);
 	ctx.rotate(particles[i][5]);
 	ctx.rect(
-	    0,
-	    0,
-	    3,
-	    particles[i][4] / 2
+	    -5,
+	    -2,
+	    10,
+	    4
 	);
 	ctx.closePath();
 	ctx.fill();
+	ctx.fillStyle = "#ff0000";
+	ctx.beginPath()
+	// draw magnet
+	ctx.rect(
+	    0,
+	    -2,
+	    5,
+	    4
+	)
+	ctx.closePath();
+	ctx.fill();
+	
 	ctx.restore();
     }
     
