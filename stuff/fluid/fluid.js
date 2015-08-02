@@ -57,7 +57,7 @@ function anim(){
 function calc(){
     calculating = true;
     var kcs = kcursorspeed = 0.9;
-    var krep = krepulsion = 0.05;
+    var krep = krepulsion = -0.05;
     var speeddamp = 0.95;
     var pointerX = lastmousemove.pageX || 0;
     var pointerY = lastmousemove.pageY || 0;
