@@ -12,5 +12,6 @@
    8: ax
    9: ay
    10: mass
-   11: temperature (future) 
+   11: type [0=normal,1=fixed]
+   12: temperature (future)
 */

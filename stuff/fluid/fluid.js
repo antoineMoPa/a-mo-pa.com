@@ -23,15 +23,28 @@ can.onmouseleave = function(e){
     mouseOn = false;
 };
 
+ctx.fillStyle = "rgba(255,255,255,1)";
+ctx.fillRect(0,0,w,h);
+
+
+//
+// init particles
+//
+
 for(var i = 0; i < particleNumX; i++){
     for(var j = 0; j < particleNumY; j++){
 	new_particle(i*500/particleNumX,j*500/particleNumY);
 	if(i > 5 && i < 15 && j > 5 && j < 15){
 	    if(j < particleNumY / 2){
-		//particles[particles.length-1][2] = 4;
+		particles[particles.length-1][2] = 2;
 	    } else {
-		//particles[particles.length-1][2] = -4;
+		particles[particles.length-1][2] = -2;
 	    }
+	}
+	// build wall
+	if(i == 0 || i == particleNumX - 1
+	   || j == 0 || j == particleNumY -1){
+	    particles[particles.length-1][11] = 1;
 	}
     }
 }
@@ -48,7 +61,8 @@ function new_particle(x,y){
 	0,       // fy
 	0,       // ax
 	0,       // ay
-	0.2      // mass
+	0.2,      // mass
+	0
     ]);
 }
 
@@ -64,8 +78,9 @@ function anim(){
 function calc(){
     calculating = true;
     var kcs = kcursorspeed = 0.9;
-    var krep = krepulsion = -0.02;
-    var speeddamp = 0.98;
+    var krep = krepulsion = -0.2;
+    var kspeed = 1;
+    var speeddamp = 0.99;
     var pointerX = lastmousemove.pageX || 0;
     var pointerY = lastmousemove.pageY || 0;
     for(var i = 0; i < particles.length;i++){
@@ -108,11 +123,11 @@ function calc(){
 	    if(d < 100){
 		var addedX = krep * deltaX / Math.pow(d,2)
 		particles[i][6] +=
-		addedX - addedX / particles[j][4];
+		addedX;
 
 		var addedY = krep * deltaY / Math.pow(d,2);
 		particles[i][7] +=
-		addedY - addedY / particles[j][4];
+		addedY;
 	    }
 	}
     }
@@ -128,11 +143,16 @@ function calc(){
 	//
 	// F = ma => a = f/m
 	// (yeah)
-
+	
 	// x
 	particles[i][8] = particles[i][6] / particles[i][10];
 	// y
 	particles[i][9] = particles[i][7] / particles[i][10];
+
+	// skip next steps for fixed particles
+	if(particles[i][11] == 1){
+	    continue;
+	}
 	
 	//
 	// v = v + a
@@ -182,9 +202,9 @@ function calc(){
 }
 
 function draw(){
-    ctx.clearRect(0,0,w,h);
-    ctx.fillStyle = "rgba(0,0,0,0.2)";
-    ctx.fillRect(0,0,w,h);
+    //ctx.clearRect(0,0,w,h);
+    //ctx.fillStyle = rgba(255,255,255,0.1)";
+    //ctx.fillRect(0,0,w,h);
     ctx.fillStyle = "rgba(0,0,0,1)";
     for(var i = 0; i < particles.length;i++){
 	ctx.save();
@@ -195,9 +215,9 @@ function draw(){
 	ctx.rotate(particles[i][5]);
 	ctx.rect(
 	    -5,
-	    -2,
+	    -1,
 	    10,
-	    4
+	    2
 	);
 	ctx.closePath();
 	ctx.fill();
@@ -206,9 +226,9 @@ function draw(){
 	// draw magnet
 	ctx.rect(
 	    0,
-	    -2,
+	    -1,
 	    5,
-	    4
+	    2
 	)
 	ctx.closePath();
 	ctx.fill();
