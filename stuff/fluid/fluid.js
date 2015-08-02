@@ -26,6 +26,13 @@ can.onmouseleave = function(e){
 for(var i = 0; i < particleNumX; i++){
     for(var j = 0; j < particleNumY; j++){
 	new_particle(i*500/particleNumX,j*500/particleNumY);
+	if(i > 5 && i < 15 && j > 5 && j < 15){
+	    if(j < particleNumY / 2){
+		//particles[particles.length-1][2] = 4;
+	    } else {
+		//particles[particles.length-1][2] = -4;
+	    }
+	}
     }
 }
 
@@ -33,15 +40,15 @@ function new_particle(x,y){
     particles.push([
 	x,
 	y,
-	0,   // vx
-	0,   // vy
-	0,   // speed
-	0,   // angle
-	0.1, // fx
-	0.1, // fy
-	0,   // ax
-	0,   // ay
-	0.2  // mass
+	0.01,       // vx
+	0.01,       // vy
+	0.01,   // speed
+	0,       // angle
+	0,       // fx
+	0,       // fy
+	0,       // ax
+	0,       // ay
+	0.2      // mass
     ]);
 }
 
@@ -57,8 +64,8 @@ function anim(){
 function calc(){
     calculating = true;
     var kcs = kcursorspeed = 0.9;
-    var krep = krepulsion = -0.04;
-    var speeddamp = 0.95;
+    var krep = krepulsion = -0.02;
+    var speeddamp = 0.98;
     var pointerX = lastmousemove.pageX || 0;
     var pointerY = lastmousemove.pageY || 0;
     for(var i = 0; i < particles.length;i++){
@@ -99,8 +106,13 @@ function calc(){
 	    );
 
 	    if(d < 100){
-		particles[i][6] += krep * deltaX / Math.pow(d,2);
-		particles[i][7] += krep * deltaY / Math.pow(d,2);
+		var addedX = krep * deltaX / Math.pow(d,2)
+		particles[i][6] +=
+		addedX - addedX / particles[j][4];
+
+		var addedY = krep * deltaY / Math.pow(d,2);
+		particles[i][7] +=
+		addedY - addedY / particles[j][4];
 	    }
 	}
     }
@@ -108,8 +120,10 @@ function calc(){
     // calculate acceleration, speed, update position
     for(var i = 0; i < particles.length;i++){
 	// damp speeds
-	particles[i][2] *= speeddamp;
-	particles[i][3] *= speeddamp;
+	if(particles[i][4] > 0.1){
+	    particles[i][2] *= speeddamp;
+	    particles[i][3] *= speeddamp;
+	}
 	
 	//
 	// F = ma => a = f/m
