@@ -51,8 +51,8 @@ for(var i = 0; i < particleNumX; i++){
 
 function new_particle(x,y){
     particles.push([
-	x,
-	y,
+	x + Math.random() * 2 - 1,
+	y + Math.random() * 2 - 1,
 	0.01,       // vx
 	0.01,       // vy
 	0.01,   // speed
@@ -78,9 +78,10 @@ function anim(){
 function calc(){
     calculating = true;
     var kcs = kcursorspeed = 0.9;
-    var krep = krepulsion = -0.2;
+    var krep = krepulsion = -0.1;
     var kspeed = 1;
-    var speeddamp = 0.99;
+    var speedtime = 0.5;
+    var speeddamp = 1;
     var pointerX = lastmousemove.pageX || 0;
     var pointerY = lastmousemove.pageY || 0;
     for(var i = 0; i < particles.length;i++){
@@ -159,9 +160,9 @@ function calc(){
 	//
 
 	// x
-	particles[i][2] = particles[i][2] + particles[i][8];
+	particles[i][2] = particles[i][2] + particles[i][8] * speedtime;
 	// y
-	particles[i][3] = particles[i][3] + particles[i][9];
+	particles[i][3] = particles[i][3] + particles[i][9] * speedtime;
 
 	//
 	// p = p + v
@@ -203,8 +204,8 @@ function calc(){
 
 function draw(){
     //ctx.clearRect(0,0,w,h);
-    //ctx.fillStyle = rgba(255,255,255,0.1)";
-    //ctx.fillRect(0,0,w,h);
+    ctx.fillStyle = "rgba(255,255,255,0.1)";
+    ctx.fillRect(0,0,w,h);
     ctx.fillStyle = "rgba(0,0,0,1)";
     for(var i = 0; i < particles.length;i++){
 	ctx.save();
@@ -221,7 +222,7 @@ function draw(){
 	);
 	ctx.closePath();
 	ctx.fill();
-	ctx.fillStyle = "#ff0000";
+	ctx.fillStyle = "#ff0000)";
 	ctx.beginPath()
 	// draw magnet
 	ctx.rect(
