@@ -3,17 +3,29 @@ var can = document
 var ctx = can.getContext('2d');
 var w = can.width = 500;
 var h = can.height = 500;
+var particleNumX = 20;
+var particleNumY = 20;
+var mouseOn = false;
+var calculating = false;
 var lastmousemove = {};
 /* see particle_spec.txt */
 var particles = [];
 
 can.onmousemove = function(e){
     lastmousemove = e;
-}
+};
 
-for(var i = 0; i < 10; i++){
-    for(var j = 0; j < 10; j++){
-	new_particle(i*30+30,j*30+30);
+can.onmouseenter = function(e){
+    mouseOn = true;
+};
+
+can.onmouseleave = function(e){
+    mouseOn = false;
+};
+
+for(var i = 0; i < particleNumX; i++){
+    for(var j = 0; j < particleNumY; j++){
+	new_particle(i*500/particleNumX,j*500/particleNumY);
     }
 }
 
@@ -36,12 +48,17 @@ function new_particle(x,y){
 setInterval(anim,100)
 
 function anim(){
-    calc();
-    draw();
+    if(!calculating){
+	calc();
+	draw();
+    }
 }
 
 function calc(){
-    var kcs = kcursorspeed = 1;
+    calculating = true;
+    var kcs = kcursorspeed = 0.9;
+    var krep = krepulsion = 0.05;
+    var speeddamp = 0.95;
     var pointerX = lastmousemove.pageX || 0;
     var pointerY = lastmousemove.pageY || 0;
     for(var i = 0; i < particles.length;i++){
@@ -50,23 +67,49 @@ function calc(){
 	particles[i][6] = 0;
 	particles[i][7] = 0;
 
-	var deltaX = pointerX - particles[i][0];
-	var deltaY = pointerY - particles[i][1];
-	var d = Math.sqrt(
-	    Math.pow(deltaX,2) +
-		Math.pow(deltaY,2)
-	);
 	// towards pointer force
-	particles[i][6] += kcs * deltaX / Math.pow(
-	    d,2
-	);
-	particles[i][7] += kcs * deltaY / Math.pow(
-	    d,2
-	);
+	if(mouseOn){
+	    var deltaX = pointerX - particles[i][0];
+	    var deltaY = pointerY - particles[i][1];
+	    var d = Math.sqrt(
+		Math.pow(deltaX,2) +
+		    Math.pow(deltaY,2)
+	    );
+	    
+	    particles[i][6] += kcs * deltaX / Math.pow(
+		d,2
+	    );
+	    particles[i][7] += kcs * deltaY / Math.pow(
+		d,2
+	    );
+	}
+
+	// particles tend to go where there are less particles
+	// near themselves
+	for(var j = 0; j < particles.length;j++){
+	    if(i == j){
+		continue;
+	    }
+	    // calculate distance
+	    var deltaX = particles[j][0] - particles[i][0];
+	    var deltaY = particles[j][1] - particles[i][1];
+	    var d = Math.sqrt(
+		Math.pow(deltaX,2) +
+		    Math.pow(deltaY,2)
+	    );
+
+	    particles[i][6] += krep * deltaX / Math.pow(d,2);
+	    particles[i][7] += krep * deltaY / Math.pow(d,2);
+	    
+	}
     }
     
     // calculate acceleration, speed, update position
     for(var i = 0; i < particles.length;i++){
+	// damp speeds
+	particles[i][2] *= speeddamp;
+	particles[i][3] *= speeddamp;
+	
 	//
 	// F = ma => a = f/m
 	// (yeah)
@@ -120,6 +163,7 @@ function calc(){
 	    ;
 	}
     }
+    calculating = false;
 }
 
 function draw(){
