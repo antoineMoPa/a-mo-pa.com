@@ -21,3 +21,4 @@ function init_title(title){
     
     setInterval(change_title,Math.random()*1000+1000);
 }
+
