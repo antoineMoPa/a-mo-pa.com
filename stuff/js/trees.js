@@ -17,9 +17,9 @@ var max_size = 10;
 
 for(var i = 0; i < can.height; i++){
     var h = i/can.height;
-    var b = Math.floor((1-h) * 255);
-    var r = Math.floor(255 - b);
-    var g = Math.floor(255);
+    var b = Math.floor(100+h*100);
+    var r = Math.floor(25+h*150);
+    var g = Math.floor(45+h*50);
 
     var a = 1;
     var style = "rgba("+r+","+g+","+b+","+a+")";
@@ -27,6 +27,16 @@ for(var i = 0; i < can.height; i++){
     ctx.fillRect(0,i,can.width,1);
 }
 
+/* stars */
+
+for(var i = 0; i < 40; i++){
+    var x = Math.random() * can.width;
+    var y = Math.random() * can.height;
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.fillRect(x,y,2,2);
+    ctx.fillStyle = "rgba(255,255,255,0.05)";
+    ctx.fillRect(x-2,y-2,6,6);
+}
 
 for(var i = 0; i < 300; i++){
     new_tree();
@@ -37,13 +47,13 @@ function new_tree(x,y){
     var y = y || can.height;
     branches.push(
 	new_branch(x,y,
-		   Math.ceil(
+		   Math.floor(
 		       Math.pow(
 			   Math.random(),
-			   80
+			   130
 		       )
-			   * max_size
-		   )
+			   * (max_size-1)
+		   ) + 1
 		  )
     );
 }
@@ -55,7 +65,7 @@ function new_branch(x,y,size){
     var vy = size/2;
     var r = Math.floor((1-size/max_size) * 80);
     var g = Math.floor(Math.random() * 55);
-    var b = Math.floor(Math.random() * 20);
+    var b = Math.floor(Math.random() * 50);
     var a = 1;
     var style = "rgba("+r+","+g+","+b+","+a+")";
     
