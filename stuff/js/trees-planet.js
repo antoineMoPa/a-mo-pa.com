@@ -11,49 +11,16 @@ can.width = 500;
 can.height = 500;
 
 var branches = [];
-var max_size = 10;
+var max_size = 6;
 
 // Planet radius
-var pr = 50;
+var pr = 10;
+var athmosphere = 100;
 
 /* sky */
 
 ctx.fillStyle = "rgba(10,10,10,1)";
 ctx.fillRect(0,0,can.width,can.height);
-
-/* Athmosphere */
-
-var athmosphere = 10;
-
-for(var i = 0; i < can.width; i++){
-    for(var j = 0; j < can.height; j++){
-	// There comes the great Pythagorus
-	var radius = Math.sqrt(
-	    Math.pow(i-can.width/2,2) +
-		Math.pow(j-can.height/2,2)
-	);
-	var planet_dist = radius - pr;
-	if(planet_dist > athmosphere){
-	    continue;
-	}
-	var blue = Math.pow(1 - planet_dist / athmosphere,4);
-	
-	var r = Math.floor(0);
-	var g = radius > pr ?
-	    Math.floor(0):
-	    150;
-	var b =
-	    radius > pr ?
-	    Math.floor(blue * 255):
-	    60;
-	
-	
-	var a = 1;
-	var style = "rgba("+r+","+g+","+b+","+a+")";
-	ctx.fillStyle = style;
-	ctx.fillRect(i,j,1,1);
-    }
-}
 
 /* stars */
 
@@ -66,6 +33,34 @@ for(var i = 0; i < 40; i++){
     ctx.fillRect(x-2,y-2,6,6);
 }
 
+/* Athmosphere */
+
+for(var i = 0; i < can.width; i++){
+    for(var j = 0; j < can.height; j++){
+	// There comes the great Pythagorus
+	var radius = Math.sqrt(
+	    Math.pow(i-can.width/2,2) +
+		Math.pow(j-can.height/2,2)
+	);
+	var planet_dist = radius - pr;
+	if(planet_dist > athmosphere){
+	    continue;
+	}
+
+	var blue = Math.pow(1 - planet_dist / athmosphere,4);
+	
+	var r = Math.floor(0);
+	var g = Math.floor(0);
+	var b = Math.floor(blue * 255);
+	var a = blue;
+	
+	var style = "rgba("+r+","+g+","+b+","+a+")";
+	ctx.fillStyle = style;
+	ctx.fillRect(i,j,1,1);
+    }
+}
+
+
 for(var i = 0; i < 300; i++){
     new_tree();
 }
@@ -73,27 +68,27 @@ for(var i = 0; i < 300; i++){
 function new_tree(){
     branches.push(
 	new_branch(
-		   Math.floor(
-		       Math.pow(
-			   Math.random(),
-			   130
-		       )
-			   * (max_size-1)
-		   ) + 1
-		  )
+	    Math.floor(
+		Math.pow(
+		    Math.random(),
+		    30
+		)
+		    * (max_size-1)
+	    ) + 1
+	)
     );
 }
 
 function new_branch(size,theta,radius){
     var size = size || max_size;
     var children = [];
-    var vtheta = (Math.random()-0.5) * 0.2;
+    var vtheta = (Math.random()-0.5) * 0.02;
     var vradius = size/2;
     var radius = radius || pr;
     var theta = theta || Math.random() * 2 * Math.PI;
-    var r = Math.floor((1-size/max_size) * 180);
-    var g = Math.floor(Math.random() * 155);
-    var b = Math.floor(Math.random() * 150);
+    var r = Math.floor((1-size/max_size) * 120);
+    var g = Math.floor(Math.random() * 55);
+    var b = Math.floor(Math.random() * 50);
     var a = 1;
     var style = "rgba("+r+","+g+","+b+","+a+")";
     
@@ -124,9 +119,9 @@ function draw(branches,level){
 	    ctx.fillRect(x,y,b.size,b.size);
 
 	    // Move
-	    var atheta = 0.002 * (Math.random() - 0.5);
+	    var atheta = 0.02 * (Math.random() - 0.5);
 	    b.vtheta += atheta;
-	    //b.vtheta *= (1-Math.abs(b.vtheta)/40);
+	    b.vtheta *= 0.8;
 	    //b.vtheta = -3+Math.abs(b.vtheta/1.6);
 	    b.theta += b.vtheta;
 	    b.radius += b.vradius;
@@ -137,7 +132,7 @@ function draw(branches,level){
 	    // add children sometimes
 	    if(level < 3 && Math.random() < 0.08){
 		b.children.push(
-		    new_branch(b.size,b.theta)
+		    new_branch(b.size,b.theta,b.radius)
 		);
 	    }
 	}
