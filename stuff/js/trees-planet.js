@@ -7,15 +7,15 @@ window.delay = 100;
 var render =  render || function(){};
 var addFrame = addFrame || function(){};
 
-can.width = 500;
-can.height = 500;
+can.width = 1400;
+can.height = 800;
 
 var branches = [];
-var max_size = 6;
+var max_size = 10;
 
 // Planet radius
-var pr = 10;
-var athmosphere = 100;
+var pr = 0;
+var athmosphere = 0;
 
 /* sky */
 
@@ -46,7 +46,7 @@ for(var i = 0; i < can.width; i++){
 	if(planet_dist > athmosphere){
 	    continue;
 	}
-
+	
 	var blue = Math.pow(1 - planet_dist / athmosphere,4);
 	
 	var r = Math.floor(0);
@@ -79,17 +79,17 @@ function new_tree(){
     );
 }
 
-function new_branch(size,theta,radius){
+function new_branch(size,theta,radius,vtheta){
     var size = size || max_size;
     var children = [];
-    var vtheta = (Math.random()-0.5) * 0.02;
+    var vtheta = vtheta + 0.01 || 0.02;
     var vradius = size/2;
     var radius = radius || pr;
     var theta = theta || Math.random() * 2 * Math.PI;
-    var r = Math.floor((1-size/max_size) * 120);
-    var g = Math.floor(Math.random() * 55);
-    var b = Math.floor(Math.random() * 50);
-    var a = 1;
+    var r = Math.floor(radius*20);
+    var g = Math.floor(radius);
+    var b = Math.floor(radius);
+    var a = Math.floor(radius);
     var style = "rgba("+r+","+g+","+b+","+a+")";
     
     return {
@@ -107,6 +107,7 @@ function new_branch(size,theta,radius){
 
 function draw(branches,level){
     var level = level || 0;
+    var explode = (Math.random() < 0.05);
     for(var i = 0; i < branches.length; i++){
 	var b = branches[i];
 	ctx.fillStyle = b.style;
@@ -119,8 +120,11 @@ function draw(branches,level){
 	    ctx.fillRect(x,y,b.size,b.size);
 
 	    // Move
-	    var atheta = 0.02 * (Math.random() - 0.5);
-	    b.vtheta += atheta;
+	    //var atheta = 0.000 * (Math.random() - 0.5);
+	    var atheta = 0;
+	    if(explode){
+		b.theta += Math.round(Math.random()) * 0.05;
+	    }
 	    b.vtheta *= 0.8;
 	    //b.vtheta = -3+Math.abs(b.vtheta/1.6);
 	    b.theta += b.vtheta;
@@ -130,9 +134,9 @@ function draw(branches,level){
 		b.stop = true;
 	    }
 	    // add children sometimes
-	    if(level < 3 && Math.random() < 0.08){
+	    if(level < 3 && Math.random() < 0.2){
 		b.children.push(
-		    new_branch(b.size,b.theta,b.radius)
+		    new_branch(b.size,b.theta,b.radius,b.vtheta)
 		);
 	    }
 	}
