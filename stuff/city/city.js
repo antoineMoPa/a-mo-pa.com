@@ -4,6 +4,11 @@ var ctx = can.getContext("2d");
 can.width = w = window.innerWidth;
 can.height = h = window.innerHeight;
 
+// Put (x,y) = (0,0) is at bottom left like
+// a normal cartesian space
+ctx.translate(0,h);
+ctx.scale(1,-1);
+
 cities = [];
 
 for(var i = 0; i < 20;i++){
@@ -32,41 +37,58 @@ function draw_cities(cities){
     for(var city in cities){
         var c = cities[city];
         if(city == selected_city){
-            ctx.fillStyle = rgba(255,0,0,1);
+            ctx.fillStyle = rgba(180,55,5,0.8);
         } else {
-            ctx.fillStyle = rgba(255,255,255,1);
+            ctx.fillStyle = rgba(255,255,255,0.8);
         }
-        circle(c.x,c.y,c.radius);
+        circle([c.x,c.y],c.radius);
     }
     for(var city in cities){
         var c = cities[city];
         for(var link in c.links){
-            draw_link(city,link);
+            draw_link_curve(city,link);
         }
     }
 }
 
-
-function draw_link(c1,link){
+function draw_link_curve(c1,link){
     var c1 = cities[c1];
     var c2 = cities[c1.links[link]];
     var p1 = [c1.x,c1.y];
     var p2 = [c2.x,c2.y];
-    var center = kp1p2(0.5,p1,p2)
-    var x = center[0];
-    var y = center[1];
-    var r = distance(p1,p2)/2;
-    var start_angle = anglep1p2(p1,p2);
-    ctx.strokeStyle = rgba(255,255,0,0.6);
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.arc(x,y,r,start_angle,start_angle + Math.PI);
-    ctx.stroke();
+    var center = kv1v2(0.5,p1,p2)
+    // Half of the vector from p1 to p2
+    var v1_2 = substractvect(center,p1);
+    var dist = distance(p1,p2);
+    var vp = unitv(perpendicular(v1_2),link*30+100);
+    
+    ctx.fillStyle = rgba(0,100,155,1);
+    var circles = dist/5;
+    for(var i = 0; i < circles; i++){
+        circle(addvect(p1,curve(i/circles,addvect(v1_2,vp),substractvect(v1_2,vp))),2);
+    }
 }
 
-function circle(x,y,r){
+/* Curve function between 2 vectors */
+function curve(t,v1,v2){
+    return kv(t,addvect(kv(1-t,v1),kv(t,addvect(v2,v1))));
+}
+
+function drawvect(vect,pos){
+    var px = pos[0];
+    var py = pos[1];
+    var vx = vect[0];
+    var vy = vect[1];
     ctx.beginPath();
-    ctx.arc(x,y,r,0,2 * Math.PI);
+    ctx.moveTo(px,py);
+    ctx.lineTo(vx+px,vy+py);
+    ctx.stroke();
+    ctx.closePath();
+}
+
+function circle(pos,r){
+    ctx.beginPath();
+    ctx.arc(pos[0],pos[1],r,0,2 * Math.PI);
     ctx.fill();
 }
 
@@ -90,27 +112,61 @@ function anglep1p2(p1,p2){
     
 }
 
-/* take part of one point and part of the other  */
-function kp1p2(k,p1,p2){
-    var x = k * p1[0] + (1-k) * p2[0];
-    var y = k * p1[1] + (1-k) * p2[1];
+/* takes vector and returns a unit vectors times k (or 1) in the same direction */
+function unitv(v,k){
+    var k = k || 1;
+    var l = vlength(v);
+    var factor = 1 / l * k;
+    var x = v[0] * factor;
+    var y = v[1] * factor;
+    return [x,y];
+}
+
+function negatevect(v1){
+    return [-v1[0],-v1[1]];
+}
+
+function substractvect(v1,v2){
+    return [v1[0] - v2[0],v1[1]-v2[1]];
+}
+
+function addvect(v1,v2){
+    return [v1[0] + v2[0],v1[1]+v2[1]];
+}
+
+function perpendicular(vect){
+    var a1 = vect[0];
+    var a2 = vect[1];
+    return [-a2,a1];
+}
+
+/* take part (k) of one point and part of the other  */
+function kv1v2(k,v1,v2){
+    var x = k * v1[0] + (1-k) * v2[0];
+    var y = k * v1[1] + (1-k) * v2[1];
+    return [x,y];
+}
+
+/* Multiplies vector by a constant */
+function kv(k,v1){
+    var x = k * v1[0];
+    var y = k * v1[1];
     return [x,y];
 }
 
 function update_game(){
     for(var city in cities){
         var c = cities[city];
-        c.pop += Math.random() * 6 + 2;
-        c.radius = Math.ceil(c.pop/300);
-        if(Math.random() < 0.1){
-            c.links.push(Math.floor(Math.random() * cities.length));
-        }
+        c.pop += Math.random() * Math.log(c.pop) * 0.1;
+        if(city == 3)
+            console.log(c.pop);
+        c.radius = Math.floor(Math.log(c.pop)/Math.log(100)*3)+1;
     }
 }
-for(var i = 0; i < 40; i++ ){
-    frame();
-}
-//setInterval(frame,70);
+//for(var i = 0; i < 40; i++ ){
+//    frame();
+//}
+setInterval(frame,70);
 
 function frame(){
     update_game();
@@ -132,6 +188,14 @@ function detect_click(mousep){
     return -1;
 }
 
+/* Find vector length */
+function vlength(v){
+    return Math.sqrt(
+        Math.pow(v[1],2) +
+            Math.pow(v[0],2)
+    );
+}
+
 function distance(p1,p2){
     return Math.sqrt(
         Math.pow(p2[1] - p1[1],2) +
@@ -141,11 +205,13 @@ function distance(p1,p2){
 
 var mousep = [0,0];
 
-can.onmousemove = function(e){
+can.onmousemove = mousemove;
+
+function mousemove(e){
     var x = e.clientX + window.scrollX;
     var y = e.clientY + window.scrollY;
     mousep[0] = x;
-    mousep[1] = y;
+    mousep[1] = h - y;
 }
 
 window.onkeydown = function(e){
@@ -168,10 +234,7 @@ function new_city_at_mouse(){
 var selected_city = -1;
 
 can.onclick = function(e){
-    var x = e.clientX - window.scrollX;
-    var y = e.clientY - window.scrollY;
-    mousep[0] = x;
-    mousep[1] = y;
+    mousemove(e);
     var city = detect_click(mousep);
     if(city == -1){
         new_city_at_mouse();
@@ -180,10 +243,9 @@ can.onclick = function(e){
     } else {
         var c1 = selected_city;
         var c2 = city;
-
+        
         cities[c1].links.push(c2);
         
         selected_city = -1;
     }
-    
 }
