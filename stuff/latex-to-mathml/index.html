@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>LATEX equation to MathML (Latex to Word)</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="../../assets/lib/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+  </head>
+  <body>
+    <header>
+      <h1>LATEX equation to MathML converter with a fancy live editor</h1>
+      <p>
+	The resulting MathML can be pasted in software like MS Word (Microsoft... Mehhh).
+      </p>
+      <p>
+	You can also left click the equation -> Show math as -> MathML Code.
+      </p>
+      <p>
+	MathML result appears on the bottom of the page.
+      </p>
+      <p>
+	Built by @AntoineMoPa in October 18, 2015 with <a href="http://mathjax.org">MathJax</a>
+      </p>
+      
+    </header>
+    <h2>Edit</h2>
+    <div class="col-1-2">
+      <p>Edit here:</p>
+      <textarea id="input">$$\frac{1}{2}$$</textarea>
+    </div>
+    <div class="col-1-2">
+      <p>Live output:</p>
+      <div id="output">
+      </div>
+    </div>
+    <h2>MathML</h2>
+    <p>The resulting MathML for Copy/Pasting:</p>
+    <p>If you have entered many equations, you have to manually Copy/Paste individual parts for MS Word to recognize them.</p>
+    <textarea id="mathml">
+	
+    </textarea>
+	
+    <script src="main.js"></script>
+  </body>    
+</html>
+
