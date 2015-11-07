@@ -1,0 +1,50 @@
+body{
+    padding:0;
+    margin:0;
+    background:#f5f5f5;
+    max-width:100%;
+    overflow-x:hidden;
+}
+
+@media all and (min-width:768px){
+    .col-1-2{
+	width:49%;
+	max-width:49%;
+	vertical-align:top;
+	margin:0;
+	padding:0px;
+	display:inline-block;
+    }
+}
+
+#input{
+    width:90%;
+    margin:0 20px;
+    min-height:100px;
+    resize:vertical;
+}
+#output{
+    background:#fff;
+    width:100%;
+    padding:20px;
+    min-height:400px;
+}
+header{
+    margin:20px;
+}
+p{
+    margin-left:20px;
+}
+#mathml{
+    background:#fff;
+    border-radius:3px;
+    margin:20px;
+    padding:10px;
+    width:90%;
+    resize:vertical;
+    min-height:400px;
+}
+
+h2{
+    margin-left:20px;
+}
