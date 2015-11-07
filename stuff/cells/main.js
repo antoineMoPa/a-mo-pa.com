@@ -32,7 +32,7 @@ var grid = [];
 for(var i = 0; i < dimx; i++){
     grid.push([]);
     for(var j = 0; j < dimy; j++){
-        grid[i].push((i+j)%2==0 ? 1 : 0);
+        grid[i].push(0);
     }
 }
 
@@ -45,9 +45,8 @@ function click(e){
     var i = Math.floor(x/winwidth*dimx);
     var j = Math.floor(y/winheight*dimy);
 
-    grid[i][j] = !grid[i][j];
+    grid[i][j] += 0.2;
 
-    drawGrid(grid);
 }
 
 drawGrid(grid);
@@ -57,13 +56,39 @@ function drawGrid(grid){
     ctx.fillRect(0,0,can.width,can.height);
     for(var i = 0; i < dimx; i++){
         for(var j = 0; j < dimy; j++){
-            if(grid[i][j] == 0){
-                ctx.fillStyle = "rgba(0,0,0,0.3)";
-            } else {
-                ctx.fillStyle = "rgba(0,0,0,0.6)";
-            }
+            var opacity = grid[i][j];
+            ctx.fillStyle = "rgba(0,0,0,"+opacity+")";
             ctx.fillRect(i*cellw,j*cellh,cellw,cellh);
         }
     }
 }
 
+setInterval(physics,40);
+
+/* Gravity */
+var g = 0.03;
+
+function physics(){
+    var copy = copygrid(grid);
+    for(var i = 0; i < dimx; i++){
+        for(var j = 0; j < dimy; j++){
+            grid[i][j] -= g * copy[i][j];
+            if(j + 1 < dimy){
+                grid[i][j+1] += g * copy[i][j];
+            }
+        }
+    }
+
+    drawGrid(grid);
+}
+
+function copygrid(grid){
+    var newgrid = [];
+    for(var i = 0; i < dimx; i++){
+        newgrid.push([]);
+        for(var j = 0; j < dimy; j++){
+            newgrid[i].push(grid[i][j]);
+        }
+    }
+    return newgrid;
+}
