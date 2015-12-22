@@ -38,9 +38,9 @@ a:not(".block"):hover:before{
 }
 
 .block img{
-    width:200px;
+    width:80%;
     height:auto;
-    margin:30px;
+    margin:10%;
     max-width:100%;
     filter: brightness(1);
     transition:all 0.3s;
