@@ -36,12 +36,12 @@ function update(){
 }
 
 var x = 0;
-var dx = 0.8;
+var dx = 0.23;
 function iterate(){
+    x += dx;
     for(var i = 0; i < w; i++){
-	x += dx;
         for(var j = 0; j < h; j++){
-            arr[i][j] += dx * Math.sin(j * x);
+            arr[i][j] += dx * (Math.sin(j * x) + Math.cos(i * x));
         }
     }
 }
