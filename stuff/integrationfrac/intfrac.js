@@ -35,13 +35,25 @@ function update(){
     draw_frac();
 }
 
+function f(i,j,x){
+    //return Math.pow(i * x, 2) + j * x;
+    return Math.sin(i * x) + Math.cos(j * x);
+}
+
 var x = 0;
-var dx = 0.23;
+var dx = 0.03;
 function iterate(){
     x += dx;
     for(var i = 0; i < w; i++){
         for(var j = 0; j < h; j++){
-            arr[i][j] += dx * (Math.sin(j * x) + Math.cos(i * x));
+            //arr[i][j] += dx * (f(i,j,x) - f(i,j,x-dx))
+	    // Crazy shit:
+	    //arr[i][j] += dx * f(i,j,x*i)
+	    // Stars + shooting stars
+	    //arr[i][j] += dx * f(i,j,x*i*j)
+	    // shit looks like water
+	    //arr[i][j] += dx * f(i*ex,j*x,x)
+	    arr[i][j] += dx * f(i*x,j*Math.pow(x,2),x)
         }
     }
 }
