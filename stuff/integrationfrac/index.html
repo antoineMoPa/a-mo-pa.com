@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <style>
+            /* disable interpolation hack */
+            canvas {
+                image-rendering: optimizeSpeed;
+                image-rendering: -moz-crisp-edges;
+                image-rendering: -o-crisp-edges;
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: optimize-contrast;
+                -ms-interpolation-mode: nearest-neighbor;
+	            margin-bottom:20px;
+                max-width:100%;
+            }
+            body{
+                margin:0;
+                text-align:center;
+                background:rgba(100,100,100,1);
+	            padding-bottom:20px;
+            }
+            .rendering-info{
+                position:absolute;
+                color:#fff;
+                font-family:monospace,Sans-Serif,Helvetica,Arial;
+                font-weight:bolder;
+                font-size:20px;
+                padding-left:20px;
+            }
+            tip{
+                color:#fff;
+                font-family:sans-serif;
+            }
+            a{
+                color:#3af;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas name="potato">
+        </canvas>
+        <script src="intfrac.js"></script>
+    </body>
+</html>
