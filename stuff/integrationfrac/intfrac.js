@@ -34,26 +34,32 @@ function update(){
 }
 
 function f(i,j,x){
-    //return Math.pow(i * x, 2) + j * x;
+    var i = 0.1 * i;
+    var j = 0.1 * j;
+
+    //return i * Math.pow(x, 2) + j * Math.pow(x,2);
     //return Math.sin(i * x) + Math.cos(j * x);
     //return Math.sin(i*x) * Math.cos(j*x);
     return Math.cos(i*x) * Math.sin(j*x) * i * j;
 }
 
 var x = 0;
-var dx = 0.000001;
+var dx = 0.0005;
+var w2 = w/2;
+var h2 = h/2;
+
 function iterate(){
     x += dx;
     for(var i = 0; i < w; i++){
         for(var j = 0; j < h; j++){
-            //arr[i][j] += dx * (f(i,j,x) - f(i,j,x-dx))
-	    // Crazy shit:
-	    arr[i][j] += dx * f(i,j,x*i*j)
-	    // Stars + shooting stars
-	    //arr[i][j] += dx * f(i,j,x*i*j)
-	    // shit looks like water
-	    //arr[i][j] += dx * f(i*ex,j*x,x)
-	    //arr[i][j] += dx * f(i*x,j*Math.pow(x,2),x)
+            //arr[i][j] += dx * (f(i-w2,j-h2,x) - f(i-w2,j-h2,x-dx))
+	        // Crazy shit:
+	        arr[i][j] += dx * f(i-w2,j-h2,x*(i-w2)*(j-h2))
+	        // Stars + shooting stars
+	        //arr[i][j] += dx * f(i-w2,j-h2,x*(i-w2)*(j-h2))
+	        // shit looks like water
+	        //arr[i][j] += dx * f((i-w2),(j-h2),x)
+	        //arr[i][j] += dx * f((i-w2)*x,(j-h2)*Math.pow(x,2),x)
         }
     }
 }
@@ -63,9 +69,9 @@ function draw_frac(){
     for(var i = 0; i < w; i++){
         for(var j = 0; j < h; j++){
             var index = 4 * (j * w + i);
-            var red = arr[i][j] * 255;
-            var green = arr[i][j] * 155;
-            var blue = arr[i][j] * 55;
+            var red = arr[i][j] * 155;
+            var green = arr[i][j] * 55;
+            var blue = arr[i][j] * 255;
 
             data.data[index+0] = red;
             data.data[index+1] = green;
