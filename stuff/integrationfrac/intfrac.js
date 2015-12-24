@@ -44,14 +44,14 @@ function f(i,j,x){
 }
 
 function f2(i,j,v,x){
-    var i = 0.1 * i;
-    var j = 0.1 * j;
+    var i = 0.001 * i;
+    var j = 0.001 * j;
 
-    return v * (Math.cos(i*x) + Math.sin(j*x));
+    return i * Math.cos(v*x) + j * Math.sin(v*x);
 }
 
 var x = 0;
-var dx = 0.1;
+var dx = 0.9;
 var w2 = w/2;
 var h2 = h/2;
 
