@@ -16,7 +16,7 @@ function new_tree(type,x,y,vx,vy,size,life,count,r,g,b,lum){
     var cx = Math.random() * 4 - 2;
     var cy = Math.random() * 4 - 2;
 
-    if(type == 2){
+    if(type == 3){
         size = size * (0.5 * Math.random() + 0.5);
     }
     
@@ -59,7 +59,11 @@ function update_trees(trees){
         }
 
         if(t.type == 1){
-            t.lum += 0.01;
+            t.vy -= 0.01;
+        }
+        
+        if(t.type == 1){
+            t.lum += 0.03;
         }
         
         t.vy *= 0.994;
@@ -86,7 +90,7 @@ function update_trees(trees){
                     t.y,
                     Math.random() < 0.5? (-3): 3,
                     (-0.5),
-                    5,
+                    10,
                     300 * liferatio * Math.random(),
                     1,
                     30,
