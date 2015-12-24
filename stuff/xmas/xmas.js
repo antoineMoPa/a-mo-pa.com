@@ -53,7 +53,7 @@ function update_trees(trees){
         t.vy *= 0.994;
         if(t.type < 2){
             t.real_size = (1 - t.dist / t.life) * t.size;
-        } else {
+        } else {
             t.real_size = t.size;
         }
         t.x += t.vx;
