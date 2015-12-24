@@ -47,11 +47,11 @@ function f2(i,j,v,x){
     var i = 0.001 * i;
     var j = 0.001 * j;
 
-    return i * Math.cos(v*x) + j * Math.sin(v*x);
+    return v * Math.cos(i*x) + v * Math.sin(j*x);
 }
 
 var x = 0;
-var dx = 0.9;
+var dx = 1;
 var w2 = w/2;
 var h2 = h/2;
 
@@ -71,7 +71,8 @@ function iterate(){
             //arr[i][j] = Math.cos(arr[i][j] + i * j);
             //arr[i][j] = dx * f(i-w2,j-h2,arr[i][j]);
             var v = arr[i][j];
-            arr[i][j] += dx * (f2(i-w2,j-h2,v,x) - f2(i-w2,j-h2,v,x + dx));
+            //arr[i][j] += dx * (f2(i-w2,j-h2,v,x) - f2(i-w2,j-h2,v,x + dx));
+            arr[i][j] += dx * f2(i-w2,j-h2,v,x);
         }
     }
 }
