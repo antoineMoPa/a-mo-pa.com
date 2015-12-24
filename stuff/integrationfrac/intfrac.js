@@ -47,11 +47,11 @@ function f2(i,j,v,x){
     var i = 0.1 * i;
     var j = 0.1 * j;
 
-    return v * Math.cos(i * x) + v * Math.sin(j * x);
+    return v * (Math.cos(i*x) + Math.sin(j*x));
 }
 
 var x = 0;
-var dx = 0.001;
+var dx = 0.1;
 var w2 = w/2;
 var h2 = h/2;
 
@@ -71,7 +71,7 @@ function iterate(){
             //arr[i][j] = Math.cos(arr[i][j] + i * j);
             //arr[i][j] = dx * f(i-w2,j-h2,arr[i][j]);
             var v = arr[i][j];
-            arr[i][j] += 1/dx * (f2(i-w2,j-h2,v,x) - f2(i-w2,j-h2,v,x + dx));
+            arr[i][j] += dx * (f2(i-w2,j-h2,v,x) - f2(i-w2,j-h2,v,x + dx));
         }
     }
 }
@@ -82,7 +82,7 @@ function draw_frac(){
         for(var j = 0; j < h; j++){
             var index = 4 * (j * w + i);
             var red = arr[i][j] * 125;
-            var green = arr[i][j] * 55;
+            var green = - arr[i][j] * 55;
             var blue = arr[i][j] * 55;
 
             data.data[index+0] = red;
