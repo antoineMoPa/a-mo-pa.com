@@ -8,8 +8,27 @@ ctx.fillStyle = "rgba(255,255,255,1)";
 ctx.fillRect(0,0,w,h);
 
 bricks(1,function(){
-    tree(w/2,1040,w,1000,100);
+    tree(w/2,1037,w,1000,100);
+    setTimeout(function(){
+        var snowh = 0;
+        var snow_int = setInterval(function(){
+            snowh += 2;
+            snow(0,1000,w,snowh);
+            if(snowh >= 80){
+                clearInterval(snow_int);
+            }
+        },100);
+    },2000)
 });
+
+function snow(x,y,w,h){
+    ctx.fillStyle = "rgba(255,255,255,1)";
+    for(var i = 0; i < w; i++){
+        var height = 0.5 * h *
+            (Math.cos(0.005 * i + 1.8)+1);
+        ctx.fillRect(x+i,y-height,1,height);
+    }
+}
 
 function bricks(delay,callback){
     var brickw = 100;
