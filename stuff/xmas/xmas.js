@@ -23,10 +23,10 @@ function bricks(delay,callback){
         var offset = (j % 2 == 0 ? brickw / 2: 0) - brickw;
         var mortar = 5;
         var randlum =
-            Math.cos(5 * i/(w/brickw));
+            2*Math.sin(5 * i/(w/brickw)) + Math.random() * 2;
         
         brick(
-            130 + 30 * randlum,20 + 20 * randlum,30,0.2,
+            80 + 30 * randlum,10,10,0.5,
             i * (brickw + mortar) + offset,
             h - (j * (brickh + mortar)),
             brickw,
@@ -48,10 +48,15 @@ function bricks(delay,callback){
 }
 
 function brick(r,g,b,rand,x,y,w,h){
-    var stripes = 10;
-    for(var i = 0; i < stripes; i++){
-        randrgba(r,g,b,0.8,rand);
-        ctx.fillRect(x + i*w/stripes - 1, y, w/stripes + 1, h);
+    for(var i = 0; i < w; i++){
+        if(i % 6 < 4){
+            var ra = rand * 0.9;
+            randrgba(r*ra,g*ra,b*ra,0.8,0);
+        } else {
+            var ra = rand * 1.1;
+            randrgba(r*ra,g*ra,b*ra,0.8,0);
+        }
+        ctx.fillRect(x + i, y, 1, h);
     }
 }
 
