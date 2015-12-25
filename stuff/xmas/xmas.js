@@ -1,3 +1,4 @@
+train();
 
 bricks(1,function(w,h){
     var treecan = document
@@ -15,7 +16,7 @@ bricks(1,function(w,h){
     var can = document
         .querySelectorAll("canvas[name='tree']")[0];
     var ctx = can.getContext("2d");
-    
+
     setTimeout(function(){
         var snowh = 0;
         var snow_int = setInterval(function(){
@@ -342,9 +343,72 @@ function village(){
     }
 }
 
+function train(){
+    var can = document
+        .querySelectorAll("canvas[name=train]")[0];
+    var ctx = can.getContext("2d");
+    
+    var w = can.width = window.innerWidth;
+    var h = can.height = 400;
+    
+    var x = 20;
+    var y = 20;
+    var train_w = 100;
+    var train_h = 35;
+
+    setInterval(function(){
+        ctx.clearRect(0,0,w,h);
+        x += 3;
+        if(x > w){
+            x = -100;
+        }
+        draw_train(x,y,train_w,train_h);
+    },30);
+            
+    function draw_train(x,y,train_w,train_h){
+        // Body
+        ctx.fillStyle = "rgba(140,30,30,1)";
+        ctx.fillRect(x,y,train_w,train_h)
+
+        // Cabin
+        ctx.fillStyle = "rgba(120,60,50,1)";
+        ctx.fillRect(
+            x,
+            y - 0.2 * train_h,
+            train_w*0.4,
+            train_h + 0.2 * train_h
+        );
+        // Window
+        ctx.fillStyle = "rgba(0,170,170,1)";
+        ctx.fillRect(
+            x + 0.2 * train_h,
+            y + 0.05 * train_h,
+            train_w * 0.2,
+            0.4 * train_h
+        );
+        // Chimney
+        ctx.fillStyle = "rgba(40,40,40,1)";
+        ctx.fillRect(
+            x + train_w,
+            y - 0.4 * train_h,
+            train_w * 0.1,
+            train_h + 0.4 * train_h
+        );
+        // Floor
+        ctx.fillStyle = "rgba(0,0,20,1)";
+        ctx.fillRect(
+            x,
+            y + train_h,
+            train_w * 1.2,
+            0.2 * train_h
+        );
+    }
+}
+
 function randrgba(ctx,r,g,b,a,randfactor){
     ctx.fillStyle = "rgba("+
         Math.floor(( (1 + randfactor * Math.random()) * (r)))+","+
         Math.floor(( (1 + randfactor * Math.random()) * (g)))+","+
         Math.floor(( (1 + randfactor * Math.random()) * (b)))+","+a+")";
 }
+

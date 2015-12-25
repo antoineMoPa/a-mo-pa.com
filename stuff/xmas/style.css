@@ -24,3 +24,10 @@ canvas[name='village']{
     left:0;
     z-index:20;
 }
+
+canvas[name='train']{
+    position:absolute;
+    top:1200px;
+    left:0;
+    z-index:20;
+}
