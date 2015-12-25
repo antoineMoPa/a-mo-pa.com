@@ -1,7 +1,7 @@
 
 bricks(1,function(w,h){
     tree(w/2,1037,w,1000,100);
-
+    
     var can = document
         .querySelectorAll("canvas[name='tree']")[0];
     var ctx = can.getContext("2d");
@@ -13,10 +13,11 @@ bricks(1,function(w,h){
             snow(0,1000,w,snowh);
             if(snowh >= 80){
                 clearInterval(snow_int);
+                village();
             }
         },100);
-    },2000)
-
+    },800)
+    
     function snow(x,y,w,h){
         ctx.fillStyle = "rgba(255,255,255,1)";
         for(var i = 0; i < w; i++){
@@ -34,7 +35,7 @@ function bricks(delay,callback){
     var ctx = can.getContext("2d");
     
     var w = can.width = window.innerWidth;
-    var h = can.height = 2000;
+    var h = can.height = 1000;
     
     ctx.fillStyle = "rgba(255,255,255,1)";
     ctx.fillRect(0,0,w,h);
@@ -72,7 +73,7 @@ function bricks(delay,callback){
             callback(w,h);
         }
     },delay);
-
+    
     function brick(r,g,b,rand,x,y,w,h){
         for(var i = 0; i < w; i++){
             if(i % 6 < 4){
@@ -274,6 +275,53 @@ function tree(x,y,width,life,delay){
     function update(){
         update_trees(trees);
         draw_trees(trees)
+    }
+}
+
+function village(){
+    var can = document
+        .querySelectorAll("canvas[name='village']")[0];
+    var ctx = can.getContext("2d");
+
+    var w = can.width = window.innerWidth;
+    var h = can.height = 240;
+
+    var i = 0;
+    var j = 10;
+    
+    var house_interval = setInterval(function(){
+        i += Math.random()*60 + 60;
+        if(i > w){
+            i = 0;
+            j += 60;
+        }
+        if(j > h - 100){
+            clearInterval(house_interval);
+            return;
+        }
+        var dist_ratio = Math.abs(w/2 - i) / (w/2);
+        if(dist_ratio > 0.4){
+            return;
+        }
+        
+        house(i+Math.random()*20,j+Math.random()*10-5);
+    },100);
+
+    function house(x,y){
+        var bricks_can = document
+            .querySelectorAll("canvas[name=bricks]")[0];
+
+        randrgba(ctx,120,30,10,1,0.4);
+        var size = 35 + Math.random() * 10;
+        ctx.fillRect(x,y,size,size);
+
+        // roof
+        var roof_h = 25 + Math.random() * 30;
+        for(var i = 0; i < roof_h; i++){
+            randrgba(ctx,40+Math.random() * 40,70,20,1,0.6);
+            var roof_w = size - i + 5;
+            ctx.fillRect(x + i/2 - 2.5,y-i,roof_w,1.5);
+        }
     }
 }
 

@@ -1,10 +1,10 @@
 body{
-    background:black;
+    background:#ffffff;
     padding:0;
     margin:0;
 }
 
-canvas[name='brick']{
+canvas[name='bricks']{
     position:absolute;
     top:0;
     left:0;
@@ -15,4 +15,11 @@ canvas[name='tree']{
     top:0;
     left:0;
     z-index:10;
+}
+
+canvas[name='village']{
+    position:absolute;
+    top:960px;
+    left:0;
+    z-index:20;
 }
