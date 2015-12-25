@@ -7,7 +7,54 @@ var h = can.height = 800;
 ctx.fillStyle = "rgba(255,255,255,1)";
 ctx.fillRect(0,0,w,h);
 
-tree(w/2,h,0.8*h,100);
+bricks(1,function(){
+    tree(w/2,h+50,0.8*h,100);
+});
+
+function bricks(delay,callback){
+    var brickw = 100;
+    var brickh = 30;
+    
+    brick(140,140,140,0,0,0,w,h);
+    
+    var i = 0;
+    var j = 0;
+    var brickint = setInterval(function(){
+        var offset = (j % 2 == 0 ? brickw / 2: 0) - brickw;
+        var mortar = 5;
+        var randlum =
+            Math.cos(5 * i/(w/brickw));
+        
+        brick(
+            130 + 30 * randlum,20 + 20 * randlum,30,0.2,
+            i * (brickw + mortar) + offset,
+            h - (j * (brickh + mortar)),
+            brickw,
+            brickh
+        );
+        
+        i++;
+        if(i >= w / brickw + 2){
+            i=0;
+            j++;
+        }
+        if(j >= h / brickh + 2){
+            j = 0;
+            clearInterval(brickint);
+            callback();
+        }
+    },delay);
+
+}
+
+function brick(r,g,b,rand,x,y,w,h){
+    var stripes = 10;
+    for(var i = 0; i < stripes; i++){
+        randrgba(r,g,b,0.8,rand);
+        ctx.fillRect(x + i*w/stripes - 1, y, w/stripes + 1, h);
+    }
+}
+
 
 // Draw tree
 function tree(x,y,life,delay){
@@ -40,11 +87,13 @@ function tree(x,y,life,delay){
         }
     }
     
-    new_tree(0,x,y,0,-4,30,life,1,50,40,30,1);
+    new_tree(0,x,y,0,-4,80,life,1,50,40,30,1);
     
     function update_trees(trees){
         for(var i = 0; i < trees.length; i++){
             var t = trees[i];
+            var liferatio = 1 - t.dist/t.life;
+            
             if(t.dead){
                 continue;
             }
@@ -58,6 +107,10 @@ function tree(x,y,life,delay){
             }
             if(t.type == 0){
                 t.vx *= 0.8;
+                t.vy -= 0.001;
+                if(liferatio > 0.9){
+                    t.size *= 0.99
+                }
             }
             
             if(t.type == 1){
@@ -83,11 +136,9 @@ function tree(x,y,life,delay){
                 t.dead = true;
             }
             
-            
-            var liferatio = 1 - t.dist/t.life;
             if(t.type == 0 &&
-               liferatio < 0.90 &&
-               Math.pow(200*(1-liferatio),2) % 1 < 0.1){
+               liferatio < 0.80 &&
+               Math.random() < 0.1){
                 for(var j = 0; j < 3; j++){
                     new_tree(
                         1,
@@ -169,23 +220,22 @@ function tree(x,y,life,delay){
                 t.x-t.real_size/2,
                 t.y-t.real_size/2,
                 t.real_size,
-                t.real_size
+                t.real_size < 10 ? t.real_size: 10
             );
         }
     }
-    
-    
-    function randrgba(r,g,b,a,randfactor){
-        ctx.fillStyle = "rgba("+
-            Math.floor(( (1 + randfactor * Math.random()) * (r)))+","+
-            Math.floor(( (1 + randfactor * Math.random()) * (g)))+","+
-            Math.floor(( (1 + randfactor * Math.random()) * (b)))+","+a+")";
-    }
-    
+        
     setInterval(update,100)
     
     function update(){
         update_trees(trees);
         draw_trees(trees)
     }
+}
+
+function randrgba(r,g,b,a,randfactor){
+    ctx.fillStyle = "rgba("+
+        Math.floor(( (1 + randfactor * Math.random()) * (r)))+","+
+        Math.floor(( (1 + randfactor * Math.random()) * (g)))+","+
+        Math.floor(( (1 + randfactor * Math.random()) * (b)))+","+a+")";
 }
