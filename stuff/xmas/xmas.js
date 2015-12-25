@@ -1,14 +1,11 @@
-var can = document.querySelectorAll("canvas")[0];
-var ctx = can.getContext("2d");
 
-var w = can.width = window.innerWidth;
-var h = can.height = 2000;
-
-ctx.fillStyle = "rgba(255,255,255,1)";
-ctx.fillRect(0,0,w,h);
-
-bricks(1,function(){
+bricks(1,function(w,h){
     tree(w/2,1037,w,1000,100);
+
+    var can = document
+        .querySelectorAll("canvas[name='tree']")[0];
+    var ctx = can.getContext("2d");
+    
     setTimeout(function(){
         var snowh = 0;
         var snow_int = setInterval(function(){
@@ -19,18 +16,29 @@ bricks(1,function(){
             }
         },100);
     },2000)
+
+    function snow(x,y,w,h){
+        ctx.fillStyle = "rgba(255,255,255,1)";
+        for(var i = 0; i < w; i++){
+            var height = 0.5 * h *
+                (Math.cos(0.005 * i + 1.8)+1);
+            ctx.fillRect(x+i,y-height,1,height);
+        }
+    }
 });
 
-function snow(x,y,w,h){
-    ctx.fillStyle = "rgba(255,255,255,1)";
-    for(var i = 0; i < w; i++){
-        var height = 0.5 * h *
-            (Math.cos(0.005 * i + 1.8)+1);
-        ctx.fillRect(x+i,y-height,1,height);
-    }
-}
 
 function bricks(delay,callback){
+    var can = document
+        .querySelectorAll("canvas[name='bricks']")[0];
+    var ctx = can.getContext("2d");
+    
+    var w = can.width = window.innerWidth;
+    var h = can.height = 2000;
+    
+    ctx.fillStyle = "rgba(255,255,255,1)";
+    ctx.fillRect(0,0,w,h);
+
     var brickw = 100;
     var brickh = 30;
     var h = 1000;
@@ -61,28 +69,33 @@ function bricks(delay,callback){
         if(j >= h / brickh + 2){
             j = 0;
             clearInterval(brickint);
-            callback();
+            callback(w,h);
         }
     },delay);
 
-}
-
-function brick(r,g,b,rand,x,y,w,h){
-    for(var i = 0; i < w; i++){
-        if(i % 6 < 4){
-            var ra = rand * 0.9;
-            randrgba(r*ra,g*ra,b*ra,0.8,0);
-        } else {
-            var ra = rand * 1.1;
-            randrgba(r*ra,g*ra,b*ra,0.8,0);
+    function brick(r,g,b,rand,x,y,w,h){
+        for(var i = 0; i < w; i++){
+            if(i % 6 < 4){
+                var ra = rand * 0.9;
+                randrgba(ctx,r*ra,g*ra,b*ra,0.8,0);
+            } else {
+                var ra = rand * 1.1;
+                randrgba(ctx,r*ra,g*ra,b*ra,0.8,0);
+            }
+            ctx.fillRect(x + i, y, 1, h);
         }
-        ctx.fillRect(x + i, y, 1, h);
     }
 }
 
-
 // Draw tree
 function tree(x,y,width,life,delay){
+    var can = document
+        .querySelectorAll("canvas[name='tree']")[0];
+    var ctx = can.getContext("2d");
+    
+    var w = can.width = window.innerWidth;
+    var h = can.height = 1000;
+
     var trees = [];
     new_tree(0,x,y,0,-8,80,life,1,20,10,10,1);
 
@@ -239,6 +252,7 @@ function tree(x,y,width,life,delay){
             }
             
             randrgba(
+                ctx,
                 t.lum * t.r,
                 t.lum * t.g,
                 t.lum * t.b,
@@ -263,7 +277,7 @@ function tree(x,y,width,life,delay){
     }
 }
 
-function randrgba(r,g,b,a,randfactor){
+function randrgba(ctx,r,g,b,a,randfactor){
     ctx.fillStyle = "rgba("+
         Math.floor(( (1 + randfactor * Math.random()) * (r)))+","+
         Math.floor(( (1 + randfactor * Math.random()) * (g)))+","+
