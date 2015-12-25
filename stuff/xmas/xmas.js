@@ -38,7 +38,7 @@ function new_tree(type,x,y,vx,vy,size,life,count,r,g,b,lum){
     }
 }
 
-new_tree(0,w/2,h,0,-10,30,h * 0.8,1,50,40,30,1);
+new_tree(0,w/2,h,0,-4,30,h * 0.8,1,50,40,30,1);
 
 function update_trees(trees){
     for(var i = 0; i < trees.length; i++){
@@ -80,16 +80,18 @@ function update_trees(trees){
         if(t.dist > t.life){
             t.dead = true;
         }
-
+        
         
         var liferatio = 1 - t.dist/t.life;
-        if(t.type == 0 && liferatio < 0.9 && Math.random() < 0.2){
+        if(t.type == 0 &&
+           liferatio < 0.9 &&
+           liferatio * 60 % 2 < 0.1){
             for(var j = 0; j < 3; j++){
                 new_tree(
                     1,
                     t.x,
                     t.y,
-                    Math.random() < 0.5? (-1): 1,
+                    Math.random() < 0.5? (-3): 3,
                     (-0.5),
                     7,
                     400 * liferatio * Math.random(),
@@ -100,7 +102,7 @@ function update_trees(trees){
                     Math.random() * 0.5 + 0.2
                 );
             }
-        } if(t.type == 1 && Math.random() < 0.2){
+        } if(t.type == 1 && liferatio < 0.9 && Math.random() < 0.2){
             for(var j = 0; j < 3; j++){
                 new_tree(
                     2,
@@ -117,7 +119,7 @@ function update_trees(trees){
                     Math.random() * 0.5 + 0.2
                 );
             }
-        } else if((t.type == 2 || t.type == 1) && Math.random() < 0.2){
+        } else if(t.type == 2 && Math.random() < 0.4){
             var r = 50 + Math.random() * 20;
             var g = 70 + Math.random() * 20;
             var b = 40 + Math.random() * 20;
@@ -143,7 +145,7 @@ function update_trees(trees){
 }
 
 function draw_trees(trees){
-    ctx.fillStyle = "rgba(255,255,255,0.3)";
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
     ctx.fillRect(0,0,w,h);
     for(var i = 0; i < trees.length; i++){
         var t = trees[i];
@@ -177,7 +179,7 @@ function randrgba(r,g,b,a,randfactor){
         Math.floor(( (1 + randfactor * Math.random()) * (b)))+","+a+")";
 }
 
-setInterval(update,80)
+setInterval(update,30)
 
 function update(){
     update_trees(trees);
