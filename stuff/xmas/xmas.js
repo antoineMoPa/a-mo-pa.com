@@ -2,23 +2,24 @@ var can = document.querySelectorAll("canvas")[0];
 var ctx = can.getContext("2d");
 
 var w = can.width = window.innerWidth;
-var h = can.height = 1300;
+var h = can.height = 2000;
 
 ctx.fillStyle = "rgba(255,255,255,1)";
 ctx.fillRect(0,0,w,h);
 
 bricks(1,function(){
-    tree(w/2,h+50,w,h,100);
+    tree(w/2,1040,w,1000,100);
 });
 
 function bricks(delay,callback){
     var brickw = 100;
     var brickh = 30;
+    var h = 1000;
     
     brick(140,140,140,0,0,0,w,h);
     
     var i = 0;
-    var j = 0;
+    var j = 1;
     var brickint = setInterval(function(){
         var offset = (j % 2 == 0 ? brickw / 2: 0) - brickw;
         var mortar = 5;
@@ -64,7 +65,8 @@ function brick(r,g,b,rand,x,y,w,h){
 // Draw tree
 function tree(x,y,width,life,delay){
     var trees = [];
-    
+    new_tree(0,x,y,0,-8,80,life,1,20,10,10,1);
+
     function new_tree(type,x,y,vx,vy,size,life,count,r,g,b,lum){
         if(type > 1){
             var size = size * (0.5 * Math.random() + 0.5);
@@ -92,8 +94,6 @@ function tree(x,y,width,life,delay){
         }
     }
     
-    new_tree(0,x,y,0,-8,80,life,1,20,10,10,1);
-
     var p1 = 0.3;
     var p2 = 0.1;
     var p3 = 0.2;
