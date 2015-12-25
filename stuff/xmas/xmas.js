@@ -1,6 +1,16 @@
 
 bricks(1,function(w,h){
-    tree(w/2,1037,w,1000,100);
+    var treecan = document
+        .querySelectorAll("canvas[name='tree']")[0];
+
+    tree(
+        treecan,
+        w/2,
+        1037,
+        w,
+        1000,
+        100
+    );
     
     var can = document
         .querySelectorAll("canvas[name='tree']")[0];
@@ -89,9 +99,7 @@ function bricks(delay,callback){
 }
 
 // Draw tree
-function tree(x,y,width,life,delay){
-    var can = document
-        .querySelectorAll("canvas[name='tree']")[0];
+function tree(can,x,y,width,life,delay){
     var ctx = can.getContext("2d");
     
     var w = can.width = window.innerWidth;
@@ -269,7 +277,7 @@ function tree(x,y,width,life,delay){
             );
         }
     }
-        
+    
     setInterval(update,100)
     
     function update(){
@@ -282,13 +290,13 @@ function village(){
     var can = document
         .querySelectorAll("canvas[name='village']")[0];
     var ctx = can.getContext("2d");
-
+    
     var w = can.width = window.innerWidth;
     var h = can.height = 240;
 
     var i = 0;
     var j = 10;
-    
+
     var house_interval = setInterval(function(){
         i += Math.random()*60 + 60;
         if(i > w){
@@ -304,7 +312,7 @@ function village(){
             return;
         }
         
-        house(i+Math.random()*20,j+Math.random()*10-5);
+        house(i+Math.random()*20,j+Math.random()*30-5);
     },100);
 
     function house(x,y){
@@ -319,8 +327,17 @@ function village(){
         var roof_h = 25 + Math.random() * 30;
         for(var i = 0; i < roof_h; i++){
             randrgba(ctx,40+Math.random() * 40,70,20,1,0.6);
-            var roof_w = size - i + 5;
-            ctx.fillRect(x + i/2 - 2.5,y-i,roof_w,1.5);
+            var roof_w = size * (1-i/roof_h) + 5;
+            var diff = size - roof_w;
+            ctx.fillRect(x + diff/2,y-i,roof_w,1.5);
+        }
+
+        // Windows
+        for(var i = 10; i < size - 10; i+= 10){
+            for(var j = 4; j < size - 10; j+=10){
+                randrgba(ctx,0,0,80,1,0.6);
+                ctx.fillRect(x + i,y + j,4,8);
+            }
         }
     }
 }
