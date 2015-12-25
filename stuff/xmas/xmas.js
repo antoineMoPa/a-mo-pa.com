@@ -297,7 +297,8 @@ function village(){
 
     var i = 0;
     var j = 10;
-
+    var size = 35;
+    
     var house_interval = setInterval(function(){
         i += Math.random()*60 + 60;
         if(i > w){
@@ -312,18 +313,27 @@ function village(){
         if(dist_ratio > 0.4){
             return;
         }
-        
-        house(i+Math.random()*20,j+Math.random()*30-5);
+        size += 4;
+        house(i+Math.random()*20,j+Math.random()*30-5,size);
     },100);
-
-    function house(x,y){
+    
+    function house(x,y,size){
         var bricks_can = document
             .querySelectorAll("canvas[name=bricks]")[0];
-
-        randrgba(ctx,120,30,10,1,0.4);
-        var size = 35 + Math.random() * 10;
+        
+        if(Math.random() < 0.66){
+            // sometimes red house
+            randrgba(ctx,120,30,10,1,0.4);
+        } else if (Math.random() < 0.5){
+            // sometimes yellow house
+            randrgba(ctx,100,100,0,1,0.4);
+        } else {
+            // sometimes brown
+            randrgba(ctx,50,20,20,1,0.4);
+        }
+        var size = size;
         ctx.fillRect(x,y,size,size);
-
+        
         // roof
         var roof_h = 25 + Math.random() * 30;
         for(var i = 0; i < roof_h; i++){
@@ -334,10 +344,12 @@ function village(){
         }
 
         // Windows
-        for(var i = 10; i < size - 10; i+= 10){
-            for(var j = 4; j < size - 10; j+=10){
-                randrgba(ctx,0,0,80,1,0.6);
-                ctx.fillRect(x + i,y + j,4,8);
+        for(var i = 0.3 * size; i < size - 0.3*size; i+= 0.3 * size){
+            for(var j = 0.1 * size; j < size - 0.3 * size; j+= 0.3 * size){
+                randrgba(ctx,200,200,200,1,0.6);
+                ctx.fillRect(x + i - 1,y + j - 1,0.14 * size, 0.25 * size);
+                randrgba(ctx,30,0,30,1,0.6);
+                ctx.fillRect(x + i,y + j,0.1 * size, 0.22 * size);
             }
         }
     }
@@ -378,8 +390,17 @@ function train(){
             train_w*0.4,
             train_h + 0.2 * train_h
         );
+        // Window border
+        ctx.fillStyle = "rgba(200,200,200,1)";
+        ctx.fillRect(
+            x + 0.08 * train_h,
+            y - 0.04 * train_h,
+            train_w * 0.3,
+            0.6 * train_h
+        );
+
         // Window
-        ctx.fillStyle = "rgba(0,170,170,1)";
+        ctx.fillStyle = "rgba(0,130,130,1)";
         ctx.fillRect(
             x + 0.2 * train_h,
             y + 0.05 * train_h,
