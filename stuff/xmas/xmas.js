@@ -2,13 +2,13 @@ var can = document.querySelectorAll("canvas")[0];
 var ctx = can.getContext("2d");
 
 var w = can.width = window.innerWidth;
-var h = can.height = 800;
+var h = can.height = 1300;
 
 ctx.fillStyle = "rgba(255,255,255,1)";
 ctx.fillRect(0,0,w,h);
 
 bricks(1,function(){
-    tree(w/2,h+50,0.8*h,100);
+    tree(w/2,h+50,w,h,100);
 });
 
 function bricks(delay,callback){
@@ -62,7 +62,7 @@ function brick(r,g,b,rand,x,y,w,h){
 
 
 // Draw tree
-function tree(x,y,life,delay){
+function tree(x,y,width,life,delay){
     var trees = [];
     
     function new_tree(type,x,y,vx,vy,size,life,count,r,g,b,lum){
@@ -92,12 +92,16 @@ function tree(x,y,life,delay){
         }
     }
     
-    new_tree(0,x,y,0,-4,80,life,1,50,40,30,1);
+    new_tree(0,x,y,0,-8,80,life,1,20,10,10,1);
+
+    var p1 = 0.3;
+    var p2 = 0.1;
+    var p3 = 0.2;
     
     function update_trees(trees){
         for(var i = 0; i < trees.length; i++){
             var t = trees[i];
-            var liferatio = 1 - t.dist/t.life;
+            var life_ratio = 1 - t.dist/t.life;
             
             if(t.dead){
                 continue;
@@ -105,17 +109,20 @@ function tree(x,y,life,delay){
             if(t.type < 3){
                 t.vx += Math.random() - 0.5;
             }
-            t.vy += 0.01 * (Math.random()-0.5);
+            
             
             if(t.type == 1){
                 t.vy += 0.3 * (Math.random()-0.5);
             }
             if(t.type == 0){
+                // trunc
                 t.vx *= 0.8;
-                t.vy -= 0.001;
-                if(liferatio > 0.9){
+                if(life_ratio > 0.9){
                     t.size *= 0.99
                 }
+            } else {
+                t.vy += 0.01 * (Math.random()-0.5);
+                t.vy *= 0.994;
             }
             
             if(t.type == 1){
@@ -126,7 +133,6 @@ function tree(x,y,life,delay){
                 t.lum += 0.01;
             }
             
-            t.vy *= 0.994;
             if(t.type < 3){
                 t.real_size = (1 - t.dist / t.life) * t.size;
             } else {
@@ -142,17 +148,17 @@ function tree(x,y,life,delay){
             }
             
             if(t.type == 0 &&
-               liferatio < 0.80 &&
-               Math.random() < 0.1){
-                for(var j = 0; j < 3; j++){
+               life_ratio < 0.80 &&
+               Math.random() < p1){
+                for(var j = 0; j < 2; j++){
                     new_tree(
                         1,
                         t.x,
                         t.y,
-                        Math.random() < 0.5? (-3): 3,
+                        j % 2 == 0 ? (-3): 3,
                         (-0.5),
-                        5,
-                        400 * liferatio * Math.random(),
+                        10,
+                        width * life_ratio * Math.random(),
                         1,
                         30,
                         20,
@@ -160,7 +166,7 @@ function tree(x,y,life,delay){
                         Math.random() * 0.5 + 0.2
                     );
                 }
-            } if(t.type == 1 && Math.random() < 0.2){
+            } if(t.type == 1 && Math.random() < p2){
                 for(var j = 0; j < 6; j++){
                     new_tree(
                         2,
@@ -169,7 +175,7 @@ function tree(x,y,life,delay){
                         Math.random() < 0.5? (-1): 1,
                         (Math.random()-0.5)*2,
                         4,
-                        100 * liferatio * Math.random(),
+                        100 * life_ratio * Math.random(),
                         1,
                         30,
                         20,
@@ -177,7 +183,7 @@ function tree(x,y,life,delay){
                         Math.random() * 0.5 + 0.2
                     );
                 }
-            } else if(t.type == 2 && Math.random() < 0.2){
+            } else if(t.type == 2 && Math.random() < p3){
                 var r = 50 + Math.random() * 20;
                 var g = 70 + Math.random() * 20;
                 var b = 40 + Math.random() * 20;
