@@ -12,13 +12,12 @@ ctx.fillRect(0,0,w,h);
 var trees = [];
 
 function new_tree(type,x,y,vx,vy,size,life,count,r,g,b,lum){
-    var count = count || 1;
+    if(type > 1){
+        var size = size * (0.5 * Math.random() + 0.5);
+    }
+
     var cx = Math.random() * 4 - 2;
     var cy = Math.random() * 4 - 2;
-
-    if(type == 3){
-        size = size * (0.5 * Math.random() + 0.5);
-    }
     
     for(var i = 0; i < count; i++){
         trees.push({
@@ -39,7 +38,7 @@ function new_tree(type,x,y,vx,vy,size,life,count,r,g,b,lum){
     }
 }
 
-new_tree(0,w/2,h,0,-6,30,h * 0.8,1,50,40,30,1);
+new_tree(0,w/2,h,0,-10,30,h * 0.8,1,50,40,30,1);
 
 function update_trees(trees){
     for(var i = 0; i < trees.length; i++){
@@ -47,14 +46,15 @@ function update_trees(trees){
         if(t.dead){
             continue;
         }
-        if(t.type == 0){
+        if(t.type < 3){
             t.vx += Math.random() - 0.5;
         }
         t.vy += 0.01 * (Math.random()-0.5);
+        
         if(t.type == 1){
             t.vy += 0.3 * (Math.random()-0.5);
         }
-        if(t.type == 0){
+        if(t.type == 0 || t.type == 2){
             t.vx *= 0.8;
         }
 
@@ -62,7 +62,7 @@ function update_trees(trees){
             t.vy -= 0.01;
         }
         
-        if(t.type == 1){
+        if(t.type == 2){
             t.lum += 0.03;
         }
         
@@ -80,18 +80,19 @@ function update_trees(trees){
         if(t.dist > t.life){
             t.dead = true;
         }
+
         
         var liferatio = 1 - t.dist/t.life;
-        if(t.type == 0 && liferatio < 0.9){
+        if(t.type == 0 && liferatio < 0.9 && Math.random() < 0.2){
             for(var j = 0; j < 3; j++){
                 new_tree(
                     1,
                     t.x,
                     t.y,
-                    Math.random() < 0.5? (-3): 3,
+                    Math.random() < 0.5? (-1): 1,
                     (-0.5),
-                    10,
-                    300 * liferatio * Math.random(),
+                    7,
+                    400 * liferatio * Math.random(),
                     1,
                     30,
                     20,
@@ -99,14 +100,31 @@ function update_trees(trees){
                     Math.random() * 0.5 + 0.2
                 );
             }
-        } else if(t.type == 1 && Math.random() < 0.5){
+        } if(t.type == 1 && Math.random() < 0.2){
+            for(var j = 0; j < 3; j++){
+                new_tree(
+                    2,
+                    t.x,
+                    t.y,
+                    Math.random() < 0.5? (-1): 1,
+                    (Math.random()-0.5)*3,
+                    4,
+                    40 * liferatio * Math.random(),
+                    1,
+                    30,
+                    20,
+                    20,
+                    Math.random() * 0.5 + 0.2
+                );
+            }
+        } else if((t.type == 2 || t.type == 1) && Math.random() < 0.2){
             var r = 50 + Math.random() * 20;
             var g = 70 + Math.random() * 20;
             var b = 40 + Math.random() * 20;
             
             for(var j = 0; j < 3; j++){
                 new_tree(
-                    2,
+                    3,
                     t.x,
                     t.y,
                     Math.random() < 0.5? (-1): 1,
@@ -125,6 +143,8 @@ function update_trees(trees){
 }
 
 function draw_trees(trees){
+    ctx.fillStyle = "rgba(255,255,255,0.3)";
+    ctx.fillRect(0,0,w,h);
     for(var i = 0; i < trees.length; i++){
         var t = trees[i];
         
