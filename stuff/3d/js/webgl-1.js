@@ -5,14 +5,22 @@ canvas.height = window.innerHeight;
 var gl = initWebGL(canvas);
 
 if(gl){
-    // Set clear color to black, fully opaque
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    // Enable depth testing
     gl.enable(gl.DEPTH_TEST);
-    // Near things obscure far things
     gl.depthFunc(gl.LEQUAL);
-    // Clear the color as well as the depth buffer.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	
+	var tri = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER,tri);
+
+	var vertices = [
+		0,0,0,
+		0,1,0,
+		1,0,0
+	];
+	
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+	gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 
 gl.viewport(0, 0, canvas.width, canvas.height);
@@ -20,11 +28,11 @@ gl.viewport(0, 0, canvas.width, canvas.height);
 function initWebGL(canvas) {
     gl = null;
 
-    try {
-        // Try to grab the standard context. If it fails, fallback to experimental.
-        gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    try{
+        gl = canvas.getContext("webgl");
     }
-    catch(e) {}
+    catch(e){
+	}
 
     // If we don't have a GL context, give up now
     if (!gl) {
