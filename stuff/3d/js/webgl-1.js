@@ -3,7 +3,9 @@
   
   * https://gist.github.com/mbostock/5440492
   * http://memfrag.se/blog/simple-vertex-shader-for-2d
-    
+  * https://www.opengl.org/wiki/Data_Type_%28GLSL%29#Vector_constructors
+  * https://www.opengl.org/wiki/Built-in_Variable_%28GLSL%29
+  
   */
 
 // shortcuts
