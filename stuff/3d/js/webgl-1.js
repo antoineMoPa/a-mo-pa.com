@@ -1,44 +1,71 @@
+/*
+  Resources: 
+  
+  * https://gist.github.com/mbostock/5440492
+  * http://memfrag.se/blog/simple-vertex-shader-for-2d
+    
+  */
+
+// shortcuts
+// keep at the top
+function ID(id){
+    return document.getElementById(id);
+};
+
 var canvas = document.querySelectorAll("canvas[name='meow']")[0];
 canvas.width = window.innerWidth
 canvas.height = window.innerHeight;
 
-var gl = initWebGL(canvas);
+var ctx = canvas.getContext("webgl");
 
-if(gl){
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	
-	var tri = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER,tri);
+ctx.clearColor(0.0, 0.0, 0.0, 1.0);
+ctx.enable(ctx.DEPTH_TEST);
+ctx.depthFunc(ctx.LEQUAL);
+ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
 
-	var vertices = [
-		0,0,0,
-		0,1,0,
-		1,0,0
-	];
-	
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-	gl.drawArrays(gl.TRIANGLES, 0, 3);
+var vertices = [
+        -1.0, -1.0,
+        +1.0, -1.0,
+        +1.0, +1.0,
+        -1.0, +1.0
+];
+
+var tri = ctx.createBuffer();
+ctx.bindBuffer(ctx.ARRAY_BUFFER,tri);
+ctx.bufferData(ctx.ARRAY_BUFFER, new Float32Array(vertices), ctx.STATIC_DRAW);
+
+
+var program = ctx.createProgram();
+
+var vertex_shader =
+    add_shader(ctx.VERTEX_SHADER,ID("vertex-shader").textContent);
+var fragment_shader =
+    add_shader(ctx.FRAGMENT_SHADER,ID("fragment-shader").textContent);
+
+function add_shader(type,content){
+    var shader = ctx.createShader(type);
+    ctx.shaderSource(shader,content);
+    ctx.compileShader(shader);
+    if(!ctx.getShaderParameter(shader, ctx.COMPILE_STATUS)){
+        console.log(ctx.getShaderInfoLog(shader))
+    }
+    ctx.attachShader(program, shader);
+    return shader;
 }
 
-gl.viewport(0, 0, canvas.width, canvas.height);
+ctx.linkProgram(program);
 
-function initWebGL(canvas) {
-    gl = null;
-
-    try{
-        gl = canvas.getContext("webgl");
-    }
-    catch(e){
-	}
-
-    // If we don't have a GL context, give up now
-    if (!gl) {
-        alert("Unable to initialize WebGL. Your browser may not support it.");
-        gl = null;
-    }
-
-    return gl;
+if(!ctx.getProgramParameter(program, ctx.LINK_STATUS)){
+    console.log(ctx.getProgramInfoLog(program));
 }
+
+ctx.useProgram(program);
+
+
+var positionAttribute = ctx.getAttribLocation(program, "position");
+ctx.enableVertexAttribArray(positionAttribute);
+ctx.vertexAttribPointer(positionAttribute, 2, ctx.FLOAT, false, 0, 0);
+
+ctx.drawArrays(ctx.TRIANGLE_FAN, 0, 4);
+
+ctx.viewport(0, 0, canvas.width, canvas.height);
