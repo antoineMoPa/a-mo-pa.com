@@ -5,7 +5,8 @@
   * http://memfrag.se/blog/simple-vertex-shader-for-2d
   * https://www.opengl.org/wiki/Data_Type_%28GLSL%29#Vector_constructors
   * https://www.opengl.org/wiki/Built-in_Variable_%28GLSL%29
-  
+  * https://www.khronos.org/registry/gles/specs/2.0/GLSL_ES_Specification_1.0.17.pdf
+
   */
 
 // shortcuts
@@ -62,7 +63,6 @@ if(!ctx.getProgramParameter(program, ctx.LINK_STATUS)){
 }
 
 ctx.useProgram(program);
-
 
 var positionAttribute = ctx.getAttribLocation(program, "position");
 ctx.enableVertexAttribArray(positionAttribute);
