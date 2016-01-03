@@ -16,8 +16,8 @@ function ID(id){
 };
 
 var canvas = document.querySelectorAll("canvas[name='meow']")[0];
-canvas.width = window.innerWidth
-canvas.height = window.innerHeight;
+canvas.height = h = window.innerHeight;
+canvas.width = w = h;
 
 var ctx = canvas.getContext("webgl");
 
@@ -26,11 +26,24 @@ ctx.enable(ctx.DEPTH_TEST);
 ctx.depthFunc(ctx.LEQUAL);
 ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
 
+/*
+  var vertices = [
+  -0.5, -0.5, 
+  +0.5, -0.5,
+  +0.5, +0.5,
+  -0.5, +0.5
+  ];
+*/
+
 var vertices = [
-        -1.0, -1.0,
-        +1.0, -1.0,
-        +1.0, +1.0,
-        -1.0, +1.0
+    0,0,0,
+    0,0.5,0,
+    0.5,0,0,
+    0.5,0.5,0,
+    0,0.5,0.5,
+    0,0,0.5,
+    0.5,0,0.5,
+    0.5,0.5,0.5
 ];
 
 var tri = ctx.createBuffer();
@@ -66,8 +79,8 @@ ctx.useProgram(program);
 
 var positionAttribute = ctx.getAttribLocation(program, "position");
 ctx.enableVertexAttribArray(positionAttribute);
-ctx.vertexAttribPointer(positionAttribute, 2, ctx.FLOAT, false, 0, 0);
+ctx.vertexAttribPointer(positionAttribute, 3, ctx.FLOAT, false, 0, 0);
 
-ctx.drawArrays(ctx.TRIANGLE_FAN, 0, 4);
+ctx.drawArrays(ctx.POINTS, 0, 8);
 
 ctx.viewport(0, 0, canvas.width, canvas.height);
