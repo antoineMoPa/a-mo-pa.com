@@ -8,19 +8,24 @@ var starship = [w/2+20,h/2+20,7,4];
 var planets = [[w/2,h/2],[3*w/4,h/2]];
 var size = 10;
 
-ctx.fillStyle = "#000";
-ctx.fillRect(0,0,w,h);
+clear();
+
+function clear(){
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0,0,w,h);
+    ctx.fillStyle = "rgba(255,255,255,0.2)";
+    for(var i = 0; i < planets.length; i++){
+        ctx.beginPath();
+        var p = planets[i];
+        ctx.arc(p[0],p[1],size, 0, 2*Math.PI, false);
+        ctx.fill();
+    }
+}
 
 function draw(){
     var s = starship;
     ctx.fillStyle = "rgba(255,255,255,0.2)";
     ctx.fillRect(s[0]-25,s[1]-size,size,size);
-    ctx.beginPath();
-    for(var i = 0; i < planets.length; i++){
-        var p = planets[i];
-        ctx.arc(p[0],p[1],size, 0, 2*Math.PI, false);
-    }
-    ctx.fill();
 }
 
 function update(){
@@ -46,7 +51,8 @@ function dist(x1,y1,x2,y2){
 }
 
 window.ontouch = window.onmousedown = function(e){
-    starship[3] -= 3;
+    planets.push([e.clientX,e.clientY]);
+    clear();
 };
 
 setInterval(draw,20);
