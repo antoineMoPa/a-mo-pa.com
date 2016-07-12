@@ -31,7 +31,6 @@ a:not(".block"):hover:before{
     width:100%;
     background:#333;
     margin:20px 0;
-    box-shadow:0 0 3px rgba(0,0,0,0.3);
     padding:3px;
     transition:all 0.3s;
     cursor:pointer;
