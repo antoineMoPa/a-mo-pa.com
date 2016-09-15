@@ -7,9 +7,11 @@ var tokens = [
     [/^\+{1,1}/     , "plus"],
     [/^\-{1,1}/     , "minus"],
     [/^[0-9]+/      , "number"],
+    [/^\({1,1}/      , "left_paren"],
+    [/^\){1,1}/      , "right_paren"],
 ];
 
-str = "1 + 134 + 1 + meow";
+str = "1 + 134 + (1)";
 var ts = tokenize(str);
 
 for(var t in ts){
