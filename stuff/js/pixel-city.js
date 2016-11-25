@@ -32,6 +32,8 @@ function new_particle(level,x,y){
         level: level,
         x: x,
         y: y,
+	dx: 0,
+	dy: 0,
         style: style,
         dir: 1, // 0 left 1 down 2 right 3 up
         children: [],
@@ -42,38 +44,28 @@ function new_particle(level,x,y){
 function draw(particles){
     if(Math.random() < 0.001){
         ctx.fillStyle = "rgba(255,255,255,0.1)";
-        ctx.fillRect(0,0,can.width,can.height);
+        //ctx.fillRect(0,0,can.width,can.height);
     }
     
     for(var i = 0; i < particles.length; i++){
         var p = particles[i];
-        var size = (Math.pow(1-p.level/max_depth, 2)) * 10;
+        var size = (Math.pow(1-p.level/max_depth, 2)) * 3;
         // Use fill style of parent for everything
         if(p.level == 0){
             ctx.fillStyle = p.style;
         }
         if(!p.stop){
             ctx.fillRect(p.x,p.y,size,size);
-            switch(p.dir){
-            case 0:
-                p.x -= size;
-                break;
-            case 1:
-                p.y += size;
-                break;
-            case 2:
-                p.x += size;
-                break;
-            case 3:
-                p.y -= size;
-                break;
-            }
+
+	    p.x += p.dx;
+	    p.y += p.dy;
+	    
             if( p.last_dir_change > min_dir_change
-                && (Math.random() < 0.03) * 1
+                && (Math.random() < 0.4) * 1
               ){
                 p.last_dir_change = 0;
-                p.dir += Math.round(Math.random()*4);
-                p.dir %= 4;
+                p.dx += (Math.random()*2) - 1;
+		p.dy += (Math.random()*2) - 1;
             }
             if(Math.random() < 0.02){
                 p.stop = true;
