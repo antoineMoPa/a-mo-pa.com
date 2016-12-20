@@ -6,13 +6,26 @@ body{
     max-width:100%;
     overflow-x:hidden;
 }
+
+
+
 content{
     display:inline-block;
     width:100%;
 }
+
 h1,h2,h3,h4{
     font-weight:300;
 }
+
+.weird-gizmos{
+    position:absolute;
+    top:0;
+    left:0;
+    z-index:-1;
+    opacity:0.04;
+}
+
 a,
 a:active{
     color:#25c;
@@ -22,86 +35,22 @@ a:active{
 a:hover{
     margin-left:10px;
 }
-a:not(".block"):hover:before{
-    content:"♞ ";
+
+.projects-table .thumb{
+    width:120px;
 }
 
-.block{
-    display:block;
-    width:100%;
-    background:#333;
-    margin:20px 0;
-    padding:3px;
-    transition:all 0.3s;
-    cursor:pointer;
+.projects-table{
+    border-collapse: collapse;
+    width: 100%;
 }
 
-.block img{
-    width:80%;
-    height:auto;
-    margin:10%;
-    max-width:100%;
-    filter: brightness(1);
-    transition:all 0.3s;
-}
-.block:hover img{
-    filter: brightness(0.9);
+.projects-table td{
+    padding:10px;
+    border:none;
+    font-size:80%;
 }
 
-
-blockimg{
-    width:20%;
-}
-blockinfo{
-    width:80%;
-}
-
-blockimg,
-blockinfo{
-    display:inline-block;
-    vertical-align:top;
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-blockinfo{
-    color:#fff;
-    padding:20px;
-    padding-left:0;
-}
-.block:hover{
-    background:#555;
-}
-
-blockinfo h3{
-    font-weight:500;
-    font-size:50px;
-    line-height:60px;
-    margin:0;
-}
-
-blockinfo p{
-    font-weight:300;
-}
-
-@media all and (max-width:758px){
-    blockimg{
-        background:#444;
-    }
-    blockimg,
-    blockinfo{
-        width:100%;
-        display:block;
-    }
-    blockinfo{
-        padding-left:20px;
-    }
-    blockimg{
-        text-align:center;
-    }
-    blockinfo h3{
-	font-size:20px;
-	line-height:30px;
-    }
+.projects-table tr:nth-child(2n+1){
+    background: #ddd;
 }

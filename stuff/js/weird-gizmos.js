@@ -2,7 +2,7 @@
     can = document.createElement("canvas");
     
     wg = document.querySelectorAll(".weird-gizmos")[0];
-    canwidth = wg.clientWidth;
+    canwidth = window.innerWidth;
     can.width = canwidth;
     can.height = wg.getAttribute("data-height");
     
