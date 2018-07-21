@@ -1,32 +1,27 @@
+body,window{
+    max-width:100%;
+    overflow-x:hidden;
+    margin:0;
+}
+
 body{
     font-family:'Open Sans', sans-serif;
     background:#efefef;
     font-size:20px;
-    max-width:100%;
-    overflow-x:hidden;
-	margin:0;
 }
 
 .home-video{
-	margin:0;
+    margin:0;
 }
 
-content{
-    display:inline-block;
-    width:100%;
-	padding:0 20px;
+.content{
+    margin:0 20px;
+    max-width:100%;
+    overflow-x:hidden;
 }
 
 h1,h2,h3,h4{
     font-weight:300;
-}
-
-.weird-gizmos{
-    position:absolute;
-    top:0;
-    left:0;
-    z-index:-1;
-    opacity:0.04;
 }
 
 a,
@@ -45,7 +40,7 @@ a:hover{
 
 .projects-table{
     border-collapse: collapse;
-    width: 100%;
+    width:100%;
 }
 
 .projects-table td{
