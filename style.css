@@ -2,53 +2,30 @@ body,window{
     max-width:100%;
     overflow-x:hidden;
     margin:0;
-}
-
-body{
-    font-family:'Open Sans', sans-serif;
-    background:#efefef;
-    font-size:20px;
-}
-
-.home-video{
-    margin:0;
-}
-
-.content{
-    margin:0 20px;
-    max-width:100%;
-    overflow-x:hidden;
-}
-
-h1,h2,h3,h4{
-    font-weight:300;
-}
-
-a,
-a:active{
-    color:#25c;
-    transition:all 0.3s;
-    text-decoration:none;
-}
-a:hover{
-    margin-left:10px;
-}
-
-.projects-table .thumb{
-    width:120px;
-}
-
-.projects-table{
-    border-collapse: collapse;
+    background:#000;
+    color: #fff;
     width:100%;
+    height:100%;
 }
 
-.projects-table td{
-    padding:20px;
-    border:none;
-    font-size:80%;
+div{
+    width:10px;
+    height:20px;
+    background:#3e3;
+    position:absolute;
+    top:2px;
+    left:2px;
+    animation-duration: 1s;
+    animation-name: blink;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out; 
 }
 
-.projects-table tr:nth-child(2n+1){
-    background: #ddd;
+@keyframes blink {
+    from {
+	opacity:0.8;
+    }
+    to {
+	opacity:0.0;
+    }
 }
